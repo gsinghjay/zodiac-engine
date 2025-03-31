@@ -40,11 +40,13 @@ class AstrologyService:
         lng: float | None = None,
         lat: float | None = None,
         tz_str: str | None = None,
+        houses_system: str = "P",  # Default to Placidus
     ) -> NatalChartResponse:
         """Calculate natal chart for given parameters."""
         try:
             logger.info(f"Calculating natal chart for {name} born on {birth_date}")
             logger.debug(f"Location data: city={city}, nation={nation}, lng={lng}, lat={lat}, tz={tz_str}")
+            logger.debug(f"House system: {houses_system}")
 
             # Create AstrologicalSubject
             subject = AstrologicalSubject(
@@ -59,6 +61,7 @@ class AstrologyService:
                 lng=lng,
                 lat=lat,
                 tz_str=tz_str,
+                houses_system_identifier=houses_system,
             )
 
             logger.debug("Created AstrologicalSubject successfully")
@@ -67,10 +70,21 @@ class AstrologyService:
             aspects = NatalAspects(subject)
             logger.debug("Calculated aspects successfully")
 
-            # Get planet positions
+            # Get planet positions - including additional celestial points
             planets = []
-            for planet_attr in ['sun', 'moon', 'mercury', 'venus', 'mars', 
-                            'jupiter', 'saturn', 'uranus', 'neptune', 'pluto']:
+            standard_planets = [
+                'sun', 'moon', 'mercury', 'venus', 'mars', 
+                'jupiter', 'saturn', 'uranus', 'neptune', 'pluto'
+            ]
+            
+            # Additional celestial points from Data Completeness requirements
+            additional_points = [
+                'mean_node', 'true_node', 'mean_south_node', 'true_south_node',
+                'mean_lilith', 'chiron'
+            ]
+            
+            # Process standard planets
+            for planet_attr in standard_planets:
                 planet = getattr(subject, planet_attr)
                 planets.append(PlanetPosition(
                     name=planet_attr.capitalize(),
@@ -79,7 +93,22 @@ class AstrologyService:
                     house=_convert_house_number(planet.house),
                     retrograde=planet.retrograde
                 ))
-            logger.debug(f"Processed {len(planets)} planets successfully")
+            
+            # Process additional celestial points
+            for point_attr in additional_points:
+                point = getattr(subject, point_attr, None)
+                if point is not None:  # Some points may be None if disabled
+                    # Convert names for better readability
+                    display_name = point_attr.replace('_', ' ').title()
+                    planets.append(PlanetPosition(
+                        name=display_name,
+                        sign=point.sign,
+                        position=point.position,
+                        house=_convert_house_number(point.house),
+                        retrograde=getattr(point, 'retrograde', False)  # Some points don't have retrograde status
+                    ))
+            
+            logger.debug(f"Processed {len(planets)} planets and points successfully")
 
             # Get house cusps using individual house attributes
             houses = {}
@@ -93,17 +122,30 @@ class AstrologyService:
                 houses[i] = house.position
             logger.debug("Processed house cusps successfully")
 
+            # Include complete aspect data with orbs
+            aspect_info = []
+            for aspect in aspects.all_aspects:
+                aspect_info.append(AspectInfo(
+                    p1_name=aspect.p1_name,
+                    p2_name=aspect.p2_name,
+                    aspect=aspect.aspect,
+                    orbit=aspect.orbit,
+                ))
+            
+            # Get house system information
+            house_system_name = subject.houses_system_name
+            house_system_id = subject.houses_system_identifier
+            
             response = NatalChartResponse(
                 name=name,
                 birth_date=birth_date,
                 planets=planets,
                 houses=houses,
-                aspects=[AspectInfo(
-                    p1_name=aspect.p1_name,
-                    p2_name=aspect.p2_name,
-                    aspect=aspect.aspect,
-                    orbit=aspect.orbit
-                ) for aspect in aspects.all_aspects]
+                aspects=aspect_info,
+                house_system={
+                    "name": house_system_name,
+                    "identifier": house_system_id
+                }
             )
             logger.info("Successfully created natal chart response")
             return response
