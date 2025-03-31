@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 
 from app.api import router as api_router
-from app.routers import router as static_router
+from app.static import mount_static_files
 from app.core.config import settings
 from app.core.error_handlers import add_error_handlers
 
@@ -94,8 +94,8 @@ def create_application() -> FastAPI:
                 "description": "Operations for all chart types"
             },
             {
-                "name": "images",
-                "description": "Operations for retrieving chart visualizations"
+                "name": "chart-visualization",
+                "description": "Operations for generating chart visualizations"
             },
             {
                 "name": "static",
@@ -119,8 +119,8 @@ def create_application() -> FastAPI:
     # Include API router
     application.include_router(api_router)
     
-    # Include static router
-    application.include_router(static_router)
+    # Mount static files
+    mount_static_files(application)
 
     @application.get(
         "/",
