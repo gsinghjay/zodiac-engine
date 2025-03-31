@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="400" height="400" xmlns="http://www.w3.org/2000/svg">
+  <title>Sample Astrological Chart</title>
+  <circle cx="200" cy="200" r="180" fill="none" stroke="#333" stroke-width="2"/>
+  <circle cx="200" cy="200" r="150" fill="none" stroke="#555" stroke-width="1"/>
+  <line x1="20" y1="200" x2="380" y2="200" stroke="#777" stroke-width="1"/>
+  <line x1="200" y1="20" x2="200" y2="380" stroke="#777" stroke-width="1"/>
+  <text x="180" y="30" style="font-family: Arial; font-size: 14px;">♈</text>
+  <text x="370" y="200" style="font-family: Arial; font-size: 14px;">♋</text>
+  <text x="180" y="380" style="font-family: Arial; font-size: 14px;">♎</text>
+  <text x="20" y="200" style="font-family: Arial; font-size: 14px;">♑</text>
+  <text x="190" y="200" style="font-family: Arial; font-size: 18px; font-weight: bold;">Sample Chart</text>
+</svg> 
