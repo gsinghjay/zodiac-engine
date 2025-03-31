@@ -21,6 +21,7 @@ class NatalChartRequest(BaseModel):
     lng: Optional[float] = Field(None, description="Longitude of birth place")
     lat: Optional[float] = Field(None, description="Latitude of birth place")
     tz_str: Optional[str] = Field(None, description="Timezone string (e.g., 'America/New_York')")
+    houses_system: Optional[str] = Field("P", description="House system identifier (e.g., 'P' for Placidus, 'W' for Whole Sign)")
 
     class Config:
         json_schema_extra = {
@@ -31,7 +32,8 @@ class NatalChartRequest(BaseModel):
                 "nation": "US",
                 "lng": -74.006,
                 "lat": 40.7128,
-                "tz_str": "America/New_York"
+                "tz_str": "America/New_York",
+                "houses_system": "P"
             }
         }
 
@@ -42,10 +44,16 @@ class AspectInfo(BaseModel):
     aspect: str = Field(..., description="Type of aspect")
     orbit: float = Field(..., description="Orbital degree of aspect")
 
+class HouseSystem(BaseModel):
+    """Schema for house system information."""
+    name: str = Field(..., description="Full name of the house system")
+    identifier: str = Field(..., description="Single letter identifier of the house system")
+
 class NatalChartResponse(BaseModel):
     """Schema for natal chart calculation response."""
     name: str = Field(..., description="Name of the person")
     birth_date: datetime = Field(..., description="Birth date and time")
     planets: List[PlanetPosition] = Field(..., description="List of planet positions")
     houses: Dict[int, float] = Field(..., description="House cusps positions")
-    aspects: List[AspectInfo] = Field(..., description="List of planetary aspects") 
+    aspects: List[AspectInfo] = Field(..., description="List of planetary aspects")
+    house_system: HouseSystem = Field(..., description="House system used for calculations") 
