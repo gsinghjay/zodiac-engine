@@ -74,9 +74,27 @@ router = APIRouter(
     * House cusps and placements
     * Zodiac sign positions
     * Retrograde status for applicable planets
+    * Lunar Nodes (True/Mean)
+    * Lilith (Mean)
+    * Chiron
+    * Complete aspect data with orbs
+    * House system information
     
     You can provide either city/country or exact coordinates (longitude/latitude).
     If both are provided, coordinates take precedence.
+    
+    You can also specify which house system to use. The default is Placidus ('P').
+    Other options include:
+    - 'W': Whole Sign
+    - 'K': Koch
+    - 'R': Regiomontanus
+    - 'C': Campanus
+    - 'E': Equal (MC)
+    - 'A': Equal (Ascendant)
+    - 'T': Topocentric
+    - 'O': Porphyry
+    - 'B': Alcabitius
+    - 'M': Morinus
     """,
     responses={
         200: {
@@ -107,7 +125,11 @@ router = APIRouter(
                                 "aspect": "trine",
                                 "orbit": 120.0
                             }
-                        ]
+                        ],
+                        "house_system": {
+                            "name": "Placidus",
+                            "identifier": "P"
+                        }
                     }
                 }
             }
@@ -134,7 +156,8 @@ async def calculate_natal_chart(request: NatalChartRequest) -> NatalChartRespons
             nation=request.nation,
             lng=request.lng,
             lat=request.lat,
-            tz_str=request.tz_str
+            tz_str=request.tz_str,
+            houses_system=request.houses_system
         )
     except Exception as e:
         if isinstance(e, (InvalidBirthDataError, LocationError)):
