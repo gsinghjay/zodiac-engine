@@ -4,9 +4,12 @@ import uuid
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Dict, Union
+from typing import Optional, Dict, Union, List, Any
 
 from kerykeion import AstrologicalSubject, KerykeionChartSVG
+
+from app.core.config import Settings
+from app.core.dependencies import get_settings
 
 # Get logger
 logger = logging.getLogger(__name__)
@@ -30,10 +33,11 @@ class ChartVisualizationService:
         lng: Optional[float] = None,
         lat: Optional[float] = None,
         tz_str: Optional[str] = None,
-        houses_system: str = "P",
+        chart_id: Optional[str] = None,
         theme: str = "dark",
         chart_language: str = "EN",
-        chart_id: Optional[str] = None
+        config: Dict[str, Any] = None,
+        settings: Optional[Settings] = None
     ) -> Dict[str, str]:
         """
         Generate a natal chart SVG visualization using Kerykeion.
@@ -46,15 +50,65 @@ class ChartVisualizationService:
             lng: Longitude of birth place (optional)
             lat: Latitude of birth place (optional)
             tz_str: Timezone string (optional)
-            houses_system: House system identifier (default: "P" for Placidus)
+            chart_id: Optional custom ID for the chart
             theme: Chart theme ("light", "dark", "dark-high-contrast", "classic")
             chart_language: Chart language (default: "EN")
-            chart_id: Optional custom ID for the chart
+            config: Chart configuration options
+                - houses_system: House system identifier (default: "P" for Placidus)
+                - zodiac_type: Zodiac type ("Tropic" or "Sidereal")
+                - sidereal_mode: Sidereal mode (required if zodiac_type is "Sidereal")
+                - perspective_type: Type of perspective ("Apparent Geocentric", "Heliocentric", "Topocentric", "True Geocentric")
+                - active_points: List of active planets and points
+                - active_aspects: List of active aspects with their orbs
+            settings: Application settings (optional)
             
         Returns:
             Dictionary with chart_id and svg_url
         """
         try:
+            # Get settings if not provided
+            if settings is None:
+                settings = get_settings()
+                
+            # Default config if not provided
+            if config is None:
+                config = {
+                    "houses_system": "P",
+                    "zodiac_type": "Tropic",
+                    "active_points": [
+                        "Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", 
+                        "Neptune", "Pluto", "Mean_Node", "Chiron", "Ascendant", "Medium_Coeli", 
+                        "Mean_Lilith", "Mean_South_Node"
+                    ],
+                    "active_aspects": [
+                        {"name": "conjunction", "orb": 10}, 
+                        {"name": "opposition", "orb": 10}, 
+                        {"name": "trine", "orb": 8}, 
+                        {"name": "sextile", "orb": 6}, 
+                        {"name": "square", "orb": 5}, 
+                        {"name": "quintile", "orb": 1}
+                    ]
+                }
+                
+            # Extract configuration options
+            houses_system = config.get("houses_system", "P")
+            zodiac_type = config.get("zodiac_type", "Tropic")
+            sidereal_mode = config.get("sidereal_mode", None)
+            perspective_type = config.get("perspective_type", "Apparent Geocentric")
+            active_points = config.get("active_points", [
+                "Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", 
+                "Neptune", "Pluto", "Mean_Node", "Chiron", "Ascendant", "Medium_Coeli", 
+                "Mean_Lilith", "Mean_South_Node"
+            ])
+            active_aspects = config.get("active_aspects", [
+                {"name": "conjunction", "orb": 10}, 
+                {"name": "opposition", "orb": 10}, 
+                {"name": "trine", "orb": 8}, 
+                {"name": "sextile", "orb": 6}, 
+                {"name": "square", "orb": 5}, 
+                {"name": "quintile", "orb": 1}
+            ])
+            
             # Generate a unique ID if not provided
             if not chart_id:
                 chart_id = f"natal_{uuid.uuid4().hex[:8]}"
@@ -63,7 +117,7 @@ class ChartVisualizationService:
             svg_path = os.path.join(SVG_DIR, f"{chart_id}.svg")
             svg_path_obj = Path(svg_path)
             
-            # Create the AstrologicalSubject
+            # Create the AstrologicalSubject with zodiac and house configuration
             subject = AstrologicalSubject(
                 name=name,
                 year=birth_date.year,
@@ -77,15 +131,22 @@ class ChartVisualizationService:
                 lat=lat,
                 tz_str=tz_str,
                 houses_system_identifier=houses_system,
+                zodiac_type=zodiac_type,
+                sidereal_mode=sidereal_mode,
+                perspective_type=perspective_type,
+                geonames_username=settings.GEONAMES_USERNAME,
+                online=False  # Use offline mode until we have a valid geonames username
             )
             
-            # Generate the SVG chart with custom output directory
+            # Generate the SVG chart with custom output directory and configuration
             chart = KerykeionChartSVG(
                 subject, 
                 chart_type='Natal',
                 theme=theme,
                 chart_language=chart_language,
-                new_output_directory=str(Path(SVG_DIR))
+                new_output_directory=str(Path(SVG_DIR)),
+                active_points=active_points,
+                active_aspects=active_aspects
             )
             
             # Save the chart with a custom filename
@@ -124,10 +185,11 @@ class ChartVisualizationService:
         lng2: Optional[float] = None,
         lat2: Optional[float] = None,
         tz_str2: Optional[str] = None,
-        houses_system: str = "P",
+        chart_id: Optional[str] = None,
         theme: str = "dark",
         chart_language: str = "EN",
-        chart_id: Optional[str] = None
+        config: Dict[str, Any] = None,
+        settings: Optional[Settings] = None
     ) -> Dict[str, str]:
         """
         Generate a synastry chart SVG visualization using Kerykeion.
@@ -139,15 +201,65 @@ class ChartVisualizationService:
             birth_date2: Birth date and time of the second person
             city1, nation1, lng1, lat1, tz_str1: Location data for first person
             city2, nation2, lng2, lat2, tz_str2: Location data for second person
-            houses_system: House system identifier (default: "P" for Placidus)
+            chart_id: Optional custom ID for the chart
             theme: Chart theme ("light", "dark", "dark-high-contrast", "classic")
             chart_language: Chart language (default: "EN")
-            chart_id: Optional custom ID for the chart
+            config: Chart configuration options
+                - houses_system: House system identifier (default: "P" for Placidus)
+                - zodiac_type: Zodiac type ("Tropic" or "Sidereal")
+                - sidereal_mode: Sidereal mode (required if zodiac_type is "Sidereal")
+                - perspective_type: Type of perspective ("Apparent Geocentric", "Heliocentric", "Topocentric", "True Geocentric")
+                - active_points: List of active planets and points
+                - active_aspects: List of active aspects with their orbs
+            settings: Application settings (optional)
             
         Returns:
             Dictionary with chart_id and svg_url
         """
         try:
+            # Get settings if not provided
+            if settings is None:
+                settings = get_settings()
+            
+            # Default config if not provided
+            if config is None:
+                config = {
+                    "houses_system": "P",
+                    "zodiac_type": "Tropic",
+                    "active_points": [
+                        "Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", 
+                        "Neptune", "Pluto", "Mean_Node", "Chiron", "Ascendant", "Medium_Coeli", 
+                        "Mean_Lilith", "Mean_South_Node"
+                    ],
+                    "active_aspects": [
+                        {"name": "conjunction", "orb": 10}, 
+                        {"name": "opposition", "orb": 10}, 
+                        {"name": "trine", "orb": 8}, 
+                        {"name": "sextile", "orb": 6}, 
+                        {"name": "square", "orb": 5}, 
+                        {"name": "quintile", "orb": 1}
+                    ]
+                }
+                
+            # Extract configuration options
+            houses_system = config.get("houses_system", "P")
+            zodiac_type = config.get("zodiac_type", "Tropic")
+            sidereal_mode = config.get("sidereal_mode", None)
+            perspective_type = config.get("perspective_type", "Apparent Geocentric")
+            active_points = config.get("active_points", [
+                "Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", 
+                "Neptune", "Pluto", "Mean_Node", "Chiron", "Ascendant", "Medium_Coeli", 
+                "Mean_Lilith", "Mean_South_Node"
+            ])
+            active_aspects = config.get("active_aspects", [
+                {"name": "conjunction", "orb": 10}, 
+                {"name": "opposition", "orb": 10}, 
+                {"name": "trine", "orb": 8}, 
+                {"name": "sextile", "orb": 6}, 
+                {"name": "square", "orb": 5}, 
+                {"name": "quintile", "orb": 1}
+            ])
+            
             # Generate a unique ID if not provided
             if not chart_id:
                 chart_id = f"synastry_{uuid.uuid4().hex[:8]}"
@@ -156,7 +268,7 @@ class ChartVisualizationService:
             svg_path = os.path.join(SVG_DIR, f"{chart_id}.svg")
             svg_path_obj = Path(svg_path)
             
-            # Create the first AstrologicalSubject
+            # Create the first AstrologicalSubject with zodiac and house configuration
             subject1 = AstrologicalSubject(
                 name=name1,
                 year=birth_date1.year,
@@ -170,9 +282,14 @@ class ChartVisualizationService:
                 lat=lat1,
                 tz_str=tz_str1,
                 houses_system_identifier=houses_system,
+                zodiac_type=zodiac_type,
+                sidereal_mode=sidereal_mode,
+                perspective_type=perspective_type,
+                geonames_username=settings.GEONAMES_USERNAME,
+                online=False  # Use offline mode until we have a valid geonames username
             )
             
-            # Create the second AstrologicalSubject
+            # Create the second AstrologicalSubject with zodiac and house configuration
             subject2 = AstrologicalSubject(
                 name=name2,
                 year=birth_date2.year,
@@ -186,16 +303,23 @@ class ChartVisualizationService:
                 lat=lat2,
                 tz_str=tz_str2,
                 houses_system_identifier=houses_system,
+                zodiac_type=zodiac_type,
+                sidereal_mode=sidereal_mode,
+                perspective_type=perspective_type,
+                geonames_username=settings.GEONAMES_USERNAME,
+                online=False  # Use offline mode until we have a valid geonames username
             )
             
-            # Generate the SVG chart with custom output directory
+            # Generate the SVG chart with custom output directory and configuration
             chart = KerykeionChartSVG(
                 subject1, 
                 chart_type='Synastry',
                 second_obj=subject2,
                 theme=theme,
                 chart_language=chart_language,
-                new_output_directory=str(Path(SVG_DIR))
+                new_output_directory=str(Path(SVG_DIR)),
+                active_points=active_points,
+                active_aspects=active_aspects
             )
             
             # Save the chart with a custom filename
