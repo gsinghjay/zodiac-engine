@@ -1,22 +1,81 @@
 """Schemas for chart visualization endpoints."""
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List, Dict, Union, Literal
 
 from pydantic import BaseModel, Field
+
+# Based on the Kerykeion literals
+ZodiacType = Literal["Tropic", "Sidereal"]
+SiderealMode = Literal[
+    "FAGAN_BRADLEY", "LAHIRI", "DELUCE", "RAMAN", "USHASHASHI", "KRISHNAMURTI", 
+    "DJWHAL_KHUL", "YUKTESHWAR", "JN_BHASIN", "BABYL_KUGLER1", "BABYL_KUGLER2", 
+    "BABYL_KUGLER3", "BABYL_HUBER", "BABYL_ETPSC", "ALDEBARAN_15TAU", "HIPPARCHOS", 
+    "SASSANIAN", "J2000", "J1900", "B1950"
+]
+
+PerspectiveType = Literal["Apparent Geocentric", "Heliocentric", "Topocentric", "True Geocentric"]
+
+Planet = Literal[
+    "Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", 
+    "Neptune", "Pluto", "Mean_Node", "True_Node", "Mean_South_Node", "True_South_Node", 
+    "Chiron", "Mean_Lilith"
+]
+
+AxialCusps = Literal["Ascendant", "Medium_Coeli", "Descendant", "Imum_Coeli"]
+
+AspectName = Literal[
+    "conjunction", "semi-sextile", "semi-square", "sextile", "quintile", 
+    "square", "trine", "sesquiquadrate", "biquintile", "quincunx", "opposition"
+]
+
+class AspectConfiguration(BaseModel):
+    """Schema for aspect configuration."""
+    name: AspectName = Field(..., description="Name of the aspect")
+    orb: float = Field(..., description="Orb value for the aspect in degrees")
+
+class ChartConfiguration(BaseModel):
+    """Schema for chart configuration options."""
+    houses_system: str = Field("P", description="House system identifier (e.g., 'P' for Placidus, 'W' for Whole Sign)")
+    zodiac_type: ZodiacType = Field("Tropic", description="Zodiac type: Tropic (default) or Sidereal")
+    sidereal_mode: Optional[SiderealMode] = Field(None, description="Sidereal mode (required if zodiac_type is Sidereal)")
+    perspective_type: PerspectiveType = Field("Apparent Geocentric", description="Type of perspective for calculations")
+    active_points: List[Union[Planet, AxialCusps]] = Field(
+        default=[
+            "Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", 
+            "Neptune", "Pluto", "Mean_Node", "Chiron", "Ascendant", "Medium_Coeli", 
+            "Mean_Lilith", "Mean_South_Node"
+        ],
+        description="List of active planets and points to include in the chart"
+    )
+    active_aspects: List[AspectConfiguration] = Field(
+        default=[
+            {"name": "conjunction", "orb": 10}, 
+            {"name": "opposition", "orb": 10}, 
+            {"name": "trine", "orb": 8}, 
+            {"name": "sextile", "orb": 6}, 
+            {"name": "square", "orb": 5}, 
+            {"name": "quintile", "orb": 1}
+        ],
+        description="List of active aspects with their orbs"
+    )
 
 class NatalChartVisualizationRequest(BaseModel):
     """Schema for natal chart visualization request."""
     name: str = Field(..., description="Name of the person")
-    birth_date: datetime = Field(..., description="Birth date and time")
+    birth_date: str = Field(..., description="Birth date and time in ISO format")
     city: Optional[str] = Field(None, description="City of birth")
     nation: Optional[str] = Field(None, description="Country of birth")
     lng: Optional[float] = Field(None, description="Longitude of birth place")
     lat: Optional[float] = Field(None, description="Latitude of birth place")
     tz_str: Optional[str] = Field(None, description="Timezone string (e.g., 'America/New_York')")
-    houses_system: str = Field("P", description="House system identifier (e.g., 'P' for Placidus, 'W' for Whole Sign)")
-    theme: str = Field("dark", description="Chart theme ('light', 'dark', 'dark-high-contrast', 'classic')")
-    chart_language: str = Field("EN", description="Chart language ('EN', 'FR', 'PT', 'IT', 'CN', 'ES', 'RU', 'TR', 'DE', 'HI')")
     chart_id: Optional[str] = Field(None, description="Optional custom ID for the chart")
+    
+    # Visualization options
+    theme: str = Field("dark", description="Chart theme ('light', 'dark', 'dark-high-contrast', 'classic')")
+    language: str = Field("EN", description="Chart language ('EN', 'FR', 'PT', 'IT', 'CN', 'ES', 'RU', 'TR', 'DE', 'HI')")
+    
+    # Chart configuration
+    config: Optional[ChartConfiguration] = Field(None, description="Chart configuration options")
 
     class Config:
         json_schema_extra = {
@@ -28,10 +87,24 @@ class NatalChartVisualizationRequest(BaseModel):
                 "lng": -74.006,
                 "lat": 40.7128,
                 "tz_str": "America/New_York",
-                "houses_system": "P",
+                "chart_id": "john_doe_natal",
                 "theme": "dark",
-                "chart_language": "EN",
-                "chart_id": "john_doe_natal"
+                "language": "EN",
+                "config": {
+                    "houses_system": "P",
+                    "zodiac_type": "Tropic",
+                    "perspective_type": "Apparent Geocentric",
+                    "active_points": [
+                        "Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn",
+                        "Uranus", "Neptune", "Pluto", "Ascendant", "Medium_Coeli"
+                    ],
+                    "active_aspects": [
+                        {"name": "conjunction", "orb": 8},
+                        {"name": "opposition", "orb": 8},
+                        {"name": "trine", "orb": 6},
+                        {"name": "square", "orb": 6}
+                    ]
+                }
             }
         }
 
@@ -39,7 +112,7 @@ class SynastryChartVisualizationRequest(BaseModel):
     """Schema for synastry chart visualization request."""
     # First person
     name1: str = Field(..., description="Name of the first person")
-    birth_date1: datetime = Field(..., description="Birth date and time of first person")
+    birth_date1: str = Field(..., description="Birth date and time of first person in ISO format")
     city1: Optional[str] = Field(None, description="City of birth for first person")
     nation1: Optional[str] = Field(None, description="Country of birth for first person")
     lng1: Optional[float] = Field(None, description="Longitude of birth place for first person")
@@ -48,7 +121,7 @@ class SynastryChartVisualizationRequest(BaseModel):
     
     # Second person
     name2: str = Field(..., description="Name of the second person")
-    birth_date2: datetime = Field(..., description="Birth date and time of second person")
+    birth_date2: str = Field(..., description="Birth date and time of second person in ISO format")
     city2: Optional[str] = Field(None, description="City of birth for second person")
     nation2: Optional[str] = Field(None, description="Country of birth for second person")
     lng2: Optional[float] = Field(None, description="Longitude of birth place for second person")
@@ -56,10 +129,12 @@ class SynastryChartVisualizationRequest(BaseModel):
     tz_str2: Optional[str] = Field(None, description="Timezone string for second person")
     
     # Shared settings
-    houses_system: str = Field("P", description="House system identifier")
-    theme: str = Field("dark", description="Chart theme")
-    chart_language: str = Field("EN", description="Chart language")
     chart_id: Optional[str] = Field(None, description="Optional custom ID for the chart")
+    theme: str = Field("dark", description="Chart theme")
+    language: str = Field("EN", description="Chart language")
+    
+    # Chart configuration
+    config: Optional[ChartConfiguration] = Field(None, description="Chart configuration options")
 
     class Config:
         json_schema_extra = {
@@ -80,10 +155,20 @@ class SynastryChartVisualizationRequest(BaseModel):
                 "lat2": 34.0522,
                 "tz_str2": "America/Los_Angeles",
                 
-                "houses_system": "P",
+                "chart_id": "john_jane_synastry",
                 "theme": "dark",
-                "chart_language": "EN",
-                "chart_id": "john_jane_synastry"
+                "language": "EN",
+                "config": {
+                    "houses_system": "P",
+                    "zodiac_type": "Tropic",
+                    "perspective_type": "Apparent Geocentric",
+                    "active_points": ["Sun", "Moon", "Venus", "Mars", "Ascendant"],
+                    "active_aspects": [
+                        {"name": "conjunction", "orb": 6},
+                        {"name": "opposition", "orb": 6}, 
+                        {"name": "trine", "orb": 5}
+                    ]
+                }
             }
         }
 
@@ -96,6 +181,14 @@ class ChartVisualizationResponse(BaseModel):
         json_schema_extra = {
             "example": {
                 "chart_id": "natal_12345678",
-                "svg_url": "/static/images/charts/natal_12345678"
+                "svg_url": "/static/images/svg/natal_12345678.svg"
             }
-        } 
+        }
+
+class NatalChartVisualizationResponse(ChartVisualizationResponse):
+    """Response schema for natal chart visualization."""
+    pass
+
+class SynastryChartVisualizationResponse(ChartVisualizationResponse):
+    """Response schema for synastry chart visualization."""
+    pass 
