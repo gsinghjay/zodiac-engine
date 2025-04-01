@@ -87,10 +87,70 @@ Calculate a complete natal chart based on birth data.
 ### SVG Chart Visualizations
 
 ```
-GET /static/images/charts/{chart_id}
+POST /api/v1/charts/visualization/natal
+POST /api/v1/charts/visualization/synastry
+```
+
+Generate SVG visualizations of natal and synastry charts with customizable options.
+
+```
+GET /static/images/svg/{chart_id}.svg
 ```
 
 Retrieves an SVG visualization of a chart by its ID.
+
+#### Chart Customization Options
+
+Charts can be customized with the following configuration options:
+
+```json
+{
+  "config": {
+    "zodiac_type": "Tropic",           // "Tropic" or "Sidereal"
+    "sidereal_mode": "FAGAN_BRADLEY",  // Required when zodiac_type is "Sidereal"
+    "houses_system": "P",              // House system identifier (e.g., "P" for Placidus, "K" for Koch)
+    "perspective_type": "Apparent Geocentric", // "Apparent Geocentric", "True Geocentric", "Heliocentric", "Topocentric"
+    "active_points": [                 // Celestial bodies and points to include in the chart
+      "Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", 
+      "Uranus", "Neptune", "Pluto", "Mean_Node", "Chiron", 
+      "Ascendant", "Medium_Coeli"
+    ],
+    "active_aspects": [                // Aspects to calculate and display
+      {"name": "conjunction", "orb": 10},
+      {"name": "opposition", "orb": 10},
+      {"name": "trine", "orb": 8},
+      {"name": "sextile", "orb": 6},
+      {"name": "square", "orb": 5}
+    ]
+  },
+  "theme": "classic",                  // Chart theme: "classic", "light", "dark", "dark-high-contrast"
+  "language": "EN"                     // Chart language: "EN", "FR", "PT", "IT", "CN", "ES", "RU", "TR", "DE", "HI"
+}
+```
+
+**Example Request:**
+
+```json
+{
+  "name": "John Doe",
+  "birth_date": "1990-01-01T12:00:00",
+  "city": "New York",
+  "nation": "US",
+  "language": "EN",
+  "theme": "dark",
+  "config": {
+    "zodiac_type": "Sidereal",
+    "sidereal_mode": "FAGAN_BRADLEY",
+    "houses_system": "K",
+    "perspective_type": "Apparent Geocentric",
+    "active_points": ["Sun", "Moon", "Ascendant", "Medium_Coeli"],
+    "active_aspects": [
+      {"name": "conjunction", "orb": 8},
+      {"name": "opposition", "orb": 8}
+    ]
+  }
+}
+```
 
 ## Project Structure
 
@@ -102,8 +162,9 @@ zodiac-engine/
 │   │       └── endpoints/  # API endpoint modules
 │   │           └── charts/ # Chart endpoints
 │   ├── core/               # Core functionality
-│   ├── routers/            # Router modules
-│   │   └── static/         # Static files router
+│   ├── static/             # Static files
+│   │   └── images/         # Image files
+│   │       └── svg/        # SVG chart visualizations
 │   ├── schemas/            # Pydantic models
 │   ├── services/           # Business logic
 │   └── main.py             # FastAPI application
