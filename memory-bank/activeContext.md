@@ -17,6 +17,7 @@
   - Updated Pydantic models to use v2 syntax (`| None` instead of `Optional[]`, `list[]` instead of `List[]`, etc.).
   - Updated router response codes to use `status` constants from FastAPI.
   - Added proper documentation for environment variables in README.md.
+  - Created sample.svg file to make all tests pass successfully.
   - All 25 tests now passing in the test suite.
 
 - **API Structure Migration**: Successfully migrated the API layer from `app/api/v1/endpoints/` to `app/api/v1/routers/`.
@@ -47,6 +48,7 @@
 - **Service Layer Pattern**: Converted static service methods to instance methods with proper dependency injection.
 - **Environment Variables**: Added proper .env file support with robust parsing.
 - **CORS Configuration**: Implemented a clean approach using a property method to convert string origins to a list.
+- **Test Environment**: Created necessary test assets to ensure proper test execution.
 
 ## Important Patterns & Preferences
 
@@ -64,4 +66,5 @@
 - Using status code constants from FastAPI improves code readability and maintainability.
 - Documenting environment variables is crucial for new developers to set up the project correctly.
 - Property methods in Pydantic Settings classes provide a clean way to transform string configuration values into more complex types.
-- The @staticmethod decorator should be removed when instance methods need access to self attributes. 
+- The @staticmethod decorator should be removed when instance methods need access to self attributes.
+- Test assets like sample files are important to ensure tests can run successfully in any environment. 

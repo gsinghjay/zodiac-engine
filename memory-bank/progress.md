@@ -41,7 +41,7 @@
   - CORS configuration improved with proper parsing of origins from .env.
   - Status codes using FastAPI constants.
 - **Memory Bank**: Updated to reflect recent changes.
-- **All Tests Passing**: Fixed issues with the Settings class and ChartVisualizationService.
+- **All Tests Passing**: Fixed issues with the Settings class, ChartVisualizationService, and added required sample.svg file for testing.
 
 ## Known Issues
 
@@ -61,4 +61,5 @@
 - **Best Practices Review**: Identified areas for improvement based on latest FastAPI standards.
 - **API Structure Refactoring**: Successfully implemented the migration to the `routers/` convention for better organization and alignment with community practices.
 - **FastAPI Best Practices Implementation**: Incorporated modern Pydantic v2 syntax, proper dependency injection with instance methods, and other best practices from the FastAPI community.
-- **Configuration Improvements**: Enhanced the Settings class to properly handle environment variables, particularly CORS allowed origins, using Pydantic v2 features and property methods for type conversion. 
+- **Configuration Improvements**: Enhanced the Settings class to properly handle environment variables, particularly CORS allowed origins, using Pydantic v2 features and property methods for type conversion.
+- **Test Environment Setup**: Added necessary test files (sample.svg) to ensure all tests pass successfully. 
