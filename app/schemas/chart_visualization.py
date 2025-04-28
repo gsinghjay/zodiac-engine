@@ -105,9 +105,9 @@ class NatalChartVisualizationRequest(BaseModel):
                         {"name": "square", "orb": 6}
                     ]
                 }
+                }
             }
         }
-    }
 
 class SynastryChartVisualizationRequest(BaseModel):
     """Schema for synastry chart visualization request."""
@@ -170,9 +170,9 @@ class SynastryChartVisualizationRequest(BaseModel):
                         {"name": "trine", "orb": 5}
                     ]
                 }
+                }
             }
         }
-    }
 
 class ChartVisualizationResponse(BaseModel):
     """Schema for chart visualization response."""
@@ -185,8 +185,8 @@ class ChartVisualizationResponse(BaseModel):
                 "chart_id": "natal_12345678",
                 "svg_url": "/static/images/svg/natal_12345678.svg"
             }
+            }
         }
-    }
 
 class NatalChartVisualizationResponse(ChartVisualizationResponse):
     """Response schema for natal chart visualization."""

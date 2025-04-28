@@ -35,8 +35,8 @@ class NatalChartRequest(BaseModel):
                 "tz_str": "America/New_York",
                 "houses_system": "P"
             }
+            }
         }
-    }
 
 class AspectInfo(BaseModel):
     """Schema for planetary aspect information."""
