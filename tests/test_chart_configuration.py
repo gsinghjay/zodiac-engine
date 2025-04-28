@@ -1,6 +1,9 @@
 """Tests for chart configuration features."""
 import os
+from typing import Dict, Any
+
 import pytest
+from fastapi import status
 from fastapi.testclient import TestClient
 from datetime import datetime
 
@@ -9,7 +12,7 @@ from app.main import app
 client = TestClient(app)
 
 # Test data
-TEST_NATAL_DATA = {
+TEST_NATAL_DATA: Dict[str, Any] = {
     "name": "Test Person",
     "birth_date": "1990-01-01T12:00:00",
     "lng": -74.006,  # New York coordinates
@@ -19,8 +22,7 @@ TEST_NATAL_DATA = {
     "theme": "dark"
 }
 
-@pytest.mark.asyncio
-async def test_natal_chart_with_tropical_zodiac():
+def test_natal_chart_with_tropical_zodiac():
     """Test generating a natal chart with tropical zodiac."""
     data = {
         **TEST_NATAL_DATA,
@@ -31,7 +33,7 @@ async def test_natal_chart_with_tropical_zodiac():
     }
     
     response = client.post("/api/v1/charts/visualization/natal", json=data)
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
     assert "chart_id" in response.json()
     assert "svg_url" in response.json()
     
@@ -45,8 +47,7 @@ async def test_natal_chart_with_tropical_zodiac():
         svg_content = f.read()
         assert "Tropical" in svg_content
 
-@pytest.mark.asyncio
-async def test_natal_chart_with_sidereal_zodiac():
+def test_natal_chart_with_sidereal_zodiac():
     """Test generating a natal chart with sidereal zodiac."""
     data = {
         **TEST_NATAL_DATA,
@@ -58,7 +59,7 @@ async def test_natal_chart_with_sidereal_zodiac():
     }
     
     response = client.post("/api/v1/charts/visualization/natal", json=data)
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
     assert "chart_id" in response.json()
     assert "svg_url" in response.json()
     
@@ -72,8 +73,7 @@ async def test_natal_chart_with_sidereal_zodiac():
         svg_content = f.read()
         assert "Ayanamsa" in svg_content
 
-@pytest.mark.asyncio
-async def test_natal_chart_with_limited_planets():
+def test_natal_chart_with_limited_planets():
     """Test generating a natal chart with limited planets."""
     data = {
         **TEST_NATAL_DATA,
@@ -85,7 +85,7 @@ async def test_natal_chart_with_limited_planets():
     }
     
     response = client.post("/api/v1/charts/visualization/natal", json=data)
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
     assert "chart_id" in response.json()
     assert "svg_url" in response.json()
     
@@ -103,8 +103,7 @@ async def test_natal_chart_with_limited_planets():
         # would be brittle as the SVG might contain the word Saturn in other contexts
         # so we're focusing on positive assertions
 
-@pytest.mark.asyncio
-async def test_natal_chart_with_custom_aspects():
+def test_natal_chart_with_custom_aspects():
     """Test generating a natal chart with custom aspects."""
     data = {
         **TEST_NATAL_DATA,
@@ -120,7 +119,7 @@ async def test_natal_chart_with_custom_aspects():
     }
     
     response = client.post("/api/v1/charts/visualization/natal", json=data)
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
     assert "chart_id" in response.json()
     assert "svg_url" in response.json()
     
@@ -129,8 +128,7 @@ async def test_natal_chart_with_custom_aspects():
     svg_path = os.path.join("app", "static", "images", "svg", f"{chart_id}.svg")
     assert os.path.exists(svg_path)
 
-@pytest.mark.asyncio
-async def test_natal_chart_with_different_house_system():
+def test_natal_chart_with_different_house_system():
     """Test generating a natal chart with a different house system."""
     data = {
         **TEST_NATAL_DATA,
@@ -141,7 +139,7 @@ async def test_natal_chart_with_different_house_system():
     }
     
     response = client.post("/api/v1/charts/visualization/natal", json=data)
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
     assert "chart_id" in response.json()
     assert "svg_url" in response.json()
     
@@ -150,8 +148,7 @@ async def test_natal_chart_with_different_house_system():
     svg_path = os.path.join("app", "static", "images", "svg", f"{chart_id}.svg")
     assert os.path.exists(svg_path)
     
-@pytest.mark.asyncio
-async def test_synastry_chart_with_configuration():
+def test_synastry_chart_with_configuration():
     """Test generating a synastry chart with configuration."""
     data = {
         "name1": "Person One",
@@ -181,7 +178,7 @@ async def test_synastry_chart_with_configuration():
     }
     
     response = client.post("/api/v1/charts/visualization/synastry", json=data)
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
     assert "chart_id" in response.json()
     assert "svg_url" in response.json()
     

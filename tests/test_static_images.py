@@ -1,5 +1,8 @@
 """Tests for static images routes."""
+from typing import Dict, Any
+
 import pytest
+from fastapi import status
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -9,7 +12,7 @@ client = TestClient(app)
 def test_get_chart_svg_success():
     """Test retrieving a chart SVG image that exists."""
     response = client.get("/static/images/svg/sample.svg")
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
     assert response.headers["content-type"] == "image/svg+xml"
     assert "Sample Astrological Chart" in response.text
     assert "<svg" in response.text
@@ -17,10 +20,10 @@ def test_get_chart_svg_success():
 def test_get_chart_svg_not_found():
     """Test retrieving a chart SVG image that doesn't exist."""
     response = client.get("/static/images/svg/nonexistent.svg")
-    assert response.status_code == 404
+    assert response.status_code == status.HTTP_404_NOT_FOUND
 
 @pytest.fixture
-def valid_natal_visualization_request():
+def valid_natal_visualization_request() -> Dict[str, Any]:
     """Fixture for valid natal chart visualization request."""
     return {
         "name": "John Doe",
@@ -37,7 +40,7 @@ def valid_natal_visualization_request():
     }
 
 @pytest.fixture
-def valid_synastry_visualization_request():
+def valid_synastry_visualization_request() -> Dict[str, Any]:
     """Fixture for valid synastry chart visualization request."""
     return {
         "name1": "John Doe",
@@ -69,7 +72,7 @@ def test_generate_natal_chart_visualization(valid_natal_visualization_request):
         json=valid_natal_visualization_request
     )
     
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
     data = response.json()
     
     # Check response structure
@@ -82,7 +85,7 @@ def test_generate_natal_chart_visualization(valid_natal_visualization_request):
     
     # Verify we can retrieve the generated SVG
     svg_response = client.get(data["svg_url"])
-    assert svg_response.status_code == 200
+    assert svg_response.status_code == status.HTTP_200_OK
     assert svg_response.headers["content-type"] == "image/svg+xml"
     assert "<svg" in svg_response.text
 
@@ -93,7 +96,7 @@ def test_generate_synastry_chart_visualization(valid_synastry_visualization_requ
         json=valid_synastry_visualization_request
     )
     
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
     data = response.json()
     
     # Check response structure
@@ -106,7 +109,7 @@ def test_generate_synastry_chart_visualization(valid_synastry_visualization_requ
     
     # Verify we can retrieve the generated SVG
     svg_response = client.get(data["svg_url"])
-    assert svg_response.status_code == 200
+    assert svg_response.status_code == status.HTTP_200_OK
     assert svg_response.headers["content-type"] == "image/svg+xml"
     assert "<svg" in svg_response.text
 
@@ -118,7 +121,7 @@ def test_generate_natal_chart_missing_required_fields():
     }
     
     response = client.post("/api/v1/charts/visualization/natal", json=incomplete_request)
-    assert response.status_code == 422  # Validation error
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY  # Validation error
 
 def test_generate_natal_chart_invalid_date():
     """Test generating a natal chart visualization with invalid date."""
@@ -130,4 +133,4 @@ def test_generate_natal_chart_invalid_date():
     }
     
     response = client.post("/api/v1/charts/visualization/natal", json=invalid_request)
-    assert response.status_code == 422  # Validation error 
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY  # Validation error 
