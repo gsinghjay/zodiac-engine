@@ -27,7 +27,14 @@
 
 ## What's Left to Build / Improve
 
-- **Implement Placeholder Endpoints**: Complete the functionality for `/composite` and `/transit` chart endpoints.
+- **Implement Placeholder Endpoints**: Complete the functionality for `/composite` and `/transit` chart endpoints (Note: Composite implementation is part of the Natal Chart Expansion Plan).
+- **Implement Natal Chart Expansion Plan**: Enhance natal chart functionality based on `docs/natal-chart-expansion-plan.md`, including:
+  - Enhanced Planet/House Info (element, quality, etc.)
+  - Element & Quality Distribution Analysis
+  - Lunar Phase Information
+  - Enhanced Aspect Info (degrees, diff)
+  - Report Generation (using Kerykeion's Report class)
+  - Relationship Scoring (using Kerykeion's RelationshipScoreFactory)
 - **Database Integration**: Consider adding a database for storing user data, generated chart metadata, or caching results.
 - **Authentication/Authorization**: Implement if user-specific features are needed.
 - **LLM Interpretations**: Future goal to add AI-powered interpretations.

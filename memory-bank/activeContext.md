@@ -41,7 +41,8 @@
 
 1. **Commit & PR**: Create commits and submit a Pull Request for the `refactor/fastapi` branch.
 2. **Documentation Updates**: Ensure all documentation reflects the completed best practices implementation.
-3. **Feature Development**: Resume work on implementing new features (composite charts, transit calculations, LLM interpretations) now that the framework is properly modernized.
+3. **Implement Natal Chart Expansion Plan**: Start implementing the enhancements detailed in `docs/natal-chart-expansion-plan.md`, focusing on high-priority items first (Enhanced Planet/House Info, Element/Quality Analysis, Lunar Phase Info).
+4. **Future Feature Development**: Resume work on other features (transit calculations, LLM interpretations) after the natal chart expansion is complete.
 
 ## Active Decisions & Considerations
 

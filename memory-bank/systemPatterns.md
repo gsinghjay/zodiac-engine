@@ -52,6 +52,7 @@ graph TD
 - **Configuration Management**: Centralized settings using `pydantic-settings` (`app.core.config`) with property methods for type conversion.
 - **Service Instance Pattern**: Services implemented as instance methods instead of static methods, enabling better testability and dependency injection.
 - **Background Tasks**: Long-running operations handled via FastAPI's background tasks.
+- **Enhanced Data Modeling (Planned)**: The schemas will be expanded as part of the Natal Chart Expansion Plan to include more detailed astrological data (elements, qualities, lunar phases, etc.).
 
 ## 4. Critical Implementation Paths
 
