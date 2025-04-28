@@ -4,12 +4,11 @@ import uuid
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Dict, Union, List, Any
+from typing import Dict, Any
 
 from kerykeion import AstrologicalSubject, KerykeionChartSVG
 
 from app.core.config import Settings
-from app.core.dependencies import get_settings
 
 # Get logger
 logger = logging.getLogger(__name__)
@@ -24,21 +23,24 @@ os.makedirs(SVG_DIR, exist_ok=True)
 class ChartVisualizationService:
     """Service for generating and saving chart visualizations."""
     
-    @staticmethod
+    def __init__(self, settings: Settings):
+        """Initialize the chart visualization service with settings."""
+        self.settings = settings
+    
     def generate_natal_chart_svg(
+        self,
         name: str,
         birth_date: datetime,
-        city: Optional[str] = None,
-        nation: Optional[str] = None,
-        lng: Optional[float] = None,
-        lat: Optional[float] = None,
-        tz_str: Optional[str] = None,
-        chart_id: Optional[str] = None,
+        city: str | None = None,
+        nation: str | None = None,
+        lng: float | None = None,
+        lat: float | None = None,
+        tz_str: str | None = None,
+        chart_id: str | None = None,
         theme: str = "dark",
         chart_language: str = "EN",
-        config: Dict[str, Any] = None,
-        settings: Optional[Settings] = None
-    ) -> Dict[str, str]:
+        config: dict[str, Any] | None = None,
+    ) -> dict[str, str]:
         """
         Generate a natal chart SVG visualization using Kerykeion.
         
@@ -60,16 +62,11 @@ class ChartVisualizationService:
                 - perspective_type: Type of perspective ("Apparent Geocentric", "Heliocentric", "Topocentric", "True Geocentric")
                 - active_points: List of active planets and points
                 - active_aspects: List of active aspects with their orbs
-            settings: Application settings (optional)
             
         Returns:
             Dictionary with chart_id and svg_url
         """
         try:
-            # Get settings if not provided
-            if settings is None:
-                settings = get_settings()
-                
             # Default config if not provided
             if config is None:
                 config = {
@@ -134,7 +131,7 @@ class ChartVisualizationService:
                 zodiac_type=zodiac_type,
                 sidereal_mode=sidereal_mode,
                 perspective_type=perspective_type,
-                geonames_username=settings.GEONAMES_USERNAME,
+                geonames_username=self.settings.GEONAMES_USERNAME,
                 online=False  # Use offline mode until we have a valid geonames username
             )
             
@@ -169,28 +166,27 @@ class ChartVisualizationService:
             logger.error(f"Error generating chart visualization: {str(e)}", exc_info=True)
             raise
     
-    @staticmethod
     def generate_synastry_chart_svg(
+        self,
         name1: str,
         birth_date1: datetime,
         name2: str,
         birth_date2: datetime,
-        city1: Optional[str] = None,
-        nation1: Optional[str] = None,
-        lng1: Optional[float] = None,
-        lat1: Optional[float] = None,
-        tz_str1: Optional[str] = None,
-        city2: Optional[str] = None,
-        nation2: Optional[str] = None,
-        lng2: Optional[float] = None,
-        lat2: Optional[float] = None,
-        tz_str2: Optional[str] = None,
-        chart_id: Optional[str] = None,
+        city1: str | None = None,
+        nation1: str | None = None,
+        lng1: float | None = None,
+        lat1: float | None = None,
+        tz_str1: str | None = None,
+        city2: str | None = None,
+        nation2: str | None = None,
+        lng2: float | None = None,
+        lat2: float | None = None,
+        tz_str2: str | None = None,
+        chart_id: str | None = None,
         theme: str = "dark",
         chart_language: str = "EN",
-        config: Dict[str, Any] = None,
-        settings: Optional[Settings] = None
-    ) -> Dict[str, str]:
+        config: dict[str, Any] | None = None,
+    ) -> dict[str, str]:
         """
         Generate a synastry chart SVG visualization using Kerykeion.
         
@@ -211,16 +207,11 @@ class ChartVisualizationService:
                 - perspective_type: Type of perspective ("Apparent Geocentric", "Heliocentric", "Topocentric", "True Geocentric")
                 - active_points: List of active planets and points
                 - active_aspects: List of active aspects with their orbs
-            settings: Application settings (optional)
             
         Returns:
             Dictionary with chart_id and svg_url
         """
         try:
-            # Get settings if not provided
-            if settings is None:
-                settings = get_settings()
-            
             # Default config if not provided
             if config is None:
                 config = {
@@ -285,7 +276,7 @@ class ChartVisualizationService:
                 zodiac_type=zodiac_type,
                 sidereal_mode=sidereal_mode,
                 perspective_type=perspective_type,
-                geonames_username=settings.GEONAMES_USERNAME,
+                geonames_username=self.settings.GEONAMES_USERNAME,
                 online=False  # Use offline mode until we have a valid geonames username
             )
             
@@ -306,7 +297,7 @@ class ChartVisualizationService:
                 zodiac_type=zodiac_type,
                 sidereal_mode=sidereal_mode,
                 perspective_type=perspective_type,
-                geonames_username=settings.GEONAMES_USERNAME,
+                geonames_username=self.settings.GEONAMES_USERNAME,
                 online=False  # Use offline mode until we have a valid geonames username
             )
             
