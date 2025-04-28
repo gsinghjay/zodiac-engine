@@ -40,6 +40,7 @@
   - Settings configured to use .env files with proper type handling.
   - CORS configuration improved with proper parsing of origins from .env.
   - Status codes using FastAPI constants.
+  - Tests updated to follow the same best practices (status constants, type hints, no unnecessary async).
 - **Memory Bank**: Updated to reflect recent changes.
 - **All Tests Passing**: Fixed issues with the Settings class, ChartVisualizationService, and added required sample.svg file for testing.
 
@@ -49,6 +50,7 @@
 - ~~**Pydantic v1 Syntax**: Models use older syntax (`Optional`, `List`, `Dict`, `class Config`).~~ ✅ Fixed
 - ~~**Static Service Methods**: Services use static methods, hindering testability and flexibility (DI needed).~~ ✅ Fixed
 - ~~**Environment Variable Parsing**: CORS settings had issues with the allowed origins parsing.~~ ✅ Fixed
+- ~~**Test Inconsistency**: Tests used async/await unnecessarily and hardcoded status codes.~~ ✅ Fixed
 - **Potentially Inconsistent Async Usage**: Requires review.
 - **Geonames Dependency**: Requires `GEONAMES_USERNAME` for online timezone lookups, currently defaulted to offline mode in the service.
 
@@ -62,4 +64,5 @@
 - **API Structure Refactoring**: Successfully implemented the migration to the `routers/` convention for better organization and alignment with community practices.
 - **FastAPI Best Practices Implementation**: Incorporated modern Pydantic v2 syntax, proper dependency injection with instance methods, and other best practices from the FastAPI community.
 - **Configuration Improvements**: Enhanced the Settings class to properly handle environment variables, particularly CORS allowed origins, using Pydantic v2 features and property methods for type conversion.
-- **Test Environment Setup**: Added necessary test files (sample.svg) to ensure all tests pass successfully. 
+- **Test Environment Setup**: Added necessary test files (sample.svg) to ensure all tests pass successfully.
+- **Test Modernization**: Updated tests to follow the same best practices as the application code, improving consistency and maintainability. 
