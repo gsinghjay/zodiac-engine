@@ -19,11 +19,13 @@ def get_settings() -> Settings:
 
 SettingsDep = Annotated[Settings, Depends(get_settings)]
 
+@lru_cache(maxsize=32)
 def get_astrology_service() -> AstrologyService:
     """
     Get an instance of the AstrologyService.
     
     This dependency can be used in route functions to get access to astrology-related operations.
+    Uses lru_cache to reuse the service instance, improving performance.
     """
     return AstrologyService()
 
