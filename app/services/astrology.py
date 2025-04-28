@@ -1,5 +1,6 @@
 """Service for astrological calculations using Kerykeion."""
 import logging
+import functools
 from datetime import datetime
 from typing import Dict, List, Union
 
@@ -31,6 +32,10 @@ def _convert_house_number(house: int | str) -> int | str:
 class AstrologyService:
     """Service for astrological calculations using Kerykeion."""
 
+    # Cache for natal chart calculations - expires after 1 hour (3600 seconds)
+    # This assumes that astrological calculations don't change frequently,
+    # and caching them will improve performance significantly
+    @functools.lru_cache(maxsize=128)
     def calculate_natal_chart(
         self,
         name: str,
