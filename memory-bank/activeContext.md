@@ -2,9 +2,22 @@
 
 ## Current Focus
 
-- **Best Practice Alignment**: Continuing to evaluate and plan for implementing other FastAPI best practices outlined in `docs/fastapi-best-practices-updates.md`. Priorities include Pydantic v2 updates and Service Layer Dependency Injection.
+- **Best Practice Implementation**: Implementing the FastAPI best practices as outlined in `docs/fastapi-best-practices-updates.md`. Currently focusing on Pydantic v2 updates and Service Layer Dependency Injection.
 
 ## Recent Changes
+
+- **FastAPI Best Practices Implementation**:
+  - Updated `requirements.txt` with explicit version constraints and replaced `fastapi[all]` with specific dependencies.
+  - Updated the Settings class in `app/core/config.py` to use Pydantic v2 syntax and .env file integration.
+  - Improved Settings class to properly handle CORS allowed origins using property method.
+  - Updated main.py to use the new allowed_origins_list property for CORS configuration.
+  - Converted AstrologyService from static methods to instance methods with dependency injection.
+  - Fixed ChartVisualizationService by properly removing staticmethod decorator from synastry chart method.
+  - Added factory functions for services in `app/core/dependencies.py`.
+  - Updated Pydantic models to use v2 syntax (`| None` instead of `Optional[]`, `list[]` instead of `List[]`, etc.).
+  - Updated router response codes to use `status` constants from FastAPI.
+  - Added proper documentation for environment variables in README.md.
+  - All 25 tests now passing in the test suite.
 
 - **API Structure Migration**: Successfully migrated the API layer from `app/api/v1/endpoints/` to `app/api/v1/routers/`.
   - Created new `routers` directory structure.
@@ -19,26 +32,36 @@
 
 ## Next Steps
 
-1.  **Commit & PR**: Finalize commits and create a Pull Request for the `refactor/router` branch.
-2.  **Prioritize Further Best Practices**: Decide on the next set of best practices from `docs/fastapi-best-practices-updates.md` to implement (e.g., Pydantic v2 updates, Service Layer DI).
-3.  **Implement Next Best Practice**: Begin work on the next selected refactoring task.
+1. **Test FastAPI Best Practices Implementation**: Run the full test suite to make sure all the refactoring is working as expected.
+2. **Commit & PR**: Create commits and submit a Pull Request for the `refactor/fastapi` branch.
+3. **Continue with Best Practices**: Implement remaining best practices from `docs/fastapi-best-practices-updates.md`:
+   - Complete async/sync consistency updates
+   - Enhance error handling
+   - Implement API response customization
+   - Add performance optimizations
 
 ## Active Decisions & Considerations
 
-- **Directory Naming**: Successfully implemented the decision to use `routers/` instead of `endpoints/`.
-- **Migration Approach**: Successfully used `git mv` to preserve file history during restructuring.
-- **Testing Importance**: Confirmed the importance of testing, as it verified the migration success.
+- **Modern Dependency Injection**: Implemented modern dependency injection patterns with Annotated types.
+- **Pydantic v2 Migration**: Successfully updated schema files to use modern Pydantic v2 syntax.
+- **Service Layer Pattern**: Converted static service methods to instance methods with proper dependency injection.
+- **Environment Variables**: Added proper .env file support with robust parsing.
+- **CORS Configuration**: Implemented a clean approach using a property method to convert string origins to a list.
 
 ## Important Patterns & Preferences
 
 - **Follow Best Practices**: Continue adhering to documented FastAPI best practices.
-- **Modularity**: Maintain clear separation of concerns between API, service, and core layers. The new structure reinforces this.
-- **Documentation**: Keep project documentation (like the migration plan and Memory Bank) up-to-date. (This update is part of that).
-- **Testing**: Ensure comprehensive test coverage for reliability.
+- **Modularity**: Maintain clear separation of concerns between API, service, and core layers.
+- **Documentation**: Keep project documentation up-to-date with changes.
+- **Testing**: Ensure changes maintain or improve test coverage.
+- **Type Safety**: Use proper typing and Pydantic validation throughout the codebase.
+- **Environment Configuration**: Single source of truth in .env files with proper parsing in Settings.
 
 ## Learnings & Insights
 
-- The migration to the `routers/` structure was successful and improved alignment with standard FastAPI patterns.
-- A clear migration plan (`docs/api-structure-migration-plan.md`) was crucial for executing the refactor smoothly.
-- Automated tests provided confidence in the structural changes.
-- The Memory Bank continues to be essential for tracking progress and context. 
+- The Pydantic v2 syntax is more concise and readable compared to v1.
+- Proper dependency injection with instance methods provides better testability and maintainability.
+- Using status code constants from FastAPI improves code readability and maintainability.
+- Documenting environment variables is crucial for new developers to set up the project correctly.
+- Property methods in Pydantic Settings classes provide a clean way to transform string configuration values into more complex types.
+- The @staticmethod decorator should be removed when instance methods need access to self attributes. 
