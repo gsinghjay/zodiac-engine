@@ -37,6 +37,22 @@ A modern astrological calculation API powered by [Kerykeion](https://github.com/
    pip install -r requirements.txt
    ```
 
+4. Environment Variables:
+   
+   Create a `.env` file in the project root with the following variables:
+   ```
+   PROJECT_NAME="Zodiac Engine API"
+   VERSION="1.0.0"
+   API_V1_STR="/api/v1"
+   ALLOWED_ORIGINS="*"
+   
+   # Kerykeion settings
+   GEONAMES_USERNAME=""
+   ```
+   
+   The `GEONAMES_USERNAME` is optional but recommended for enhanced geolocation features.
+   You can obtain a free username by registering at [GeoNames](https://www.geonames.org/login).
+
 ## Usage
 
 Run the development server:
