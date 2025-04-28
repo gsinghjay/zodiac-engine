@@ -1,6 +1,9 @@
 """Natal chart router module."""
-from fastapi import APIRouter, HTTPException
+from typing import Annotated
 
+from fastapi import APIRouter, HTTPException, status, Depends
+
+from app.core.dependencies import AstrologyServiceDep
 from app.core.exceptions import (
     ChartCalculationError,
     InvalidBirthDataError,
@@ -13,7 +16,7 @@ router = APIRouter(
     prefix="/natal",
     tags=["natal-chart"],
     responses={
-        400: {
+        status.HTTP_400_BAD_REQUEST: {
             "description": "Invalid input data",
             "content": {
                 "application/json": {
@@ -44,7 +47,7 @@ router = APIRouter(
                 }
             }
         },
-        500: {
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {
             "description": "Internal server error",
             "content": {
                 "application/json": {
@@ -65,6 +68,7 @@ router = APIRouter(
 @router.post(
     "/",
     response_model=NatalChartResponse,
+    status_code=status.HTTP_200_OK,
     summary="Calculate Natal Chart",
     description="""
     Calculate a complete natal chart based on birth data.
@@ -97,7 +101,7 @@ router = APIRouter(
     - 'M': Morinus
     """,
     responses={
-        200: {
+        status.HTTP_200_OK: {
             "description": "Successfully calculated natal chart",
             "content": {
                 "application/json": {
@@ -136,7 +140,10 @@ router = APIRouter(
         }
     }
 )
-async def calculate_natal_chart(request: NatalChartRequest) -> NatalChartResponse:
+async def calculate_natal_chart(
+    request: NatalChartRequest,
+    astrology_service: AstrologyServiceDep
+) -> NatalChartResponse:
     """Calculate natal chart for given birth data."""
     try:
         # Validate birth data
@@ -149,7 +156,7 @@ async def calculate_natal_chart(request: NatalChartRequest) -> NatalChartRespons
                 "Either city/nation or longitude/latitude must be provided"
             )
 
-        return AstrologyService.calculate_natal_chart(
+        return astrology_service.calculate_natal_chart(
             name=request.name,
             birth_date=request.birth_date,
             city=request.city,
