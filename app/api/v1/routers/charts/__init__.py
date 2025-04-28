@@ -1,8 +1,8 @@
 """Charts router initialization."""
 from fastapi import APIRouter
 
-from app.api.v1.endpoints.charts.natal import router as natal_router
-from app.api.v1.endpoints.charts.visualization import router as visualization_router
+from app.api.v1.routers.charts.natal import router as natal_router
+from app.api.v1.routers.charts.visualization import router as visualization_router
 
 # Create the charts router
 router = APIRouter(

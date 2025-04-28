@@ -1,9 +1,9 @@
-"""API v1 endpoints initialization."""
+"""API v1 routers initialization."""
 from fastapi import APIRouter
 
-from app.api.v1.endpoints.charts import router as charts_router
+from app.api.v1.routers.charts import router as charts_router
 
-# Create the endpoints router
+# Create the routers router
 router = APIRouter()
 
 # Include charts router

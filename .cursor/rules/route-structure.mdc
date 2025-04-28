@@ -1,0 +1,53 @@
+---
+description: This rule documents the API route structure and endpoints of the Zodiac Engine. Call this rule when working with API endpoints, understanding route hierarchies, or implementing new routes. Use it when users need information about available endpoints, want to modify existing routes, or need to understand how routes are organized in the application.
+globs: 
+alwaysApply: false
+---
+# Zodiac Engine API Routes Structure
+
+This rule documents the API route structure of the Zodiac Engine application, which follows a clean, hierarchical organization.
+
+## Route Hierarchy
+
+- Main router is included in [app/main.py](mdc:app/main.py)
+- API routes are organized in [app/api](mdc:app/api)
+- API versions are separated in directories (currently v1)
+- Each endpoint group has its own module in [app/api/v1/endpoints](mdc:app/api/v1/endpoints)
+
+## Key API Endpoints
+
+### Chart Endpoints
+
+The primary endpoints for astrological charts are located in [app/api/v1/endpoints/charts](mdc:app/api/v1/endpoints/charts):
+
+- **Natal Charts**: [app/api/v1/endpoints/charts/natal.py](mdc:app/api/v1/endpoints/charts/natal.py)
+  - Calculates complete natal charts based on birth data
+  - Endpoint: `POST /api/v1/charts/natal/`
+
+- **Chart Visualization**: [app/api/v1/endpoints/charts/visualization.py](mdc:app/api/v1/endpoints/charts/visualization.py)
+  - Generates SVG visualizations of charts
+  - Endpoints: 
+    - `POST /api/v1/charts/visualization/natal`
+    - `POST /api/v1/charts/visualization/synastry`
+
+- **Synastry**: [app/api/v1/endpoints/charts/synastry.py](mdc:app/api/v1/endpoints/charts/synastry.py)
+  - Analyzes relationships between two charts
+  - Endpoint: `POST /api/v1/charts/synastry/`
+
+- **Composite**: [app/api/v1/endpoints/charts/composite.py](mdc:app/api/v1/endpoints/charts/composite.py)
+  - Generates and analyzes composite charts
+  - Endpoint: `POST /api/v1/charts/composite/`
+
+### Health Endpoint
+
+- Root health check implemented in [app/main.py](mdc:app/main.py)
+  - Endpoint: `GET /`
+  - Returns API status and version
+
+## Route Configuration
+
+All routes use:
+- Proper response models
+- Detailed documentation
+- Appropriate tagging
+- Standardized error responses

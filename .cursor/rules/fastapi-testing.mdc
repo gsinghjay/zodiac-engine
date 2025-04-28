@@ -1,0 +1,101 @@
+---
+description: his rule documents best practices for writing FastAPI tests in the Zodiac Engine. Call this rule when reviewing or creating tests, implementing test fixtures, or working with async testing. Use it when users need guidance on test structure, mocking dependencies, handling async operations, or optimizing test performance.
+globs: 
+alwaysApply: false
+---
+# FastAPI Testing Best Practices
+
+This document outlines the recommended testing practices for the Zodiac Engine application.
+
+## Test Structure
+
+- **Test Organization**: Organize tests by API resources/endpoints rather than by feature to improve maintainability
+- **Test Files**: Name test files with `test_` prefix (e.g., `test_natal_charts.py`)
+- **Test Directory**: Keep all tests in the `tests/` directory at the project root
+
+## TestClient Usage
+
+The primary way to test FastAPI endpoints is with `TestClient`:
+
+```python
+from fastapi.testclient import TestClient
+from app.main import app
+
+client = TestClient(app)
+
+def test_read_endpoint():
+    response = client.get("/some-endpoint")
+    assert response.status_code == 200
+    assert response.json() == {"expected": "response"}
+```
+
+## Asynchronous Testing
+
+For testing async endpoints correctly, use the following pattern:
+
+```python
+import pytest
+from httpx import AsyncClient
+
+@pytest.mark.anyio  # Use anyio instead of asyncio
+async def test_async_endpoint():
+    async with AsyncClient(app=app, base_url="http://test") as ac:
+        response = await ac.get("/endpoint")
+    assert response.status_code == 200
+```
+
+## Using Fixtures
+
+Place common fixtures in `conftest.py` for better reuse:
+
+```python
+# tests/conftest.py
+import pytest
+from fastapi.testclient import TestClient
+from app.main import app
+
+@pytest.fixture
+def client():
+    return TestClient(app)
+
+@pytest.fixture
+def test_data():
+    return {
+        "name": "Test Person",
+        "birth_date": "1990-01-01T12:00:00",
+        # other test data
+    }
+```
+
+## Dependency Overrides
+
+Override dependencies for isolated testing:
+
+```python
+from app.main import app, get_service
+
+# Create test service
+def get_test_service():
+    return TestService()
+
+# Override for testing
+app.dependency_overrides[get_service] = get_test_service
+
+# Reset after testing
+def teardown():
+    app.dependency_overrides = {}
+```
+
+## Best Practices
+
+1. **Test Both Success and Error Cases**: Verify correct behavior for both valid and invalid inputs
+2. **Parameterized Testing**: Use `@pytest.mark.parametrize` for testing variations
+3. **Mocking External Services**: Use `unittest.mock` or pytest's monkeypatch to avoid actual API calls
+4. **Testing File Operations**: Consider mocking file operations instead of writing actual files
+5. **Test Coverage**: Use pytest-cov to analyze and maintain test coverage
+
+## Project-Specific Guidelines
+
+- Test all chart generation endpoints with different parameter combinations
+- Verify SVG generation using content checks rather than file existence when possible
+- Mock the Kerykeion library calls for faster tests that don't depend on the library's behavior

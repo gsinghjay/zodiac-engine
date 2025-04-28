@@ -1,0 +1,54 @@
+---
+description: This rule documents the Pydantic data models used throughout the Zodiac Engine. Call this rule when working with data validation, schemas, or API request/response models. Use it when users need to understand the data structure, want to modify existing models, or need to create new Pydantic schemas according to best practices.
+globs: 
+alwaysApply: false
+---
+# Zodiac Engine Data Models
+
+This rule documents the data model structure of the Zodiac Engine application, which uses Pydantic for data validation and serialization.
+
+## Schema Structure
+
+Schemas are located in [app/schemas](mdc:app/schemas) and define:
+- Request/response models for API endpoints
+- Data validation rules
+- Documentation for the OpenAPI schema
+
+## Key Schema Files
+
+### Natal Chart Schemas
+
+[app/schemas/natal_chart.py](mdc:app/schemas/natal_chart.py) contains:
+- `PlanetPosition` - Schema for planet position in a chart
+- `NatalChartRequest` - Schema for natal chart calculation request
+- `AspectInfo` - Schema for planetary aspect information
+- `HouseSystem` - Schema for house system information
+- `NatalChartResponse` - Schema for natal chart calculation response
+
+### Chart Visualization Schemas
+
+[app/schemas/chart_visualization.py](mdc:app/schemas/chart_visualization.py) contains:
+- `AspectConfiguration` - Schema for aspect configuration
+- `ChartConfiguration` - Schema for chart configuration options
+- `NatalChartVisualizationRequest` - Schema for natal chart visualization request
+- `SynastryChartVisualizationRequest` - Schema for synastry chart visualization request
+- `ChartVisualizationResponse` - Base schema for chart visualization response
+- `NatalChartVisualizationResponse` - Response schema for natal chart visualization
+- `SynastryChartVisualizationResponse` - Response schema for synastry chart visualization
+
+## Pydantic Usage
+
+The schemas use Pydantic features like:
+- Type annotations for validation
+- Field descriptors with examples
+- Default values
+- Documentation for OpenAPI schema
+
+## Modernization Recommendations
+
+We recommend updating the schemas to use latest Pydantic v2 features:
+- Use new type syntax (`str | None` instead of `Optional[str]`)
+- Update model configuration style
+- Implement stronger validation rules
+
+Full recommendations are available in the [fastapi-best-practices-updates.md](mdc:fastapi-best-practices-updates.md) file.

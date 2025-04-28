@@ -1,0 +1,44 @@
+---
+description: This rule explains the service layer implementation in the Zodiac Engine. Call this rule when working with business logic, analyzing service methods, or implementing new services. Use it when users need to understand how core functionality is abstracted, how to interact with the Kerykeion library, or how to modify existing service components.
+globs: 
+alwaysApply: false
+---
+# Zodiac Engine Service Layer
+
+This rule documents the service layer implementation in the Zodiac Engine. The service layer contains the core business logic and abstracts complex operations from the API endpoints.
+
+## Service Components
+
+The service layer is located in [app/services](mdc:app/services) and consists of:
+
+### Astrology Service
+
+The [app/services/astrology.py](mdc:app/services/astrology.py) file contains:
+- `AstrologyService` - Handles calculations for astrological charts
+- Uses the Kerykeion library for core astrology computations
+- Provides methods for:
+  - Calculating natal charts
+  - Processing planetary positions
+  - Computing house positions
+  - Generating aspects between planets
+
+### Chart Visualization Service
+
+The [app/services/chart_visualization.py](mdc:app/services/chart_visualization.py) file contains:
+- `ChartVisualizationService` - Generates visual representations of charts
+- Creates SVG images of astrological charts using Kerykeion
+- Provides methods for:
+  - Generating natal chart SVGs
+  - Generating synastry chart SVGs
+  - Customizing chart appearance (themes, languages)
+  - Managing SVG file storage
+
+## Service Layer Design 
+
+The current service implementation uses static methods, but we recommend:
+- Converting to instance methods
+- Implementing dependency injection
+- Adding appropriate caching for performance
+- Making async methods where I/O operations are performed
+
+See [fastapi-best-practices-updates.md](mdc:fastapi-best-practices-updates.md) for improvement recommendations for the service layer.
