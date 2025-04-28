@@ -1,6 +1,7 @@
 """Chart visualization API endpoints."""
 from typing import Annotated
-from fastapi import APIRouter, HTTPException, status, Depends
+import uuid
+from fastapi import APIRouter, HTTPException, status, Depends, BackgroundTasks
 from datetime import datetime
 
 from app.core.exceptions import ChartCalculationError, InvalidBirthDataError, LocationError
@@ -69,10 +70,26 @@ router = APIRouter(
 @router.post(
     "/natal", 
     response_model=NatalChartVisualizationResponse,
-    status_code=status.HTTP_200_OK
+    response_model_exclude_unset=True,
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="Generate Natal Chart Visualization",
+    description="""
+    Generate and save a natal chart visualization.
+    
+    This endpoint accepts birth details and configuration options to create a custom chart.
+    The SVG generation happens in the background, and the endpoint returns immediately with a chart ID.
+    
+    You can specify:
+    - Theme: dark (default), light, classic, dark-high-contrast
+    - Language: EN (default), ES, IT, FR, DE, etc.
+    - Configuration options like house system, active points, and aspect orbs
+    
+    Returns a chart ID and URL to access the SVG once it's generated.
+    """
 )
 async def generate_natal_chart_visualization(
     request: NatalChartVisualizationRequest,
+    background_tasks: BackgroundTasks,
     chart_service: ChartVisualizationServiceDep
 ) -> NatalChartVisualizationResponse:
     """
@@ -90,8 +107,15 @@ async def generate_natal_chart_visualization(
                 detail=f"Invalid birth date format: {request.birth_date}. Use ISO format (YYYY-MM-DDTHH:MM:SS)."
             )
         
-        # Generate the chart visualization
-        result = chart_service.generate_natal_chart_svg(
+        # Generate a unique chart_id if not provided
+        chart_id = request.chart_id or f"natal_{uuid.uuid4().hex[:8]}"
+        
+        # Create a placeholder URL that will be valid once the background task completes
+        svg_url = f"/static/images/svg/{chart_id}.svg"
+        
+        # Schedule the chart generation as a background task
+        background_tasks.add_task(
+            chart_service.generate_natal_chart_svg,
             name=request.name,
             birth_date=birth_date,
             city=request.city,
@@ -99,15 +123,16 @@ async def generate_natal_chart_visualization(
             lng=request.lng,
             lat=request.lat,
             tz_str=request.tz_str,
-            chart_id=request.chart_id,
+            chart_id=chart_id,
             theme=request.theme,
             chart_language=request.language,
             config=request.config.model_dump() if request.config else None
         )
         
+        # Return the response immediately
         return NatalChartVisualizationResponse(
-            chart_id=result["chart_id"],
-            svg_url=result["svg_url"]
+            chart_id=chart_id,
+            svg_url=svg_url
         )
     except HTTPException:
         raise
@@ -120,10 +145,26 @@ async def generate_natal_chart_visualization(
 @router.post(
     "/synastry", 
     response_model=SynastryChartVisualizationResponse,
-    status_code=status.HTTP_200_OK
+    response_model_exclude_unset=True,
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="Generate Synastry Chart Visualization",
+    description="""
+    Generate and save a synastry chart visualization comparing two natal charts.
+    
+    This endpoint accepts birth details for two individuals and configuration options to create a custom synastry chart.
+    The SVG generation happens in the background, and the endpoint returns immediately with a chart ID.
+    
+    You can specify:
+    - Theme: dark (default), light, classic, dark-high-contrast
+    - Language: EN (default), ES, IT, FR, DE, etc.
+    - Configuration options like house system, active points, and aspect orbs
+    
+    Returns a chart ID and URL to access the SVG once it's generated.
+    """
 )
 async def generate_synastry_chart_visualization(
     request: SynastryChartVisualizationRequest,
+    background_tasks: BackgroundTasks,
     chart_service: ChartVisualizationServiceDep
 ) -> SynastryChartVisualizationResponse:
     """
@@ -142,8 +183,15 @@ async def generate_synastry_chart_visualization(
                 detail=f"Invalid birth date format: {str(e)}. Use ISO format (YYYY-MM-DDTHH:MM:SS)."
             )
         
-        # Generate the synastry chart visualization
-        result = chart_service.generate_synastry_chart_svg(
+        # Generate a unique chart_id if not provided
+        chart_id = request.chart_id or f"synastry_{uuid.uuid4().hex[:8]}"
+        
+        # Create a placeholder URL that will be valid once the background task completes
+        svg_url = f"/static/images/svg/{chart_id}.svg"
+        
+        # Schedule the chart generation as a background task
+        background_tasks.add_task(
+            chart_service.generate_synastry_chart_svg,
             name1=request.name1,
             birth_date1=birth_date1,
             name2=request.name2,
@@ -158,15 +206,16 @@ async def generate_synastry_chart_visualization(
             lng2=request.lng2,
             lat2=request.lat2,
             tz_str2=request.tz_str2,
-            chart_id=request.chart_id,
+            chart_id=chart_id,
             theme=request.theme,
             chart_language=request.language,
             config=request.config.model_dump() if request.config else None
         )
         
+        # Return the response immediately
         return SynastryChartVisualizationResponse(
-            chart_id=result["chart_id"],
-            svg_url=result["svg_url"]
+            chart_id=chart_id,
+            svg_url=svg_url
         )
     except HTTPException:
         raise

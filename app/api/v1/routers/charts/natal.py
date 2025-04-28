@@ -68,6 +68,7 @@ router = APIRouter(
 @router.post(
     "/",
     response_model=NatalChartResponse,
+    response_model_exclude_unset=True,
     status_code=status.HTTP_200_OK,
     summary="Calculate Natal Chart",
     description="""
@@ -140,7 +141,7 @@ router = APIRouter(
         }
     }
 )
-async def calculate_natal_chart(
+def calculate_natal_chart(
     request: NatalChartRequest,
     astrology_service: AstrologyServiceDep
 ) -> NatalChartResponse:
