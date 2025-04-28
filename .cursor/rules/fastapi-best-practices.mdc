@@ -1,0 +1,46 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# FastAPI Best Practices Guide
+
+This rule outlines FastAPI best practices for the Zodiac Engine application based on our analysis. These practices align with the latest recommendations from FastAPI's documentation and community standards.
+
+## Key Best Practices
+
+### Dependencies Management
+- Avoid using `fastapi[all]` in [requirements.txt](mdc:requirements.txt)
+- Use explicit version constraints for all dependencies
+
+### Pydantic Usage
+- Use latest Pydantic v2 syntax: `str | None` instead of `Optional[str]`
+- Use updated Pydantic configuration: `model_config = {...}` instead of `class Config`
+- Define clear schemas in [app/schemas](mdc:app/schemas) directory
+
+### Dependency Injection
+- Use `Annotated[Type, Depends()]` syntax in endpoint parameters
+- Inject services as dependencies rather than using static methods
+- Apply `@lru_cache` to expensive dependencies as seen in [app/core/dependencies.py](mdc:app/core/dependencies.py)
+
+### Async/Sync Consistency
+- Use `async def` only for endpoints that perform async I/O operations
+- Keep service methods synchronous if they don't perform I/O
+- Maintain consistent async/sync patterns throughout the codebase
+
+### Error Handling
+- Import from `fastapi import status` when setting status codes
+- Use custom exception classes as defined in [app/core/exceptions.py](mdc:app/core/exceptions.py)
+- Implement global exception handlers as in [app/core/error_handlers.py](mdc:app/core/error_handlers.py)
+
+### API Response Options
+- Use `response_model_exclude_unset=True` where appropriate
+- Set proper status codes for different operations
+- Document response schemas in API routes
+
+### Performance 
+- Use FastAPI's background tasks for long-running operations
+- Implement caching for expensive calculations
+
+## Detailed Implementation Plan
+The full implementation plan is documented in [fastapi-best-practices-updates.md](mdc:fastapi-best-practices-updates.md)
