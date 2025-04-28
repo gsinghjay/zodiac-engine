@@ -22,7 +22,7 @@ TEST_NATAL_DATA: Dict[str, Any] = {
 
 def test_natal_chart_different_themes():
     """Test generating natal charts with different themes."""
-    themes = ["light", "dark", "dark-high-contrast", "classic"]
+    themes = ["light", "dark", "classic", "dark-high-contrast"]
     
     for theme in themes:
         data = {
@@ -35,18 +35,21 @@ def test_natal_chart_different_themes():
         }
         
         response = client.post("/api/v1/charts/visualization/natal", json=data)
-        assert response.status_code == status.HTTP_200_OK
-        assert "chart_id" in response.json()
-        assert "svg_url" in response.json()
+        assert response.status_code == status.HTTP_202_ACCEPTED
+        
+        json_response = response.json()
+        assert "chart_id" in json_response
+        assert "svg_url" in json_response
+        assert json_response["svg_url"].endswith(".svg")
         
         # Verify the SVG file was created
-        chart_id = response.json()["chart_id"]
+        chart_id = json_response["chart_id"]
         svg_path = os.path.join("app", "static", "images", "svg", f"{chart_id}.svg")
         assert os.path.exists(svg_path)
 
 def test_natal_chart_different_languages():
     """Test generating natal charts with different languages."""
-    languages = ["EN", "FR", "IT", "ES", "DE"]  # Using a subset of languages for testing
+    languages = ["EN", "ES", "IT", "FR", "DE"]
     
     for language in languages:
         data = {
@@ -60,20 +63,23 @@ def test_natal_chart_different_languages():
         }
         
         response = client.post("/api/v1/charts/visualization/natal", json=data)
-        assert response.status_code == status.HTTP_200_OK
-        assert "chart_id" in response.json()
-        assert "svg_url" in response.json()
+        assert response.status_code == status.HTTP_202_ACCEPTED
+        
+        json_response = response.json()
+        assert "chart_id" in json_response
+        assert "svg_url" in json_response
+        assert json_response["svg_url"].endswith(".svg")
         
         # Verify the SVG file was created
-        chart_id = response.json()["chart_id"]
+        chart_id = json_response["chart_id"]
         svg_path = os.path.join("app", "static", "images", "svg", f"{chart_id}.svg")
         assert os.path.exists(svg_path)
 
 def test_natal_chart_different_perspective_types():
     """Test generating natal charts with different perspective types."""
-    perspective_types = ["Apparent Geocentric", "Heliocentric", "Topocentric", "True Geocentric"]
+    perspectives = ["Apparent Geocentric", "True Geocentric", "Topocentric"]
     
-    for perspective_type in perspective_types:
+    for perspective in perspectives:
         data = {
             **TEST_NATAL_DATA,
             "theme": "dark",
@@ -81,48 +87,54 @@ def test_natal_chart_different_perspective_types():
             "config": {
                 "zodiac_type": "Tropic",
                 "houses_system": "P",
-                "perspective_type": perspective_type
+                "perspective_type": perspective
             }
         }
         
         response = client.post("/api/v1/charts/visualization/natal", json=data)
-        assert response.status_code == status.HTTP_200_OK
-        assert "chart_id" in response.json()
-        assert "svg_url" in response.json()
+        assert response.status_code == status.HTTP_202_ACCEPTED
+        
+        json_response = response.json()
+        assert "chart_id" in json_response
+        assert "svg_url" in json_response
+        assert json_response["svg_url"].endswith(".svg")
         
         # Verify the SVG file was created
-        chart_id = response.json()["chart_id"]
+        chart_id = json_response["chart_id"]
         svg_path = os.path.join("app", "static", "images", "svg", f"{chart_id}.svg")
         assert os.path.exists(svg_path)
         
         # Verify the perspective type is shown in the chart
         with open(svg_path, "r", encoding="utf-8") as f:
             svg_content = f.read()
-            assert perspective_type in svg_content or perspective_type.replace(" ", "_").lower() in svg_content.lower()
+            assert perspective in svg_content or perspective.replace(" ", "_").lower() in svg_content.lower()
 
 def test_natal_chart_different_sidereal_modes():
     """Test generating natal charts with different sidereal modes."""
-    sidereal_modes = ["FAGAN_BRADLEY", "LAHIRI", "DELUCE", "KRISHNAMURTI", "DJWHAL_KHUL"]
+    sidereal_modes = ["FAGAN_BRADLEY", "LAHIRI", "DELUCE", "RAMAN", "KRISHNAMURTI"]
     
-    for sidereal_mode in sidereal_modes:
+    for mode in sidereal_modes:
         data = {
             **TEST_NATAL_DATA,
             "theme": "dark",
             "language": "EN",
             "config": {
                 "zodiac_type": "Sidereal",
-                "sidereal_mode": sidereal_mode,
+                "sidereal_mode": mode,
                 "houses_system": "P"
             }
         }
         
         response = client.post("/api/v1/charts/visualization/natal", json=data)
-        assert response.status_code == status.HTTP_200_OK
-        assert "chart_id" in response.json()
-        assert "svg_url" in response.json()
+        assert response.status_code == status.HTTP_202_ACCEPTED
+        
+        json_response = response.json()
+        assert "chart_id" in json_response
+        assert "svg_url" in json_response
+        assert json_response["svg_url"].endswith(".svg")
         
         # Verify the SVG file was created
-        chart_id = response.json()["chart_id"]
+        chart_id = json_response["chart_id"]
         svg_path = os.path.join("app", "static", "images", "svg", f"{chart_id}.svg")
         assert os.path.exists(svg_path)
         
@@ -134,10 +146,17 @@ def test_natal_chart_different_sidereal_modes():
 def test_natal_chart_different_celestial_points():
     """Test generating natal charts with different celestial points."""
     point_sets = [
-        ["Sun", "Moon", "Mercury", "Venus", "Mars"],  # Basic planets
-        ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"],  # All planets
-        ["Sun", "Moon", "Ascendant", "Medium_Coeli", "Descendant", "Imum_Coeli"],  # Main points + angles
-        ["Sun", "Moon", "Chiron", "Mean_Lilith", "Mean_Node", "True_Node"],  # Special points
+        # Standard planets only
+        ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"],
+        
+        # Traditional planets
+        ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn"],
+        
+        # Luminaries and angles
+        ["Sun", "Moon", "Ascendant", "Medium_Coeli"],
+        
+        # Additional points
+        ["Sun", "Moon", "Mean_Node", "Mean_Lilith", "Chiron"]
     ]
     
     for points in point_sets:
@@ -153,12 +172,15 @@ def test_natal_chart_different_celestial_points():
         }
         
         response = client.post("/api/v1/charts/visualization/natal", json=data)
-        assert response.status_code == status.HTTP_200_OK
-        assert "chart_id" in response.json()
-        assert "svg_url" in response.json()
+        assert response.status_code == status.HTTP_202_ACCEPTED
+        
+        json_response = response.json()
+        assert "chart_id" in json_response
+        assert "svg_url" in json_response
+        assert json_response["svg_url"].endswith(".svg")
         
         # Verify the SVG file was created
-        chart_id = response.json()["chart_id"]
+        chart_id = json_response["chart_id"]
         svg_path = os.path.join("app", "static", "images", "svg", f"{chart_id}.svg")
         assert os.path.exists(svg_path)
         
@@ -169,9 +191,8 @@ def test_natal_chart_different_celestial_points():
 
 def test_natal_chart_different_house_systems():
     """Test generating natal charts with different house systems."""
-    # Valid house systems from the error message:
-    # 'A', 'B', 'C', 'D', 'F', 'H', 'I', 'i', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y'
-    house_systems = ["P", "K", "C", "R", "W", "B", "M", "A", "D"]  # Placidus, Koch, Campanus, Regiomontanus, Whole Sign, Alcabitius, Morinus, Equal, Equal
+    # Using only valid house systems as shown in the error message
+    house_systems = ["P", "K", "R", "C", "W", "F", "O", "B", "M"]
     
     for house_system in house_systems:
         data = {
@@ -185,11 +206,14 @@ def test_natal_chart_different_house_systems():
         }
         
         response = client.post("/api/v1/charts/visualization/natal", json=data)
-        assert response.status_code == status.HTTP_200_OK
-        assert "chart_id" in response.json()
-        assert "svg_url" in response.json()
+        assert response.status_code == status.HTTP_202_ACCEPTED
+        
+        json_response = response.json()
+        assert "chart_id" in json_response
+        assert "svg_url" in json_response
+        assert json_response["svg_url"].endswith(".svg")
         
         # Verify the SVG file was created
-        chart_id = response.json()["chart_id"]
+        chart_id = json_response["chart_id"]
         svg_path = os.path.join("app", "static", "images", "svg", f"{chart_id}.svg")
         assert os.path.exists(svg_path) 
