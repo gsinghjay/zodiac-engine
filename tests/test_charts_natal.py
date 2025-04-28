@@ -1,7 +1,8 @@
 from datetime import datetime
-from typing import Dict
+from typing import Dict, Any
 
 import pytest
+from fastapi import status
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -9,7 +10,7 @@ from app.main import app
 client = TestClient(app)
 
 @pytest.fixture
-def valid_natal_chart_request() -> Dict:
+def valid_natal_chart_request() -> Dict[str, Any]:
     """Fixture for valid natal chart request data."""
     return {
         "name": "John Doe",
@@ -26,7 +27,7 @@ def test_calculate_natal_chart_success(valid_natal_chart_request):
     """Test successful natal chart calculation with new chart endpoint."""
     response = client.post("/api/v1/charts/natal/", json=valid_natal_chart_request)
     
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
     data = response.json()
     
     # Check response structure
@@ -67,7 +68,7 @@ def test_calculate_natal_chart_invalid_date():
     }
     
     response = client.post("/api/v1/charts/natal/", json=invalid_request)
-    assert response.status_code == 422
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
 def test_calculate_natal_chart_missing_required():
     """Test natal chart calculation with missing required fields."""
@@ -77,7 +78,7 @@ def test_calculate_natal_chart_missing_required():
     }
     
     response = client.post("/api/v1/charts/natal/", json=invalid_request)
-    assert response.status_code == 422
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
 def test_calculate_natal_chart_coordinates_only(valid_natal_chart_request):
     """Test natal chart calculation with coordinates only."""
@@ -91,13 +92,13 @@ def test_calculate_natal_chart_coordinates_only(valid_natal_chart_request):
     }
     
     response = client.post("/api/v1/charts/natal/", json=request)
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
 
 def test_calculate_natal_chart_celestial_points(valid_natal_chart_request):
     """Test that all celestial points are included in the response."""
     response = client.post("/api/v1/charts/natal/", json=valid_natal_chart_request)
     
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
     data = response.json()
     
     # Get all planet names from the response
@@ -118,7 +119,7 @@ def test_calculate_natal_chart_aspect_data(valid_natal_chart_request):
     """Test that aspect data includes complete information with orbs."""
     response = client.post("/api/v1/charts/natal/", json=valid_natal_chart_request)
     
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
     data = response.json()
     
     # Verify we have aspects
@@ -140,7 +141,7 @@ def test_calculate_natal_chart_different_house_system(valid_natal_chart_request)
     
     response = client.post("/api/v1/charts/natal/", json=request)
     
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
     data = response.json()
     
     # Verify the house system in the response

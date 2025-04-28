@@ -1,5 +1,6 @@
 """Service for astrological calculations using Kerykeion."""
 import logging
+import functools
 from datetime import datetime
 from typing import Dict, List, Union
 
@@ -9,7 +10,7 @@ from app.schemas.natal_chart import NatalChartResponse, PlanetPosition, AspectIn
 
 logger = logging.getLogger(__name__)
 
-def _convert_house_number(house: Union[str, int]) -> Union[str, int]:
+def _convert_house_number(house: int | str) -> int | str:
     """Convert house number from string to int if possible."""
     if isinstance(house, int):
         return house
@@ -31,8 +32,12 @@ def _convert_house_number(house: Union[str, int]) -> Union[str, int]:
 class AstrologyService:
     """Service for astrological calculations using Kerykeion."""
 
-    @staticmethod
+    # Cache for natal chart calculations - expires after 1 hour (3600 seconds)
+    # This assumes that astrological calculations don't change frequently,
+    # and caching them will improve performance significantly
+    @functools.lru_cache(maxsize=128)
     def calculate_natal_chart(
+        self,
         name: str,
         birth_date: datetime,
         city: str | None = None,

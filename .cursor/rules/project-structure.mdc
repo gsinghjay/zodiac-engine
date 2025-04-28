@@ -14,9 +14,10 @@ The main entry point is [app/main.py](mdc:app/main.py), which creates the FastAP
 ## Key Components:
 
 - **API Routes**: Located in [app/api](mdc:app/api) with versioning (v1)
-  - Main endpoints: [app/api/v1/endpoints/charts](mdc:app/api/v1/endpoints/charts)
-  - Natal charts: [app/api/v1/endpoints/charts/natal.py](mdc:app/api/v1/endpoints/charts/natal.py)
-  - Visualizations: [app/api/v1/endpoints/charts/visualization.py](mdc:app/api/v1/endpoints/charts/visualization.py)
+  - Routers: [app/api/v1/routers](mdc:app/api/v1/routers)
+  - Chart Routers: [app/api/v1/routers/charts](mdc:app/api/v1/routers/charts)
+  - Natal charts: [app/api/v1/routers/charts/natal.py](mdc:app/api/v1/routers/charts/natal.py)
+  - Visualizations: [app/api/v1/routers/charts/visualization.py](mdc:app/api/v1/routers/charts/visualization.py)
 
 - **Core Components**: Located in [app/core](mdc:app/core)
   - Configuration: [app/core/config.py](mdc:app/core/config.py)

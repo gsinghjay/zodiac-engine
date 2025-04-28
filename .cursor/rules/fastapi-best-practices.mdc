@@ -1,5 +1,5 @@
 ---
-description: 
+description: Documents the established FastAPI best practices for the Zodiac Engine, covering dependencies, Pydantic v2, DI, async/sync, error handling, responses, and performance. Fetch this rule when implementing/refactoring FastAPI code, evaluating quality, or answering user questions about project standards.
 globs: 
 alwaysApply: false
 ---
@@ -41,6 +41,3 @@ This rule outlines FastAPI best practices for the Zodiac Engine application base
 ### Performance 
 - Use FastAPI's background tasks for long-running operations
 - Implement caching for expensive calculations
-
-## Detailed Implementation Plan
-The full implementation plan is documented in [fastapi-best-practices-updates.md](mdc:fastapi-best-practices-updates.md)

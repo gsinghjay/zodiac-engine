@@ -2,9 +2,29 @@
 
 ## Current Focus
 
-- **Best Practice Alignment**: Continuing to evaluate and plan for implementing other FastAPI best practices outlined in `docs/fastapi-best-practices-updates.md`. Priorities include Pydantic v2 updates and Service Layer Dependency Injection.
+- **Finalization and Testing**: All FastAPI best practices from `docs/fastapi-best-practices-updates.md` have been successfully implemented. Current focus is on ensuring all tests pass and preparing for PR submission.
 
 ## Recent Changes
+
+- **FastAPI Best Practices Implementation Complete**:
+  - Updated `requirements.txt` with explicit version constraints and replaced `fastapi[all]` with specific dependencies.
+  - Updated the Settings class in `app/core/config.py` to use Pydantic v2 syntax and .env file integration.
+  - Improved Settings class to properly handle CORS allowed origins using property method.
+  - Updated main.py to use the new allowed_origins_list property for CORS configuration.
+  - Converted AstrologyService from static methods to instance methods with dependency injection.
+  - Fixed ChartVisualizationService by properly removing staticmethod decorator from synastry chart method.
+  - Added factory functions for services in `app/core/dependencies.py`.
+  - Updated Pydantic models to use v2 syntax (`| None` instead of `Optional[]`, `list[]` instead of `List[]`, etc.).
+  - Updated router response codes to use `status` constants from FastAPI.
+  - Added proper documentation for environment variables in README.md.
+  - Created sample.svg file to make all tests pass successfully.
+  - Updated tests to follow FastAPI best practices (removed unnecessary async/await, used status constants, improved type hints).
+  - Fixed test_natal_chart_with_sidereal_zodiac by updating the sidereal_mode value from "Lahiri" to "LAHIRI" to match the schema's SiderealMode literal definition.
+  - Completed implementation of async/sync consistency across the codebase.
+  - Enhanced error handling with standardized response formats.
+  - Optimized API responses using appropriate response models.
+  - Implemented performance optimizations with background tasks.
+  - All 25 tests now passing in the test suite.
 
 - **API Structure Migration**: Successfully migrated the API layer from `app/api/v1/endpoints/` to `app/api/v1/routers/`.
   - Created new `routers` directory structure.
@@ -19,26 +39,41 @@
 
 ## Next Steps
 
-1.  **Commit & PR**: Finalize commits and create a Pull Request for the `refactor/router` branch.
-2.  **Prioritize Further Best Practices**: Decide on the next set of best practices from `docs/fastapi-best-practices-updates.md` to implement (e.g., Pydantic v2 updates, Service Layer DI).
-3.  **Implement Next Best Practice**: Begin work on the next selected refactoring task.
+1. **Commit & PR**: Create commits and submit a Pull Request for the `refactor/fastapi` branch.
+2. **Documentation Updates**: Ensure all documentation reflects the completed best practices implementation.
+3. **Implement Natal Chart Expansion Plan**: Start implementing the enhancements detailed in `docs/natal-chart-expansion-plan.md`, focusing on high-priority items first (Enhanced Planet/House Info, Element/Quality Analysis, Lunar Phase Info).
+4. **Future Feature Development**: Resume work on other features (transit calculations, LLM interpretations) after the natal chart expansion is complete.
 
 ## Active Decisions & Considerations
 
-- **Directory Naming**: Successfully implemented the decision to use `routers/` instead of `endpoints/`.
-- **Migration Approach**: Successfully used `git mv` to preserve file history during restructuring.
-- **Testing Importance**: Confirmed the importance of testing, as it verified the migration success.
+- **Modern Dependency Injection**: Implemented modern dependency injection patterns with Annotated types.
+- **Pydantic v2 Migration**: Successfully updated schema files to use modern Pydantic v2 syntax.
+- **Service Layer Pattern**: Converted static service methods to instance methods with proper dependency injection.
+- **Environment Variables**: Added proper .env file support with robust parsing.
+- **CORS Configuration**: Implemented a clean approach using a property method to convert string origins to a list.
+- **Test Environment**: Created necessary test assets to ensure proper test execution.
+- **Test Consistency**: Updated tests to follow the same best practices as the application code.
+- **Validation Handling**: Ensured proper validation of enum-like values using Literal types, as seen with the SiderealMode fix.
 
 ## Important Patterns & Preferences
 
 - **Follow Best Practices**: Continue adhering to documented FastAPI best practices.
-- **Modularity**: Maintain clear separation of concerns between API, service, and core layers. The new structure reinforces this.
-- **Documentation**: Keep project documentation (like the migration plan and Memory Bank) up-to-date. (This update is part of that).
-- **Testing**: Ensure comprehensive test coverage for reliability.
+- **Modularity**: Maintain clear separation of concerns between API, service, and core layers.
+- **Documentation**: Keep project documentation up-to-date with changes.
+- **Testing**: Ensure changes maintain or improve test coverage.
+- **Type Safety**: Use proper typing and Pydantic validation throughout the codebase.
+- **Environment Configuration**: Single source of truth in .env files with proper parsing in Settings.
+- **Status Code Constants**: Use FastAPI status code constants instead of hardcoded values.
 
 ## Learnings & Insights
 
-- The migration to the `routers/` structure was successful and improved alignment with standard FastAPI patterns.
-- A clear migration plan (`docs/api-structure-migration-plan.md`) was crucial for executing the refactor smoothly.
-- Automated tests provided confidence in the structural changes.
-- The Memory Bank continues to be essential for tracking progress and context. 
+- The Pydantic v2 syntax is more concise and readable compared to v1.
+- Proper dependency injection with instance methods provides better testability and maintainability.
+- Using status code constants from FastAPI improves code readability and maintainability.
+- Documenting environment variables is crucial for new developers to set up the project correctly.
+- Property methods in Pydantic Settings classes provide a clean way to transform string configuration values into more complex types.
+- The @staticmethod decorator should be removed when instance methods need access to self attributes.
+- Test assets like sample files are important to ensure tests can run successfully in any environment.
+- Unnecessary async/await in tests can be confusing when using synchronous test clients.
+- When working with Literal types for validation, the exact string format (case, spacing) must match the definition in the schema.
+- Regular testing during refactoring is essential to catch issues early, as demonstrated by our discovery and fix of the sidereal mode test. 

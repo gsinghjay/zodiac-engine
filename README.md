@@ -37,6 +37,28 @@ A modern astrological calculation API powered by [Kerykeion](https://github.com/
    pip install -r requirements.txt
    ```
 
+4. Environment Variables:
+   
+   Create a `.env` file in the project root with the following variables:
+   ```
+   # Application settings
+   PROJECT_NAME="Zodiac Engine API"  # The name of the project displayed in API docs
+   VERSION="1.0.0"                   # API version for documentation
+   API_V1_STR="/api/v1"              # API version prefix for all endpoints
+   ALLOWED_ORIGINS="*"               # Comma-separated list of allowed CORS origins
+   
+   # Kerykeion settings
+   GEONAMES_USERNAME=""              # Username for GeoNames API (optional)
+   ```
+   
+   The `GEONAMES_USERNAME` is optional but recommended for enhanced geolocation features.
+   You can obtain a free username by registering at [GeoNames](https://www.geonames.org/login).
+   
+   For CORS configuration, you can specify multiple origins using commas:
+   ```
+   ALLOWED_ORIGINS="http://localhost:3000,https://yourdomain.com"
+   ```
+
 ## Usage
 
 Run the development server:
@@ -159,16 +181,19 @@ zodiac-engine/
 ├── app/                    # Application package
 │   ├── api/                # API endpoints
 │   │   └── v1/             # Version 1 API
-│   │       └── endpoints/  # API endpoint modules
-│   │           └── charts/ # Chart endpoints
+│   │       └── routers/    # API router modules
+│   │           └── charts/ # Chart routers
 │   ├── core/               # Core functionality
+│   │   ├── config.py       # Application settings
+│   │   └── dependencies.py # Dependency injection
+│   ├── schemas/            # Pydantic models
+│   ├── services/           # Business logic
 │   ├── static/             # Static files
 │   │   └── images/         # Image files
 │   │       └── svg/        # SVG chart visualizations
-│   ├── schemas/            # Pydantic models
-│   ├── services/           # Business logic
 │   └── main.py             # FastAPI application
 ├── tests/                  # Test package
+├── .env                    # Environment variables
 ├── .gitignore              # Git ignore file
 ├── pytest.ini              # Pytest configuration
 ├── requirements.txt        # Dependencies
@@ -186,15 +211,52 @@ pip install -r requirements.txt
 ### Running Tests
 
 ```bash
+# Run all tests
 pytest
+
+# Run a specific test file
+pytest tests/test_static_images.py
+
+# Run a specific test function
+pytest tests/test_static_images.py::test_generate_natal_chart_visualization
 ```
+
+#### Viewing Generated SVG Files
+
+When running individual tests that generate SVG files, the files are created in the `app/static/images/svg/` directory. For example:
+
+```bash
+# Run a test that generates an SVG file
+pytest tests/test_static_images.py::test_generate_natal_chart_visualization -v
+
+# View the generated SVG file
+# On Linux/macOS
+open app/static/images/svg/test_natal_chart.svg
+
+# On Windows
+start app/static/images/svg/test_natal_chart.svg
+```
+
+Note: When running the full test suite, SVG files are automatically cleaned up after all tests complete, except for `sample.svg`. If you want to examine generated SVGs, run individual test cases instead.
+
+### FastAPI Best Practices
+
+This project follows modern FastAPI best practices:
+
+- **Pydantic v2**: Using modern syntax (`| None` instead of `Optional[]`, etc.)
+- **Dependency Injection**: Services are injected using FastAPI's DI system
+- **Environment Configuration**: Settings class with proper .env integration
+- **Response Models**: Properly typed response models for all endpoints
+- **Status Codes**: Using FastAPI status constants for consistency
+- **CORS Configuration**: Robust handling of allowed origins
 
 ### Code Style
 
-This project follows PEP 8 guidelines and uses:
+This project follows:
 - SOLID principles
 - DRY (Don't Repeat Yourself)
 - Conventional commits
+- Type hints throughout the codebase
 
 ## Roadmap
 

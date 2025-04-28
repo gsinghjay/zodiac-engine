@@ -35,10 +35,10 @@ The [app/services/chart_visualization.py](mdc:app/services/chart_visualization.p
 
 ## Service Layer Design 
 
-The current service implementation uses static methods, but we recommend:
-- Converting to instance methods
-- Implementing dependency injection
-- Adding appropriate caching for performance
-- Making async methods where I/O operations are performed
-
-See [fastapi-best-practices-updates.md](mdc:fastapi-best-practices-updates.md) for improvement recommendations for the service layer.
+The service layer follows modern FastAPI best practices:
+- Services are implemented as classes with instance methods.
+- Dependency injection is used via factory functions in [app/core/dependencies.py](mdc:app/core/dependencies.py) to provide service instances to API routes.
+- Settings and other dependencies are injected into service constructors (`__init__`).
+- `@lru_cache` is used on methods like `AstrologyService.calculate_natal_chart` for performance.
+- Async methods are used where appropriate (e.g., if database interactions were added).
+- Background tasks are leveraged for long-running processes like SVG generation, orchestrated by the API layer calling service methods.

@@ -5,8 +5,10 @@ from typing import Annotated
 from fastapi import Depends
 
 from app.core.config import Settings
+from app.services.astrology import AstrologyService
+from app.services.chart_visualization import ChartVisualizationService
 
-@lru_cache
+@lru_cache(maxsize=1)
 def get_settings() -> Settings:
     """
     Get application settings as a dependency.
@@ -15,4 +17,27 @@ def get_settings() -> Settings:
     """
     return Settings()
 
-SettingsDep = Annotated[Settings, Depends(get_settings)] 
+SettingsDep = Annotated[Settings, Depends(get_settings)]
+
+@lru_cache(maxsize=32)
+def get_astrology_service() -> AstrologyService:
+    """
+    Get an instance of the AstrologyService.
+    
+    This dependency can be used in route functions to get access to astrology-related operations.
+    Uses lru_cache to reuse the service instance, improving performance.
+    """
+    return AstrologyService()
+
+AstrologyServiceDep = Annotated[AstrologyService, Depends(get_astrology_service)]
+
+def get_chart_visualization_service(settings: SettingsDep) -> ChartVisualizationService:
+    """
+    Get an instance of the ChartVisualizationService.
+    
+    This dependency requires settings and can be used in route functions
+    to get access to chart visualization operations.
+    """
+    return ChartVisualizationService(settings=settings)
+
+ChartVisualizationServiceDep = Annotated[ChartVisualizationService, Depends(get_chart_visualization_service)] 

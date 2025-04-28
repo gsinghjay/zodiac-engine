@@ -10,3 +10,5 @@ libraries/
 docs/
 .env
 cache/
+app/static/images/svg/natal_*.svg
+app/static/images/svg/synastry_*.svg

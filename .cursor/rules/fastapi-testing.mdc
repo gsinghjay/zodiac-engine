@@ -9,13 +9,13 @@ This document outlines the recommended testing practices for the Zodiac Engine a
 
 ## Test Structure
 
-- **Test Organization**: Organize tests by API resources/endpoints rather than by feature to improve maintainability
-- **Test Files**: Name test files with `test_` prefix (e.g., `test_natal_charts.py`)
-- **Test Directory**: Keep all tests in the `tests/` directory at the project root
+- **Test Organization**: Organize tests by API resources/endpoints (e.g., `test_chart_configuration.py`, `test_natal_chart_variations.py`).
+- **Test Files**: Name test files with `test_` prefix.
+- **Test Directory**: Keep all tests in the `tests/` directory at the project root.
 
 ## TestClient Usage
 
-The primary way to test FastAPI endpoints is with `TestClient`:
+The primary way to test FastAPI endpoints is with the synchronous `TestClient` from `fastapi.testclient`. Most tests use this client directly.
 
 ```python
 from fastapi.testclient import TestClient
@@ -29,35 +29,32 @@ def test_read_endpoint():
     assert response.json() == {"expected": "response"}
 ```
 
-## Asynchronous Testing
+## Asynchronous Testing Considerations
 
-For testing async endpoints correctly, use the following pattern:
+- The `pytest-asyncio` plugin is installed.
+- Test functions themselves should *not* use `async def` unless they directly `await` something *other* than client calls (which are synchronous with `TestClient`).
+- For testing true async operations or if switching to `httpx.AsyncClient`, use `@pytest.mark.anyio` and `async def`.
 
 ```python
-import pytest
-from httpx import AsyncClient
-
-@pytest.mark.anyio  # Use anyio instead of asyncio
-async def test_async_endpoint():
-    async with AsyncClient(app=app, base_url="http://test") as ac:
-        response = await ac.get("/endpoint")
-    assert response.status_code == 200
+# Example IF using AsyncClient (not current practice)
+# import pytest
+# from httpx import AsyncClient
+#
+# @pytest.mark.anyio
+# async def test_async_endpoint():
+#     async with AsyncClient(app=app, base_url="http://test") as ac:
+#         response = await ac.get("/endpoint")
+#     assert response.status_code == 200
 ```
 
 ## Using Fixtures
 
-Place common fixtures in `conftest.py` for better reuse:
+- Fixtures can be defined in individual test files or in `tests/conftest.py` for reuse.
+- Currently, fixtures like `valid_natal_visualization_request` are defined within specific test files (e.g., [tests/test_static_images.py](mdc:tests/test_static_images.py)).
+- The `TestClient` is instantiated directly in each test file rather than using a shared fixture.
 
 ```python
-# tests/conftest.py
-import pytest
-from fastapi.testclient import TestClient
-from app.main import app
-
-@pytest.fixture
-def client():
-    return TestClient(app)
-
+# Example fixture in a test file
 @pytest.fixture
 def test_data():
     return {
@@ -65,37 +62,47 @@ def test_data():
         "birth_date": "1990-01-01T12:00:00",
         # other test data
     }
+
+def test_using_fixture(test_data):
+    response = client.post("/some-endpoint", json=test_data)
+    # ... assertions ...
 ```
 
 ## Dependency Overrides
 
-Override dependencies for isolated testing:
+- FastAPI supports overriding dependencies for isolated testing, which is useful for mocking external services or databases.
+- This is typically done using `app.dependency_overrides`.
+- **Note**: This pattern is not currently used for service mocking (e.g., `AstrologyService`, `ChartVisualizationService`) in the existing test suite, but can be implemented if needed.
 
 ```python
-from app.main import app, get_service
-
-# Create test service
-def get_test_service():
-    return TestService()
-
-# Override for testing
-app.dependency_overrides[get_service] = get_test_service
-
-# Reset after testing
-def teardown():
-    app.dependency_overrides = {}
+# Example of overriding a dependency (conceptual)
+# from app.main import app
+# from app.core.dependencies import get_astrology_service
+#
+# def get_mock_astrology_service():
+#     # Return a mock or test implementation
+#     return MockAstrologyService()
+#
+# app.dependency_overrides[get_astrology_service] = get_mock_astrology_service
+#
+# # Run tests that use the overridden dependency
+#
+# # Clean up overrides after tests
+# app.dependency_overrides = {}
 ```
 
 ## Best Practices
 
-1. **Test Both Success and Error Cases**: Verify correct behavior for both valid and invalid inputs
-2. **Parameterized Testing**: Use `@pytest.mark.parametrize` for testing variations
-3. **Mocking External Services**: Use `unittest.mock` or pytest's monkeypatch to avoid actual API calls
-4. **Testing File Operations**: Consider mocking file operations instead of writing actual files
-5. **Test Coverage**: Use pytest-cov to analyze and maintain test coverage
+1.  **Test Both Success and Error Cases**: Verify correct behavior for both valid and invalid inputs.
+2.  **Use Status Constants**: Use `fastapi.status` constants (e.g., `status.HTTP_200_OK`) instead of raw numbers.
+3.  **Parameterized Testing**: Use `@pytest.mark.parametrize` for testing variations efficiently.
+4.  **Mocking External Services**: If external dependencies (beyond Kerykeion, which is implicitly tested) are added, use `unittest.mock` or pytest's monkeypatch.
+5.  **Testing File Operations**: For file generation (like SVGs), assert file existence and optionally check content. Consider mocking file system interactions for pure unit tests.
+6.  **Test Coverage**: Aim for high test coverage using `pytest-cov`.
 
 ## Project-Specific Guidelines
 
-- Test all chart generation endpoints with different parameter combinations
-- Verify SVG generation using content checks rather than file existence when possible
-- Mock the Kerykeion library calls for faster tests that don't depend on the library's behavior
+- Test all chart generation endpoints with various valid and invalid configurations.
+- Verify SVG generation includes expected elements or text content.
+- Ensure tests clean up generated files or use a dedicated test directory (currently handled by `setup_static_dir` fixture in `test_static_images.py`).
+- Tests currently rely on the actual Kerykeion library execution. Mocking Kerykeion is an option for faster, more isolated unit tests in the future.

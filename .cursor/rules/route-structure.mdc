@@ -12,29 +12,29 @@ This rule documents the API route structure of the Zodiac Engine application, wh
 - Main router is included in [app/main.py](mdc:app/main.py)
 - API routes are organized in [app/api](mdc:app/api)
 - API versions are separated in directories (currently v1)
-- Each endpoint group has its own module in [app/api/v1/endpoints](mdc:app/api/v1/endpoints)
+- Each router group has its own module in [app/api/v1/routers](mdc:app/api/v1/routers)
 
 ## Key API Endpoints
 
-### Chart Endpoints
+### Chart Routers
 
-The primary endpoints for astrological charts are located in [app/api/v1/endpoints/charts](mdc:app/api/v1/endpoints/charts):
+The primary endpoints for astrological charts are located in [app/api/v1/routers/charts](mdc:app/api/v1/routers/charts):
 
-- **Natal Charts**: [app/api/v1/endpoints/charts/natal.py](mdc:app/api/v1/endpoints/charts/natal.py)
+- **Natal Charts**: [app/api/v1/routers/charts/natal.py](mdc:app/api/v1/routers/charts/natal.py)
   - Calculates complete natal charts based on birth data
   - Endpoint: `POST /api/v1/charts/natal/`
 
-- **Chart Visualization**: [app/api/v1/endpoints/charts/visualization.py](mdc:app/api/v1/endpoints/charts/visualization.py)
+- **Chart Visualization**: [app/api/v1/routers/charts/visualization.py](mdc:app/api/v1/routers/charts/visualization.py)
   - Generates SVG visualizations of charts
   - Endpoints: 
     - `POST /api/v1/charts/visualization/natal`
     - `POST /api/v1/charts/visualization/synastry`
 
-- **Synastry**: [app/api/v1/endpoints/charts/synastry.py](mdc:app/api/v1/endpoints/charts/synastry.py)
+- **Synastry**: [app/api/v1/routers/charts/synastry.py](mdc:app/api/v1/routers/charts/synastry.py)
   - Analyzes relationships between two charts
   - Endpoint: `POST /api/v1/charts/synastry/`
 
-- **Composite**: [app/api/v1/endpoints/charts/composite.py](mdc:app/api/v1/endpoints/charts/composite.py)
+- **Composite**: [app/api/v1/routers/charts/composite.py](mdc:app/api/v1/routers/charts/composite.py)
   - Generates and analyzes composite charts
   - Endpoint: `POST /api/v1/charts/composite/`
 
