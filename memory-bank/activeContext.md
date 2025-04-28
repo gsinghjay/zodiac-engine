@@ -2,11 +2,11 @@
 
 ## Current Focus
 
-- **Best Practice Implementation**: Implementing the FastAPI best practices as outlined in `docs/fastapi-best-practices-updates.md`. Currently focusing on Pydantic v2 updates and Service Layer Dependency Injection.
+- **Finalization and Testing**: All FastAPI best practices from `docs/fastapi-best-practices-updates.md` have been successfully implemented. Current focus is on ensuring all tests pass and preparing for PR submission.
 
 ## Recent Changes
 
-- **FastAPI Best Practices Implementation**:
+- **FastAPI Best Practices Implementation Complete**:
   - Updated `requirements.txt` with explicit version constraints and replaced `fastapi[all]` with specific dependencies.
   - Updated the Settings class in `app/core/config.py` to use Pydantic v2 syntax and .env file integration.
   - Improved Settings class to properly handle CORS allowed origins using property method.
@@ -19,6 +19,11 @@
   - Added proper documentation for environment variables in README.md.
   - Created sample.svg file to make all tests pass successfully.
   - Updated tests to follow FastAPI best practices (removed unnecessary async/await, used status constants, improved type hints).
+  - Fixed test_natal_chart_with_sidereal_zodiac by updating the sidereal_mode value from "Lahiri" to "LAHIRI" to match the schema's SiderealMode literal definition.
+  - Completed implementation of async/sync consistency across the codebase.
+  - Enhanced error handling with standardized response formats.
+  - Optimized API responses using appropriate response models.
+  - Implemented performance optimizations with background tasks.
   - All 25 tests now passing in the test suite.
 
 - **API Structure Migration**: Successfully migrated the API layer from `app/api/v1/endpoints/` to `app/api/v1/routers/`.
@@ -34,13 +39,9 @@
 
 ## Next Steps
 
-1. **Test FastAPI Best Practices Implementation**: Run the full test suite to make sure all the refactoring is working as expected.
-2. **Commit & PR**: Create commits and submit a Pull Request for the `refactor/fastapi` branch.
-3. **Continue with Best Practices**: Implement remaining best practices from `docs/fastapi-best-practices-updates.md`:
-   - Complete async/sync consistency updates
-   - Enhance error handling
-   - Implement API response customization
-   - Add performance optimizations
+1. **Commit & PR**: Create commits and submit a Pull Request for the `refactor/fastapi` branch.
+2. **Documentation Updates**: Ensure all documentation reflects the completed best practices implementation.
+3. **Feature Development**: Resume work on implementing new features (composite charts, transit calculations, LLM interpretations) now that the framework is properly modernized.
 
 ## Active Decisions & Considerations
 
@@ -51,6 +52,7 @@
 - **CORS Configuration**: Implemented a clean approach using a property method to convert string origins to a list.
 - **Test Environment**: Created necessary test assets to ensure proper test execution.
 - **Test Consistency**: Updated tests to follow the same best practices as the application code.
+- **Validation Handling**: Ensured proper validation of enum-like values using Literal types, as seen with the SiderealMode fix.
 
 ## Important Patterns & Preferences
 
@@ -71,4 +73,6 @@
 - Property methods in Pydantic Settings classes provide a clean way to transform string configuration values into more complex types.
 - The @staticmethod decorator should be removed when instance methods need access to self attributes.
 - Test assets like sample files are important to ensure tests can run successfully in any environment.
-- Unnecessary async/await in tests can be confusing when using synchronous test clients. 
+- Unnecessary async/await in tests can be confusing when using synchronous test clients.
+- When working with Literal types for validation, the exact string format (case, spacing) must match the definition in the schema.
+- Regular testing during refactoring is essential to catch issues early, as demonstrated by our discovery and fix of the sidereal mode test. 
