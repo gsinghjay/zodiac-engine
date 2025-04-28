@@ -38,17 +38,14 @@ Schemas are located in [app/schemas](mdc:app/schemas) and define:
 
 ## Pydantic Usage
 
-The schemas use Pydantic features like:
-- Type annotations for validation
+The schemas leverage Pydantic v2 features:
+- Modern type annotations (`str | None`, `list[Type]`, `dict[Key, Value]`) for validation
 - Field descriptors with examples
 - Default values
-- Documentation for OpenAPI schema
+- `model_config` for schema configuration
+- Literal types for strict value validation (e.g., `SiderealMode`)
+- Documentation generation for the OpenAPI schema
 
-## Modernization Recommendations
+## Modernization Status
 
-We recommend updating the schemas to use latest Pydantic v2 features:
-- Use new type syntax (`str | None` instead of `Optional[str]`)
-- Update model configuration style
-- Implement stronger validation rules
-
-Full recommendations are available in the [fastapi-best-practices-updates.md](mdc:fastapi-best-practices-updates.md) file.
+The application schemas have been fully updated to use the latest Pydantic v2 syntax and features as part of the FastAPI best practices implementation.
