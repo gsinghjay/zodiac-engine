@@ -1,10 +1,10 @@
 """Chart visualization API endpoints."""
-from fastapi import APIRouter, HTTPException, Depends
+from typing import Annotated
+from fastapi import APIRouter, HTTPException, status, Depends
 from datetime import datetime
 
 from app.core.exceptions import ChartCalculationError, InvalidBirthDataError, LocationError
-from app.core.config import Settings
-from app.core.dependencies import get_settings
+from app.core.dependencies import ChartVisualizationServiceDep
 from app.schemas.chart_visualization import (
     NatalChartVisualizationRequest,
     NatalChartVisualizationResponse,
@@ -17,7 +17,7 @@ router = APIRouter(
     prefix="/visualization",
     tags=["chart-visualization"],
     responses={
-        400: {
+        status.HTTP_400_BAD_REQUEST: {
             "description": "Invalid input data",
             "content": {
                 "application/json": {
@@ -48,7 +48,7 @@ router = APIRouter(
                 }
             }
         },
-        500: {
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {
             "description": "Internal server error",
             "content": {
                 "application/json": {
@@ -66,10 +66,14 @@ router = APIRouter(
     }
 )
 
-@router.post("/natal", response_model=NatalChartVisualizationResponse)
+@router.post(
+    "/natal", 
+    response_model=NatalChartVisualizationResponse,
+    status_code=status.HTTP_200_OK
+)
 async def generate_natal_chart_visualization(
     request: NatalChartVisualizationRequest,
-    settings: Settings = Depends(get_settings)
+    chart_service: ChartVisualizationServiceDep
 ) -> NatalChartVisualizationResponse:
     """
     Generate and save a natal chart visualization.
@@ -82,12 +86,12 @@ async def generate_natal_chart_visualization(
             birth_date = datetime.fromisoformat(request.birth_date)
         except ValueError:
             raise HTTPException(
-                status_code=422, 
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, 
                 detail=f"Invalid birth date format: {request.birth_date}. Use ISO format (YYYY-MM-DDTHH:MM:SS)."
             )
         
         # Generate the chart visualization
-        result = ChartVisualizationService.generate_natal_chart_svg(
+        result = chart_service.generate_natal_chart_svg(
             name=request.name,
             birth_date=birth_date,
             city=request.city,
@@ -98,8 +102,7 @@ async def generate_natal_chart_visualization(
             chart_id=request.chart_id,
             theme=request.theme,
             chart_language=request.language,
-            config=request.config.dict() if request.config else None,
-            settings=settings
+            config=request.config.model_dump() if request.config else None
         )
         
         return NatalChartVisualizationResponse(
@@ -109,12 +112,19 @@ async def generate_natal_chart_visualization(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error generating chart: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+            detail=f"Error generating chart: {str(e)}"
+        )
 
-@router.post("/synastry", response_model=SynastryChartVisualizationResponse)
+@router.post(
+    "/synastry", 
+    response_model=SynastryChartVisualizationResponse,
+    status_code=status.HTTP_200_OK
+)
 async def generate_synastry_chart_visualization(
     request: SynastryChartVisualizationRequest,
-    settings: Settings = Depends(get_settings)
+    chart_service: ChartVisualizationServiceDep
 ) -> SynastryChartVisualizationResponse:
     """
     Generate and save a synastry chart visualization comparing two natal charts.
@@ -128,12 +138,12 @@ async def generate_synastry_chart_visualization(
             birth_date2 = datetime.fromisoformat(request.birth_date2)
         except ValueError as e:
             raise HTTPException(
-                status_code=422, 
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, 
                 detail=f"Invalid birth date format: {str(e)}. Use ISO format (YYYY-MM-DDTHH:MM:SS)."
             )
         
         # Generate the synastry chart visualization
-        result = ChartVisualizationService.generate_synastry_chart_svg(
+        result = chart_service.generate_synastry_chart_svg(
             name1=request.name1,
             birth_date1=birth_date1,
             name2=request.name2,
@@ -151,8 +161,7 @@ async def generate_synastry_chart_visualization(
             chart_id=request.chart_id,
             theme=request.theme,
             chart_language=request.language,
-            config=request.config.dict() if request.config else None,
-            settings=settings
+            config=request.config.model_dump() if request.config else None
         )
         
         return SynastryChartVisualizationResponse(
@@ -162,4 +171,7 @@ async def generate_synastry_chart_visualization(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error generating synastry chart: {str(e)}") 
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+            detail=f"Error generating synastry chart: {str(e)}"
+        ) 
