@@ -1,6 +1,117 @@
 # CHANGELOG
 
 
+## v0.2.0 (2025-04-28)
+
+### Bug Fixes
+
+- Add sample.svg file for test environment
+  ([`d5169df`](https://github.com/gsinghjay/zodiac-engine/commit/d5169df7bdb377f294311117536786eef6912745))
+
+- Remove @staticmethod from synastry chart method to fix self reference
+  ([`8160f0c`](https://github.com/gsinghjay/zodiac-engine/commit/8160f0c7413403080c17bc0b49f2571aad6b10d6))
+
+- Update CORS middleware to use allowed_origins_list property
+  ([`148494a`](https://github.com/gsinghjay/zodiac-engine/commit/148494afacd38e5bce961a7e7e6c4dba290f58f8))
+
+- Update Settings class to use Pydantic v2 and handle ALLOWED_ORIGINS properly
+  ([`74a632f`](https://github.com/gsinghjay/zodiac-engine/commit/74a632f170e6c3c929c78547f5e4e73832169e2f))
+
+### Chores
+
+- Add sample SVG for test fixtures
+  ([`d52d04a`](https://github.com/gsinghjay/zodiac-engine/commit/d52d04a58319f76bcc2b0671849ddf983dcac8ca))
+
+- Deleted test svg files
+  ([`6d74644`](https://github.com/gsinghjay/zodiac-engine/commit/6d74644f7aec6188b2ee913185813e1cc29ba196))
+
+- Ignore generated SVG files
+  ([`e59f79d`](https://github.com/gsinghjay/zodiac-engine/commit/e59f79da05123e93d70ab8662aa37422184d0a1b))
+
+- Remove test-generated SVG files
+  ([`c69bac2`](https://github.com/gsinghjay/zodiac-engine/commit/c69bac2f12bb3902e6e86d499ba2009a72d5915d))
+
+- Update dependencies with explicit version constraints
+  ([`c920ca2`](https://github.com/gsinghjay/zodiac-engine/commit/c920ca2a49d88090b49397b284b2253426abc4e4))
+
+### Documentation
+
+- Update active context after API router migration
+  ([`9b88b28`](https://github.com/gsinghjay/zodiac-engine/commit/9b88b28d76afd17cb438b98e6b307b313db0b306))
+
+- Update Cursor rules with FastAPI best practices
+  ([`f94acbd`](https://github.com/gsinghjay/zodiac-engine/commit/f94acbd5e5c485ed39424a07055981d354156679))
+
+- Update memory bank with FastAPI best practices implementation
+  ([`b055e13`](https://github.com/gsinghjay/zodiac-engine/commit/b055e13096cf670f54b47c0603605b5511fc1095))
+
+- Update memory bank with FastAPI best practices implementation status
+  ([`3bb1e8c`](https://github.com/gsinghjay/zodiac-engine/commit/3bb1e8c2d2566cd58effdbd66d60f22207bf86e0))
+
+- Update memory bank with test improvements
+  ([`114ee91`](https://github.com/gsinghjay/zodiac-engine/commit/114ee918cfb46fcf7ff221730f046ff5d1887022))
+
+- Update progress after API router migration
+  ([`44d445c`](https://github.com/gsinghjay/zodiac-engine/commit/44d445c9201b740393d679076d30b8e90a8f3716))
+
+- Update README with environment variable documentation
+  ([`1e4afcc`](https://github.com/gsinghjay/zodiac-engine/commit/1e4afcc4e663eef014de1a5990cf653f76fb1c22))
+
+- Update README with environment variables docs and testing instructions
+  ([`abc0b1d`](https://github.com/gsinghjay/zodiac-engine/commit/abc0b1d3d8b4b0c34f007752d6a471c125fe0748))
+
+- **memory**: Update memory bank with natal chart expansion plan
+  ([`f0f3def`](https://github.com/gsinghjay/zodiac-engine/commit/f0f3defe8433a06bf15e63b2101348e8ff56979c))
+
+### Features
+
+- Add factory functions for service dependencies
+  ([`4dab3a3`](https://github.com/gsinghjay/zodiac-engine/commit/4dab3a38f253e34e6d21e13223b8fb4bad2f1824))
+
+- **core**: Update dependency injection and error handling
+  ([`756b5b3`](https://github.com/gsinghjay/zodiac-engine/commit/756b5b391660e1f68d048d7467590c00edf31782))
+
+- **schemas**: Migrate to Pydantic v2 syntax
+  ([`0f0f0fb`](https://github.com/gsinghjay/zodiac-engine/commit/0f0f0fbdba054919a689cca3d3cdac2cceb42969))
+
+### Refactoring
+
+- Convert static methods to instance methods with proper DI
+  ([`ee85010`](https://github.com/gsinghjay/zodiac-engine/commit/ee8501044c63fbc92266a2407549052876e0e6fb))
+
+- Migrate API structure from endpoints to routers directory
+  ([`2afd4b4`](https://github.com/gsinghjay/zodiac-engine/commit/2afd4b42407ad00ca2856d5ddfdbaa396350bded))
+
+- Update API v1 imports to use routers instead of endpoints
+  ([`adf0bb1`](https://github.com/gsinghjay/zodiac-engine/commit/adf0bb1ae901e1f43d79bf1d1d1c89e187a4e6ac))
+
+- Update chart visualization endpoints to use service DI
+  ([`a85f79a`](https://github.com/gsinghjay/zodiac-engine/commit/a85f79ac750c00a0cc8a1ea17e4e4019d548091a))
+
+- Update chart visualization schemas to Pydantic v2 syntax
+  ([`3d81c4d`](https://github.com/gsinghjay/zodiac-engine/commit/3d81c4dbfbe69831b1edbf505ee6abed61646cdc))
+
+- Update natal chart endpoints to use service DI
+  ([`02550fe`](https://github.com/gsinghjay/zodiac-engine/commit/02550fe2710927bfbc5449ba5ff7e0347a5531b3))
+
+- Update natal chart schemas to Pydantic v2 syntax
+  ([`6363c4f`](https://github.com/gsinghjay/zodiac-engine/commit/6363c4f60a58c1ffd0a091915163d69782c9415f))
+
+- **api**: Update routers to use dependency injection
+  ([`11e8d07`](https://github.com/gsinghjay/zodiac-engine/commit/11e8d07f1d95aebcb1febaa81f34ab55a4e054c8))
+
+- **services**: Convert static methods to instance methods with DI
+  ([`715df6d`](https://github.com/gsinghjay/zodiac-engine/commit/715df6d1bf8e74f186f5fe46c3eaee4fcf73d7b6))
+
+### Testing
+
+- Update tests to follow FastAPI best practices
+  ([`a9f89cd`](https://github.com/gsinghjay/zodiac-engine/commit/a9f89cd5abf97292f3af0520ac5497aa5e6ebfdf))
+
+- Update tests to use FastAPI best practices
+  ([`1861b42`](https://github.com/gsinghjay/zodiac-engine/commit/1861b42aa9808428a060fd9a0d1b95fc123d3fae))
+
+
 ## v0.1.0 (2025-04-01)
 
 ### Chores
