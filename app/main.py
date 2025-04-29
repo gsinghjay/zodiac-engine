@@ -3,9 +3,11 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
+from fastapi.responses import RedirectResponse
 
 from app.api import router as api_router
 from app.static import mount_static_files
+from app.routers import router as web_router
 from app.core.config import settings
 from app.core.error_handlers import add_error_handlers
 
@@ -100,6 +102,10 @@ def create_application() -> FastAPI:
             {
                 "name": "static",
                 "description": "Static resource operations"
+            },
+            {
+                "name": "web",
+                "description": "Web interface operations"
             }
         ]
     )
@@ -119,11 +125,26 @@ def create_application() -> FastAPI:
     # Include API router
     application.include_router(api_router)
     
+    # Include web interface router
+    application.include_router(web_router)
+    
     # Mount static files
     mount_static_files(application)
 
     @application.get(
         "/",
+        tags=["web"],
+        summary="Redirect to Web Interface",
+        description="Redirects to the web interface for chart generation.",
+        response_class=RedirectResponse,
+        status_code=303
+    )
+    async def root():
+        """Redirect to web interface."""
+        return "/home"
+    
+    @application.get(
+        "/api",
         tags=["health"],
         summary="Health Check",
         description="Check if the API is running and get version information.",
@@ -141,7 +162,7 @@ def create_application() -> FastAPI:
             }
         }
     )
-    async def root():
+    async def api_health():
         """Health check endpoint."""
         return {
             "status": "healthy",
