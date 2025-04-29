@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Zodiac Engine{% endblock %}</title>
+    <link href="{{ url_for('static', path='/styles.css') }}" rel="stylesheet">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Zodiac Engine</h1>
+            <p>Astrological Chart Generation</p>
+        </header>
+        
+        <main>
+            {% block content %}{% endblock %}
+        </main>
+        
+        <footer>
+            <p style="text-align: center; margin-top: 2rem; color: #6c757d;">
+                &copy; 2025 Zodiac Engine | Version: {{ version }}
+            </p>
+        </footer>
+    </div>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html> 
