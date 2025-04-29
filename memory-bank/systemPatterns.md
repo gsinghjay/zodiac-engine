@@ -8,7 +8,7 @@ Zodiac Engine follows a standard layered architecture for a FastAPI web service:
   - Located in `app/api/`
   - Organized by version (`v1`) and resource (`charts`).
   - Uses FastAPI's `APIRouter` for modularity.
-  - Follows modern `routers/` convention for better organization.
+  - Follows modern `routers/` convention for better organization (`app/api/v1/routers/`).
 - **Service Layer**: Contains the core business logic, interacting with external libraries (Kerykeion) and orchestrating tasks.
   - Located in `app/services/`
   - `AstrologyService`: Handles core calculations.
@@ -40,7 +40,7 @@ graph TD
 - **Data Validation**: Pydantic v2 for request/response validation and API schema generation.
 - **Dependency Management**: `requirements.txt` with explicit version constraints.
 - **Testing**: Pytest with `pytest-asyncio` and `TestClient`.
-- **API Structure**: Versioned API (`/api/v1/`) with resource-based routing using modern `/routers/` convention.
+- **API Structure**: Versioned API (`/api/v1/`) with resource-based routing using modern `/routers/` convention (`app/api/v1/routers/`).
 - **Environment Configuration**: Configuration through .env files, with proper parsing in Settings class.
 
 ## 3. Design Patterns
@@ -49,16 +49,16 @@ graph TD
 - **Modern Dependency Injection**: Used throughout the application with Annotated type hints and factory functions.
 - **Repository Pattern (Implicit via Kerykeion)**: Kerykeion acts as the interface to astrological data/calculations.
 - **Factory Pattern (App Creation)**: `create_application` function in `app/main.py`.
-- **Configuration Management**: Centralized settings using `pydantic-settings` (`app.core.config`) with property methods for type conversion.
+- **Configuration Management**: Centralized settings using `pydantic-settings` (`app.core.config`) loading from `.env` files, with property methods for type conversion. *Note: Currently troubleshooting issues with reliably loading values from `.env`.*
 - **Service Instance Pattern**: Services implemented as instance methods instead of static methods, enabling better testability and dependency injection.
 - **Background Tasks**: Long-running operations handled via FastAPI's background tasks.
 - **Enhanced Data Modeling (Planned)**: The schemas will be expanded as part of the Natal Chart Expansion Plan to include more detailed astrological data (elements, qualities, lunar phases, etc.).
 
 ## 4. Critical Implementation Paths
 
-- **Natal Chart Calculation**: `Client -> API (/natal) -> AstrologyService.calculate_natal_chart -> Kerykeion -> Response`
-- **Natal Chart Visualization**: `Client -> API (/visualization/natal) -> ChartVisualizationService.generate_natal_chart_svg -> KerykeionChartSVG -> Save SVG -> Response (URL)`
-- **Synastry Visualization**: Similar path involving two `AstrologicalSubject` instances.
+- **Natal Chart Calculation**: `Client -> API (/api/v1/charts/natal) -> AstrologyService.calculate_natal_chart -> Kerykeion -> Response`
+- **Natal Chart Visualization**: `Client -> API (/api/v1/charts/visualization/natal) -> ChartVisualizationService.generate_natal_chart_svg -> KerykeionChartSVG -> Save SVG -> Response (URL)`
+- **Synastry Visualization**: Similar path (`/api/v1/charts/visualization/synastry`) involving two `AstrologicalSubject` instances.
 - **Factory-based Dependency Injection**: `Depends(get_service) -> service instance -> service method -> result`
 
 ## 5. Planned Improvements

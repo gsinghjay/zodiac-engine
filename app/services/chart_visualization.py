@@ -132,7 +132,7 @@ class ChartVisualizationService:
                 sidereal_mode=sidereal_mode,
                 perspective_type=perspective_type,
                 geonames_username=self.settings.GEONAMES_USERNAME,
-                online=False  # Use offline mode until we have a valid geonames username
+                online=bool(self.settings.GEONAMES_USERNAME)  # Use online mode when username is provided
             )
             
             # Generate the SVG chart with custom output directory and configuration
@@ -277,7 +277,7 @@ class ChartVisualizationService:
                 sidereal_mode=sidereal_mode,
                 perspective_type=perspective_type,
                 geonames_username=self.settings.GEONAMES_USERNAME,
-                online=False  # Use offline mode until we have a valid geonames username
+                online=bool(self.settings.GEONAMES_USERNAME)  # Use online mode when username is provided
             )
             
             # Create the second AstrologicalSubject with zodiac and house configuration
@@ -298,7 +298,7 @@ class ChartVisualizationService:
                 sidereal_mode=sidereal_mode,
                 perspective_type=perspective_type,
                 geonames_username=self.settings.GEONAMES_USERNAME,
-                online=False  # Use offline mode until we have a valid geonames username
+                online=bool(self.settings.GEONAMES_USERNAME)  # Use online mode when username is provided
             )
             
             # Generate the SVG chart with custom output directory and configuration

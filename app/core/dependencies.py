@@ -7,6 +7,7 @@ from fastapi import Depends
 from app.core.config import Settings
 from app.services.astrology import AstrologyService
 from app.services.chart_visualization import ChartVisualizationService
+from app.services.geo_service import GeoService
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
@@ -40,4 +41,10 @@ def get_chart_visualization_service(settings: SettingsDep) -> ChartVisualization
     """
     return ChartVisualizationService(settings=settings)
 
-ChartVisualizationServiceDep = Annotated[ChartVisualizationService, Depends(get_chart_visualization_service)] 
+ChartVisualizationServiceDep = Annotated[ChartVisualizationService, Depends(get_chart_visualization_service)]
+
+def get_geo_service() -> GeoService:
+    """Dependency provider for GeoService."""
+    return GeoService()
+
+GeoServiceDep = Annotated[GeoService, Depends(get_geo_service)] 
