@@ -1,6 +1,68 @@
 # CHANGELOG
 
 
+## v0.3.0 (2025-04-29)
+
+### Bug Fixes
+
+- Enable online GeoNames lookup when username is present
+  ([`98dd793`](https://github.com/gsinghjay/zodiac-engine/commit/98dd7933237ca5f436d8ba60018296ca451c8b1d))
+
+- Remove non-existent static router import
+  ([`cc5f438`](https://github.com/gsinghjay/zodiac-engine/commit/cc5f438372611e3b331907b4e78933dfe6096030))
+
+- Resolve root path redirect loop
+  ([`a027b00`](https://github.com/gsinghjay/zodiac-engine/commit/a027b0049a51e5cb932eba501aba6ed003bc54e4))
+
+### Chores
+
+- Add geopy dependency
+  ([`3ccf336`](https://github.com/gsinghjay/zodiac-engine/commit/3ccf336b25ee9007ec265b7ba89a9104f066f33e))
+
+- Improve logging for SVG directory creation
+  ([`2f92349`](https://github.com/gsinghjay/zodiac-engine/commit/2f923490006c91550f5b72eb1d973d4b910d610d))
+
+### Documentation
+
+- Add README for API test scripts
+  ([`594271b`](https://github.com/gsinghjay/zodiac-engine/commit/594271bde91f4fe0a5ac6559b369f99d1615e0a9))
+
+- Update memory bank with GeoNames integration and debugging
+  ([`904472d`](https://github.com/gsinghjay/zodiac-engine/commit/904472daca100606a57da4357d91cb6159a79c49))
+
+- Update README (update based on actual changes)
+  ([`66328ef`](https://github.com/gsinghjay/zodiac-engine/commit/66328efaeddc44c5458c6a59d822745cd9b53d2b))
+
+### Features
+
+- Add dependency provider for GeoService
+  ([`c99a45f`](https://github.com/gsinghjay/zodiac-engine/commit/c99a45fce6d9186a13cc072e4d9013e820eb93a6))
+
+- Add geo API endpoint for city search
+  ([`ab13fe3`](https://github.com/gsinghjay/zodiac-engine/commit/ab13fe33b394ace7383f1bdf6825e4fd019d5efb))
+
+- Add Jinja2 templates for web interface
+  ([`ba4e355`](https://github.com/gsinghjay/zodiac-engine/commit/ba4e355af0f2a9c3f37013e0a3d9b038f80ed595))
+
+- Add script to test Vedic chart generation via API
+  ([`22dc71d`](https://github.com/gsinghjay/zodiac-engine/commit/22dc71d13cdfee6a6fb19b8d4fd4167e084695e1))
+
+- Add script to test Western chart generation via API
+  ([`0a277c1`](https://github.com/gsinghjay/zodiac-engine/commit/0a277c1e24e2e47c64f7e189f70134721a9ff798))
+
+- Add styles for web interface and location search
+  ([`4bf964c`](https://github.com/gsinghjay/zodiac-engine/commit/4bf964ce064e219ca347b05dcde300d4b19013cb))
+
+- Add web routes for home page and chart generation
+  ([`b704c25`](https://github.com/gsinghjay/zodiac-engine/commit/b704c25117d7aacb83b29f2f81af6c6e84dd7d79))
+
+- Implement GeoService for GeoNames lookup
+  ([`28b9d47`](https://github.com/gsinghjay/zodiac-engine/commit/28b9d47c52f6456112c9a8398cf1132210595056))
+
+- Include geo router in API v1
+  ([`8707097`](https://github.com/gsinghjay/zodiac-engine/commit/87070977455d50c2f626c8a37c593f422a483f2f))
+
+
 ## v0.2.0 (2025-04-28)
 
 ### Bug Fixes
