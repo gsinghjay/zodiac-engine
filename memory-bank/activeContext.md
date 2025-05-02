@@ -2,6 +2,9 @@
 
 ## Current Focus
 
+- **SVG Conversion Implementation**: Successfully implemented SVG to PNG, PDF, and JPEG conversion for chart downloads using CairoSVG and Pillow libraries.
+- **CSS Variable Preprocessing**: Created utilities to handle CSS variables in SVG files before conversion to ensure proper rendering across all formats.
+- **Download Options Enhancement**: Updated the chart download endpoint to support multiple formats with appropriate content types and file extensions.
 - **UI Enhancement with Bootstrap**: Migrated the web interface from custom CSS to Bootstrap for improved responsiveness and consistency.
 - **Dedicated Chart Details Page**: Implemented a dedicated page for chart viewing with download options.
 - **Web Interface Optimization**: Simplifying the user interface by removing the preview chart feature and focusing on the primary chart generation functionality.
@@ -12,6 +15,26 @@
 - **Planning**: Reviewing the `Natal Chart Expansion Plan` (`docs/natal-chart-expansion-plan.md`) to prepare for implementation.
 
 ## Recent Changes
+
+- **SVG Conversion Implementation**:
+  - Created a new `FileConversionService` class in `app/services/file_conversion.py` to handle SVG conversion to different formats
+  - Implemented conversion to PNG, PDF, and JPEG formats using CairoSVG and Pillow libraries
+  - Added proper error handling with a custom `FileConversionError` exception
+  - Set up dependency injection for the service in `app/core/dependencies.py`
+  - Implemented content type mapping for HTTP responses
+  - Added support for configurable DPI (dots per inch) for raster formats
+
+- **CSS Variable Preprocessing**:
+  - Implemented utilities in `app/core/svg_utils.py` to handle CSS variables in SVG files
+  - Created functions to parse variables from SVG content, resolve nested variable references, and substitute them with actual values
+  - Ensured SVG files render correctly across all output formats
+
+- **Download Chart Endpoint Enhancement**:
+  - Updated the `/download-chart/{chart_id}` endpoint to use our new conversion service
+  - Added support for SVG, PNG, PDF, and JPEG formats with proper content-type headers
+  - Implemented a DPI query parameter for controlling resolution of raster formats
+  - Added documentation about the DPI option in the chart details template
+  - Fixed issues with proper file reading and handling
 
 - **HTMX Implementation**:
   - Added HTMX library to the layout.html template
@@ -36,7 +59,7 @@
   - Created a new chart_details.html template with a two-column layout
   - Implemented a chart display section with high-quality SVG rendering
   - Added a detailed information section showing chart data
-  - Implemented download options for different file formats (SVG, PNG, PDF)
+  - Implemented download options for different file formats (SVG, PNG, PDF, JPEG)
   - Added a share functionality with copyable URL
   - Enhanced navigation with a "Back to Generator" button
 
@@ -106,22 +129,24 @@
 
 ## Next Steps
 
-1. **Enhance Download Options**:
-   * Implement actual SVG to PNG conversion functionality
-   * Implement SVG to PDF conversion functionality
-   * Add proper file type detection and content-type headers
-
-2. **Chart Data Persistence**:
+1. **Chart Data Persistence**:
    * Implement a more robust solution for chart data persistence beyond the in-memory cache
    * Consider using a database for storing chart data and user preferences
    * Add expiration times for generated charts
    
-3. **UI Improvements**:
+2. **UI Improvements**:
    * Add more interactive elements using Bootstrap's components
    * Improve mobile responsiveness
    * Enhance form validation with clearer error messages
    * Add tooltips for chart options and configurations
    
+3. **API Structure Improvement**:
+   * Reorganize web-related routes by moving `app/api/web.py` into a dedicated web folder (`app/api/web/`) 
+   * Potentially split web.py into logical components (chart generation, location search, download functionality)
+   * Update imports in `app/api/__init__.py` to reflect the new structure
+   * Ensure all tests continue to pass after the reorganization
+   * This will further improve code organization and maintainability by grouping related functionality
+
 4. **Extend HTMX Implementation**:
    * Add more sophisticated HTMX patterns for complex interactions
    * Implement websockets for real-time updates using HTMX's SSE support
@@ -137,9 +162,13 @@
 
 ## Active Decisions & Considerations
 
+- **File Conversion Approach**: Chose CairoSVG as the primary conversion solution due to its excellent support for SVG standards and Pillow for additional JPEG conversion capability.
+- **CSS Variable Handling**: Implemented a preprocessing approach for CSS variables rather than relying on the SVG libraries to handle them natively, as many conversion libraries don't fully support modern CSS features.
+- **DPI Configuration**: Made DPI configurable via a query parameter to allow users to control the quality and file size of raster outputs.
+- **Error Handling**: Created a dedicated error type for file conversion issues to provide clear feedback to users.
 - **Bootstrap vs Custom CSS**: Chose Bootstrap for its comprehensive component library, strong community support, and built-in responsiveness.
 - **Dedicated Chart Page**: Decided to create a separate page for chart viewing to provide more space for the chart and additional options.
-- **Download Options**: Offering different file formats (SVG, PNG, PDF) to accommodate various user needs.
+- **Download Options**: Offering different file formats (SVG, PNG, PDF, JPEG) to accommodate various user needs.
 - **Direct URL Paths**: Using direct URL paths in templates to avoid routing issues with url_for.
 - **In-Memory Cache**: Currently using a simple dictionary for chart data storage as a quick solution, with plans to implement a more robust solution later.
 - **UI Simplification**: Removed the preview chart feature to focus on the core functionality and reduce complexity.
@@ -159,6 +188,9 @@
 
 ## Important Patterns & Preferences
 
+- **SVG Conversion**: Use CairoSVG for primary conversion and Pillow for additional formats like JPEG when needed.
+- **CSS Variable Handling**: Use regex-based preprocessing to handle modern CSS features that might not be supported by conversion libraries.
+- **Download Experience**: Provide multiple download formats with proper content types and meaningful filenames.
 - **Bootstrap Integration**: Use Bootstrap classes for layout and components, with minimal custom CSS only for specific overrides.
 - **Responsive Design**: Ensure all pages work well on various device sizes using Bootstrap's grid system and responsive utilities.
 - **Page Structure**: Maintain a consistent structure across pages with proper heading hierarchy and navigation.
@@ -176,6 +208,10 @@
 
 ## Learnings & Insights
 
+- **SVG Conversion Complexity**: Converting SVG to other formats involves handling CSS variables and ensuring consistent rendering across different libraries.
+- **CairoSVG Capabilities**: CairoSVG provides excellent SVG rendering but requires preprocessing of modern CSS features like variables.
+- **Multi-format Support**: Offering multiple download formats enhances user experience by accommodating different use cases.
+- **DPI Considerations**: For raster formats, allowing configurable DPI gives users control over the quality/file size tradeoff.
 - **HTMX Benefits**: HTMX provides a lightweight way to add dynamic behavior to web applications without complex JavaScript frameworks, making it ideal for enhancing server-rendered templates.
 - **Progressive Enhancement**: Building features that work without JavaScript first, then enhancing with HTMX, creates a more resilient application.
 - **Partial Templates**: Creating small, focused template fragments for HTMX to load dynamically improves code organization and reusability.

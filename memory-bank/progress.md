@@ -2,6 +2,15 @@
 
 ## 1. What Works
 
+- **Chart Download Options**:
+  - SVG to PNG conversion using CairoSVG
+  - SVG to PDF conversion using CairoSVG
+  - SVG to JPEG conversion using CairoSVG and Pillow
+  - CSS variable preprocessing for SVG files to ensure correct rendering
+  - Configurable DPI for raster formats (PNG, JPEG)
+  - Proper file type detection and content-type headers
+  - User guidance for DPI configuration
+
 - **Web Interface**: 
   - Bootstrap-powered responsive design that works on desktop and mobile devices.
   - User-friendly web interface for generating both Western and Vedic charts.
@@ -30,10 +39,10 @@
   - `/api/v1/charts/visualization/natal` endpoint successfully generates, saves, and returns the URL for natal chart SVGs.
   - `/api/v1/charts/visualization/synastry` endpoint successfully generates, saves, and returns the URL for synastry chart SVGs.
   - Chart image display in the dedicated chart details page.
-  - Basic download options (currently all serving SVG files).
+  - Download options for SVG, PNG, PDF, and JPEG formats.
 - **Chart Data Storage**: Simple in-memory cache for storing chart data.
 - **Placeholder Endpoints**: Basic structure exists for Composite and Transit chart endpoints (returning placeholders).
-- **Service Layer**: Business logic encapsulated in `AstrologyService` and `ChartVisualizationService` using instance methods and dependency injection.
+- **Service Layer**: Business logic encapsulated in `AstrologyService`, `ChartVisualizationService`, and `FileConversionService` using instance methods and dependency injection.
 - **Configuration**: Robust configuration management via `.env` and Pydantic `Settings` class.
 - **Dependencies**: Updated and managed via `requirements.txt`.
 - **Testing**: Comprehensive test suite covering all implemented functionality, all passing.
@@ -41,11 +50,6 @@
 - **Router Structure**: Consolidated and improved to follow FastAPI best practices, with all routes now under the `app/api/` directory.
 
 ## 2. What Needs Improvement / Is Left to Build
-
-- **Download Options Enhancement** (Immediate Priority):
-  - Implement actual SVG to PNG conversion functionality
-  - Implement SVG to PDF conversion functionality
-  - Add proper file type detection and content-type headers
 
 - **Chart Data Persistence**:
   - Implement a more robust solution for chart data persistence beyond the in-memory cache
@@ -56,6 +60,12 @@
   - Add more interactive elements using Bootstrap's components
   - Enhance form validation with clearer error messages
   - Add tooltips for chart options and configurations
+
+- **API Structure Reorganization**:
+  - Move `app/api/web.py` into a dedicated web folder (`app/api/web/`)
+  - Split web.py into smaller, focused modules based on functionality (chart generation, location search, download operations)
+  - Update imports and ensure all tests continue to pass
+  - This reorganization will further improve code organization and maintainability
 
 - **HTMX Extensions**:
   - Implement more sophisticated HTMX patterns for complex interactions
@@ -78,6 +88,7 @@
 
 ## 3. Current Status
 
+- **SVG Conversion Implementation Complete**: Successfully implemented SVG to PNG, PDF, and JPEG conversion for chart downloads using CairoSVG and Pillow libraries, with support for CSS variables and configurable DPI.
 - **HTMX Implementation Complete**: Successfully integrated HTMX to provide dynamic interactions without heavy JavaScript, enhancing the user experience with real-time updates.
 - **Bootstrap Implementation Complete**: Successfully migrated the web interface from custom CSS to Bootstrap for improved responsiveness and consistency.
 - **Dedicated Chart Details Page Added**: Implemented a dedicated page for chart viewing with download options and share functionality.
@@ -91,11 +102,10 @@
 - **Web Interface Implemented**: A functional web interface has been added to provide a user-friendly way to generate astrological charts.
 - **Refactoring Complete**: The major refactoring effort to implement FastAPI best practices and migrate the API structure (`endpoints/` -> `routers/`) is finished.
 - **Stable & Tested**: The application is stable, and all tests are passing.
-- **Ready for Next Phase**: The codebase is prepared for download options enhancement, followed by the Natal Chart Expansion Plan.
+- **Ready for Next Phase**: The codebase is prepared for the Natal Chart Expansion Plan.
 
 ## 4. Known Issues
 
-- **Chart Download Formats**: Currently, all download options (SVG, PNG, PDF) return the SVG file as actual file format conversion is not yet implemented.
 - **In-Memory Cache**: The chart data cache is not persistent across server restarts and could cause memory issues with many entries.
 - **Template URL Generation**: Using direct URL paths in templates instead of url_for to avoid routing issues.
 - **Web Interface**: 
@@ -109,6 +119,9 @@
 
 ## 5. Evolution of Project Decisions
 
+- **File Conversion Approach**: Selected CairoSVG as the primary conversion solution due to its excellent support for SVG standards, with Pillow for additional JPEG conversion capability.
+- **CSS Variable Handling**: Implemented preprocessing for CSS variables to ensure correct rendering across all output formats, as many conversion libraries don't fully support modern CSS features.
+- **DPI Configuration**: Made DPI configurable via a query parameter to give users control over resolution quality and file size.
 - **HTMX Adoption**: Integrated HTMX to enhance the user experience with dynamic interactions while maintaining a server-rendered approach, avoiding the complexity of full JavaScript frameworks.
 - **Bootstrap Adoption**: Migrated from custom CSS to Bootstrap to improve UI consistency, responsiveness, and development speed.
 - **Dedicated Chart Page**: Implemented a separate chart details page to provide a better viewing experience and additional options.
@@ -122,4 +135,4 @@
 - **Service Layer Introduction**: Abstracted logic into service classes (initially static methods).
 - **Best Practices Refactoring**: Significant effort to align with modern FastAPI standards.
 - **API Structure Migration**: Reorganized API endpoints from `endpoints/` to `routers/`.
-- **Current Focus**: Enhancing download options before proceeding with the Natal Chart Expansion Plan. 
+- **Current Focus**: Proceeding with the Natal Chart Expansion Plan. 
