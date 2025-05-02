@@ -5,15 +5,18 @@ import pytz
 import os
 from datetime import datetime
 from fastapi import APIRouter, Request, Form, Depends, BackgroundTasks, HTTPException, Header
-from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
-from typing import Optional, Dict, Any, List, Union
+from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse, Response
+from typing import Optional, Dict, Any, List, Union, Literal
 from pathlib import Path
+import logging
 
 from app.templates import templates
 from app.core.config import settings
-from app.core.dependencies import ChartVisualizationServiceDep, GeoServiceDep
+from app.core.dependencies import ChartVisualizationServiceDep, GeoServiceDep, FileConversionServiceDep
 from app.services.chart_visualization import ChartVisualizationService
 from app.services.geo_service import GeoService
+from app.services.file_conversion import FileConversionService, OutputFormat
+from app.core.exceptions import FileConversionError
 from app.schemas.chart_visualization import AspectConfiguration, ChartConfiguration
 
 router = APIRouter(
@@ -23,6 +26,8 @@ router = APIRouter(
 # Create a dictionary to temporarily store chart data
 # In a production app, you would use a database
 chart_cache = {}
+
+logger = logging.getLogger(__name__)
 
 @router.get("/", response_class=HTMLResponse, name="home")
 async def home(request: Request):
@@ -72,40 +77,73 @@ async def chart_details(request: Request, chart_id: str):
     )
 
 @router.get("/download-chart/{chart_id}", name="download_chart")
-async def download_chart(chart_id: str, format: str = "svg"):
-    """Download chart in various formats."""
+async def download_chart(
+    chart_id: str, 
+    conversion_service: FileConversionServiceDep,
+    format: Literal["svg", "png", "pdf", "jpg"] = "svg",
+    dpi: int = 96
+):
+    """
+    Download chart in various formats.
+    
+    Args:
+        chart_id: The unique identifier for the chart
+        conversion_service: FileConversionService dependency
+        format: The desired output format (svg, png, pdf, jpg)
+        dpi: The resolution in dots per inch for raster formats (png, jpg)
+        
+    Returns:
+        The chart file in the requested format
+    """
     # Base file path for the SVG
     svg_path = Path(f"app/static/images/svg/{chart_id}.svg")
     
     # Check if the file exists
     if not svg_path.exists():
         raise HTTPException(status_code=404, detail="Chart not found")
+
+    try:
+        # Get proper filename
+        filename = f"astrological_chart_{chart_id}.{format.lower()}"
+        
+        # Handle SVG format (no conversion needed)
+        if format.lower() == "svg":
+            return FileResponse(
+                svg_path, 
+                media_type="image/svg+xml",
+                filename=filename
+            )
+        
+        # Validate DPI
+        if dpi < 72 or dpi > 600:
+            logger.warning(f"Invalid DPI requested: {dpi}, using default 96 dpi")
+            dpi = 96
+        
+        # Read the SVG file content
+        with open(svg_path, "r", encoding="utf-8") as file:
+            svg_content = file.read()
+        
+        # Convert to requested format using FileConversionService
+        output_bytes, content_type = conversion_service.convert_svg_to_format(
+            svg_content=svg_content,
+            output_format=format.lower(),  # type: ignore (we've already validated the format)
+            dpi=dpi
+        )
+        
+        # Return the converted file
+        return Response(
+            content=output_bytes,
+            media_type=content_type,
+            headers={"Content-Disposition": f"attachment; filename={filename}"}
+        )
+        
+    except FileConversionError as e:
+        logger.error(f"Error converting chart {chart_id} to {format}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error converting chart: {str(e)}")
     
-    # Return appropriate file based on format
-    if format.lower() == "svg":
-        return FileResponse(
-            svg_path, 
-            media_type="image/svg+xml",
-            filename=f"astrological_chart_{chart_id}.svg"
-        )
-    elif format.lower() == "png":
-        # In a real app, you would convert SVG to PNG here
-        # For now, we'll just return the SVG
-        return FileResponse(
-            svg_path, 
-            media_type="image/svg+xml",
-            filename=f"astrological_chart_{chart_id}.svg"
-        )
-    elif format.lower() == "pdf":
-        # In a real app, you would convert SVG to PDF here
-        # For now, we'll just return the SVG
-        return FileResponse(
-            svg_path, 
-            media_type="image/svg+xml",
-            filename=f"astrological_chart_{chart_id}.svg"
-        )
-    else:
-        raise HTTPException(status_code=400, detail=f"Unsupported format: {format}")
+    except Exception as e:
+        logger.error(f"Unexpected error while downloading chart {chart_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail="An unexpected error occurred")
 
 @router.post("/search-location", response_class=HTMLResponse, name="search_location")
 async def search_location(
