@@ -7,7 +7,6 @@ from fastapi.responses import RedirectResponse
 
 from app.api import router as api_router
 from app.static import mount_static_files
-from app.routers import router as web_router
 from app.core.config import settings
 from app.core.error_handlers import add_error_handlers
 
@@ -124,9 +123,6 @@ def create_application() -> FastAPI:
 
     # Include API router
     application.include_router(api_router)
-    
-    # Include web interface router
-    application.include_router(web_router)
     
     # Mount static files
     mount_static_files(application)

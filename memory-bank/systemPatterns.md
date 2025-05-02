@@ -6,7 +6,8 @@ Zodiac Engine follows a standard layered architecture for a FastAPI web service:
 
 - **API Layer**: Handles HTTP requests/responses, data validation (Pydantic), and routing.
   - Located in `app/api/`
-  - Organized by version (`v1`) and resource (`charts`).
+  - Contains both API endpoints (`app/api/v1/routers/`) and web interface routes (`app/api/web.py`).
+  - Organized by version (`v1`) for API endpoints.
   - Uses FastAPI's `APIRouter` for modularity.
   - Follows modern `routers/` convention for better organization (`app/api/v1/routers/`).
 - **Service Layer**: Contains the core business logic, interacting with external libraries (Kerykeion) and orchestrating tasks.
@@ -41,6 +42,7 @@ graph TD
 - **Dependency Management**: `requirements.txt` with explicit version constraints.
 - **Testing**: Pytest with `pytest-asyncio` and `TestClient`.
 - **API Structure**: Versioned API (`/api/v1/`) with resource-based routing using modern `/routers/` convention (`app/api/v1/routers/`).
+- **Web Interface Structure**: Web-facing routes are now integrated into the API structure under `app/api/web.py`, creating a more consistent project structure where all routing is handled within the `app/api/` directory. This follows FastAPI best practices.
 - **Environment Configuration**: Configuration through .env files, with proper parsing in Settings class.
 
 ## 3. Design Patterns
@@ -53,6 +55,7 @@ graph TD
 - **Service Instance Pattern**: Services implemented as instance methods instead of static methods, enabling better testability and dependency injection.
 - **Background Tasks**: Long-running operations handled via FastAPI's background tasks.
 - **Enhanced Data Modeling (Planned)**: The schemas will be expanded as part of the Natal Chart Expansion Plan to include more detailed astrological data (elements, qualities, lunar phases, etc.).
+- **Unified Routing**: All routes (both API and web interface) are now organized under a single directory tree, creating a more maintainable and consistent project structure.
 
 ## 4. Critical Implementation Paths
 
@@ -60,6 +63,7 @@ graph TD
 - **Natal Chart Visualization**: `Client -> API (/api/v1/charts/visualization/natal) -> ChartVisualizationService.generate_natal_chart_svg -> KerykeionChartSVG -> Save SVG -> Response (URL)`
 - **Synastry Visualization**: Similar path (`/api/v1/charts/visualization/synastry`) involving two `AstrologicalSubject` instances.
 - **Factory-based Dependency Injection**: `Depends(get_service) -> service instance -> service method -> result`
+- **Web Interface**: `Client -> app/api/web.py routes -> Templates -> ChartVisualizationService (background task) -> Response (HTML)`
 
 ## 5. Planned Improvements
 
