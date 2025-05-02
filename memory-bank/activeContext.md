@@ -2,12 +2,22 @@
 
 ## Current Focus
 
+- **HTMX Implementation**: Plan to integrate HTMX with our web interface to create a more dynamic and responsive user experience without heavy JavaScript.
 - **Troubleshooting Configuration**: Investigating why the `GEONAMES_USERNAME` setting is not being correctly read from the `.env` file, despite being set by the user.
 - **Web Interface Functional**: The web interface itself is functional, but the GeoNames integration (used for city lookups and timezone) is failing due to the configuration issue.
 - **Prepare for Next Phase**: The major refactoring effort (FastAPI best practices, API structure migration) is complete. All 25 tests are passing.
 - **Planning**: Reviewing the `Natal Chart Expansion Plan` (`docs/natal-chart-expansion-plan.md`) to prepare for implementation.
 
 ## Recent Changes
+
+- **Router Structure Consolidation**:
+  - Addressed the inconsistent router structure where web routes were in `app/routers/` while API routes were in `app/api/v1/routers/`.
+  - Moved all web routes from `app/routers/web.py` to `app/api/web.py`.
+  - Updated imports in `app/api/__init__.py` to include the web router.
+  - Removed references to the old web router from `app/main.py`.
+  - Removed the obsolete `app/routers/` directory.
+  - Confirmed all 25 tests continue to pass after the changes.
+  - This brings the codebase in line with FastAPI best practices by keeping all routes under the `app/api/` directory.
 
 - **GeoNames Debugging**:
   - Analyzed `app/core/config.py` and `app/services/geo_service.py` to understand how settings are loaded and used.
@@ -37,19 +47,35 @@
 
 ## Next Steps
 
-1. **Resolve .env Issue**: Assist the user in applying one of the suggested solutions:
+1. **Implement HTMX Integration**:
+   * Add HTMX library to the layout.html template
+   * Create HTML fragment templates for partial updates
+   * Update existing routes to handle HTMX requests
+   * Add HTMX attributes to forms and UI elements
+   * Implement key features:
+     * Live location search with HTMX
+     * Real-time chart preview as options change
+     * Form validation with instant feedback
+     * Improved tab switching
+     * Progress indicators for chart generation
+     
+2. **Resolve .env Issue**: Assist the user in applying one of the suggested solutions:
     * Recreate the `.env` file with correct formatting/encoding.
     * Temporarily export the `GEONAMES_USERNAME` variable in the shell.
     * Modify `config.py` to use an absolute path for `env_file`.
-2. **Verify Fix**: Once a solution is applied, run the application and check the logs to confirm `GEONAMES_USERNAME` is read correctly and the GeoNames API calls succeed.
-3. **Implement Natal Chart Expansion Plan**: Once the configuration issue is resolved, proceed with the features detailed in `docs/natal-chart-expansion-plan.md`. Prioritize:
+    
+3. **Verify Fix**: Once a solution is applied, run the application and check the logs to confirm `GEONAMES_USERNAME` is read correctly and the GeoNames API calls succeed.
+    
+4. **Implement Natal Chart Expansion Plan**: After HTMX integration and configuration fixes, proceed with the features detailed in `docs/natal-chart-expansion-plan.md`. Prioritize:
    - Enhanced Planet/House Info (Schema updates, Service logic)
    - Element/Quality Analysis (Schema updates, Service logic)
    - Lunar Phase Info (Schema updates, Service logic)
-4. **Future Feature Development**: Defer work on other features (transit calculations, LLM interpretations) until after the natal chart expansion core items are addressed.
+   
+5. **Future Feature Development**: Defer work on other features (transit calculations, LLM interpretations) until after the natal chart expansion core items are addressed.
 
 ## Active Decisions & Considerations
 
+- **HTMX Integration Strategy**: Using HTMX for progressive enhancement of the existing server-rendered templates rather than rebuilding the interface with a JavaScript framework.
 - **Web Interface Architecture**: Using FastAPI's template support with Jinja2 for server-side rendering rather than a separate frontend framework.
 - **Responsive Design**: The web interface is designed to work on both desktop and mobile devices.
 - **Background Processing**: Using FastAPI's background tasks for chart generation to improve user experience.
@@ -75,6 +101,8 @@
 
 ## Learnings & Insights
 
+- Router structure organization is critical for maintaining a consistent and maintainable FastAPI application.
+- Consolidating routes under a single directory tree (`app/api/`) improves code organization and follows FastAPI best practices.
 - FastAPI's integration with Jinja2 templates provides a straightforward way to build web interfaces without a separate frontend framework.
 - Background tasks in FastAPI are effective for handling long-running operations like chart generation.
 - Proper SVG directory initialization is important to prevent file access errors when saving generated charts.
