@@ -52,7 +52,7 @@ class GeoService:
         self.base_url = "http://api.geonames.org/searchJSON"
         self.timezone_url = "http://api.geonames.org/timezoneJSON"
     
-    def search_cities(self, query: str, max_rows: int = 10) -> List[GeoLocation]:
+    async def search_cities(self, query: str, max_rows: int = 10) -> List[GeoLocation]:
         """
         Search for cities matching the query.
         
@@ -90,7 +90,7 @@ class GeoService:
             results = []
             for place in response_json.get("geonames", []):
                 # For each place, get the timezone
-                timezone = self._get_timezone(place.get("lat"), place.get("lng"))
+                timezone = await self._get_timezone(place.get("lat"), place.get("lng"))
                 
                 results.append(GeoLocation(
                     name=place.get("name", ""),
@@ -106,7 +106,7 @@ class GeoService:
             self.logger.error(f"Error fetching data from GeoNames: {e}")
             return []
     
-    def _get_timezone(self, lat: str, lng: str) -> str:
+    async def _get_timezone(self, lat: str, lng: str) -> str:
         """
         Get timezone for given coordinates.
         
