@@ -75,4 +75,17 @@
   display: block;
   margin: 0 auto;
   max-width: 100%;
+}
+
+/* Fix for card headers - ensure they're flush with the top of cards */
+.card {
+  overflow: hidden; /* Ensures no gap between header and card corners */
+}
+
+.card-header {
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+  margin-top: 0;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
 } 
