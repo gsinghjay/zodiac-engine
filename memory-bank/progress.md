@@ -15,6 +15,14 @@
   - House system mapping to correctly translate human-readable names to Kerykeion codes.
   - Language code conversion for proper display of charts.
   
+- **HTMX Integration**:
+  - Dynamic content loading for location search with real-time results.
+  - Form validation with instant feedback without page reloads.
+  - Smooth transitions for UI state changes.
+  - Partial templates for HTMX-powered updates.
+  - Progressive enhancement that works without JavaScript.
+  - Improved interactivity without heavy JavaScript frameworks.
+  
 - **Core Application**: Stable FastAPI application setup.
 - **API Routing**: Modern, resource-based routing implemented in `app/api/` with proper versioning. Both API and web routes are now consolidated under the same directory tree.
 - **Natal Chart Calculation**: `/api/v1/charts/natal` endpoint functions correctly, returning basic `NatalChartData`.
@@ -49,6 +57,12 @@
   - Enhance form validation with clearer error messages
   - Add tooltips for chart options and configurations
 
+- **HTMX Extensions**:
+  - Implement more sophisticated HTMX patterns for complex interactions
+  - Add websocket support through HTMX's SSE capabilities
+  - Expand partial templates for more components
+  - Add animation effects for state transitions
+
 - **Natal Chart Expansion Plan**:
   - **Enhanced Models**: Update `NatalChartResponse` schema (`app/schemas/chart.py`) to include detailed astrological data (planets, houses, aspects, elements, qualities, lunar phase, etc.).
   - **Service Logic**: Update `AstrologyService` to extract and populate the enhanced data from Kerykeion objects.
@@ -64,6 +78,7 @@
 
 ## 3. Current Status
 
+- **HTMX Implementation Complete**: Successfully integrated HTMX to provide dynamic interactions without heavy JavaScript, enhancing the user experience with real-time updates.
 - **Bootstrap Implementation Complete**: Successfully migrated the web interface from custom CSS to Bootstrap for improved responsiveness and consistency.
 - **Dedicated Chart Details Page Added**: Implemented a dedicated page for chart viewing with download options and share functionality.
 - **Chart Generation Flow Improved**: Modified the chart generation process to redirect to the dedicated chart details page.
@@ -86,11 +101,15 @@
 - **Web Interface**: 
   - Limited help text and tooltips for astrological options.
   - Mobile experience could be improved further.
+- **HTMX Implementation**:
+  - Limited to basic interactions; more complex patterns not yet implemented.
+  - No websocket/SSE support for real-time continuous updates.
   
 - None currently identified in the API. Previous issues related to dependencies, syntax, and test setup have been resolved during the refactoring process.
 
 ## 5. Evolution of Project Decisions
 
+- **HTMX Adoption**: Integrated HTMX to enhance the user experience with dynamic interactions while maintaining a server-rendered approach, avoiding the complexity of full JavaScript frameworks.
 - **Bootstrap Adoption**: Migrated from custom CSS to Bootstrap to improve UI consistency, responsiveness, and development speed.
 - **Dedicated Chart Page**: Implemented a separate chart details page to provide a better viewing experience and additional options.
 - **In-Memory Caching**: Implemented a simple dictionary-based cache for chart data as a quick solution, with plans for a more robust solution later.
