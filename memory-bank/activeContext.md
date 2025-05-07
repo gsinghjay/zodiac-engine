@@ -13,6 +13,7 @@
 - **Web Interface Functional**: The web interface is now fully functional, with improvements to error handling and configuration issues resolved.
 - **Prepare for Next Phase**: The major refactoring effort (FastAPI best practices, API structure migration) is complete. All tests are passing.
 - **Planning**: Reviewing the `Natal Chart Expansion Plan` (`docs/natal-chart-expansion-plan.md`) to prepare for implementation.
+- **Roadmap Reprioritization**: Updated the project roadmap to prioritize API structure reorganization and SQLite-based data persistence.
 
 ## Recent Changes
 
@@ -129,24 +130,26 @@
 
 ## Next Steps
 
-1. **Chart Data Persistence**:
-   * Implement a more robust solution for chart data persistence beyond the in-memory cache
-   * Consider using a database for storing chart data and user preferences
+1. **API Structure Reorganization**:
+   * Move `app/api/web.py` into a dedicated web folder (`app/api/web/`)
+   * Split web.py into logical components (chart generation, location search, download functionality)
+   * Update imports in `app/api/__init__.py` to reflect the new structure
+   * Ensure all tests continue to pass after the reorganization
+   * This will improve code organization and maintainability by grouping related functionality
+
+2. **Chart Data Persistence with SQLite**:
+   * Implement SQLite database for storing chart data and user preferences
+   * Create appropriate database models and migration scripts using SQLAlchemy
    * Add expiration times for generated charts
-   
-2. **UI Improvements**:
+   * Implement database connection pooling and proper error handling
+   * Create a data access layer with repository pattern for chart data
+
+3. **UI Improvements**:
    * Add more interactive elements using Bootstrap's components
    * Improve mobile responsiveness
    * Enhance form validation with clearer error messages
    * Add tooltips for chart options and configurations
    
-3. **API Structure Improvement**:
-   * Reorganize web-related routes by moving `app/api/web.py` into a dedicated web folder (`app/api/web/`) 
-   * Potentially split web.py into logical components (chart generation, location search, download functionality)
-   * Update imports in `app/api/__init__.py` to reflect the new structure
-   * Ensure all tests continue to pass after the reorganization
-   * This will further improve code organization and maintainability by grouping related functionality
-
 4. **Extend HTMX Implementation**:
    * Add more sophisticated HTMX patterns for complex interactions
    * Implement websockets for real-time updates using HTMX's SSE support

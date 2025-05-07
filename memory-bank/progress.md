@@ -51,21 +51,23 @@
 
 ## 2. What Needs Improvement / Is Left to Build
 
-- **Chart Data Persistence**:
-  - Implement a more robust solution for chart data persistence beyond the in-memory cache
-  - Consider using a database for storing chart data and user preferences
+- **API Structure Reorganization**:
+  - Move `app/api/web.py` into a dedicated web folder (`app/api/web/`)
+  - Split web.py into smaller, focused modules based on functionality (chart generation, location search, download operations)
+  - Update imports and ensure all tests continue to pass
+  - This reorganization will improve code organization and maintainability
+
+- **Chart Data Persistence with SQLite**:
+  - Implement SQLite database for storing chart data and user preferences
+  - Create appropriate database models and migration scripts using SQLAlchemy
   - Add expiration times for generated charts
+  - Implement database connection pooling and proper error handling
+  - Create a data access layer with repository pattern for chart data
 
 - **UI Improvements**:
   - Add more interactive elements using Bootstrap's components
   - Enhance form validation with clearer error messages
   - Add tooltips for chart options and configurations
-
-- **API Structure Reorganization**:
-  - Move `app/api/web.py` into a dedicated web folder (`app/api/web/`)
-  - Split web.py into smaller, focused modules based on functionality (chart generation, location search, download operations)
-  - Update imports and ensure all tests continue to pass
-  - This reorganization will further improve code organization and maintainability
 
 - **HTMX Extensions**:
   - Implement more sophisticated HTMX patterns for complex interactions
@@ -80,7 +82,6 @@
 - **Implement Placeholder Endpoints**: Add actual calculation/visualization logic for:
   - Composite Charts
   - Transit Charts
-- **Database Integration (Future)**: Implement a database layer for persistence (users, saved charts, settings).
 - **Advanced Scoring (Future)**: Implement more complex relationship scoring (beyond basic synastry aspects).
 - **LLM Interpretations (Future)**: Integrate LLM for generating textual interpretations of charts.
 - **Caching (Future)**: Implement caching for expensive calculations.
@@ -103,6 +104,7 @@
 - **Refactoring Complete**: The major refactoring effort to implement FastAPI best practices and migrate the API structure (`endpoints/` -> `routers/`) is finished.
 - **Stable & Tested**: The application is stable, and all tests are passing.
 - **Ready for Next Phase**: The codebase is prepared for the Natal Chart Expansion Plan.
+- **Roadmap Reprioritized**: Updated project roadmap to prioritize API structure reorganization and SQLite-based data persistence.
 
 ## 4. Known Issues
 
