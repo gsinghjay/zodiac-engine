@@ -1,0 +1,52 @@
+<div class="mb-3">
+    <label for="city" class="form-label">Birth City</label>
+    <div class="input-group">
+        <input type="text" class="form-control" id="city" name="city" value="{{ city|default('') }}" 
+               hx-post="{{ url_for('search_location') }}"
+               hx-trigger="keyup changed delay:500ms"
+               hx-target="#location-results"
+               hx-indicator="#search-indicator"
+               hx-params="city">
+        <div id="search-indicator" class="htmx-indicator input-group-text">
+            <span class="search-icon">⌛</span>
+        </div>
+    </div>
+</div>
+
+<div id="location-results"></div>
+
+<div class="mb-3">
+    <label for="nation" class="form-label">Country</label>
+    <input type="text" class="form-control" id="nation" name="nation" value="{{ nation|default('') }}" required>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="mb-3">
+            <label for="lng" class="form-label">Longitude</label>
+            <input type="number" class="form-control" id="lng" name="lng" step="0.0001" placeholder="-73.8667" value="{{ lng|default('') }}" required>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="mb-3">
+            <label for="lat" class="form-label">Latitude</label>
+            <input type="number" class="form-control" id="lat" name="lat" step="0.0001" placeholder="40.7167" value="{{ lat|default('') }}" required>
+        </div>
+    </div>
+</div>
+
+<div class="mb-3">
+    <label for="tz_str" class="form-label">Timezone</label>
+    <select class="form-select" id="tz_str" name="tz_str" required>
+        <option value="" {% if not tz_str %}selected{% endif %}>Select Timezone</option>
+        <option value="America/New_York" {% if tz_str == "America/New_York" %}selected{% endif %}>America/New_York</option>
+        <option value="America/Chicago" {% if tz_str == "America/Chicago" %}selected{% endif %}>America/Chicago</option>
+        <option value="America/Denver" {% if tz_str == "America/Denver" %}selected{% endif %}>America/Denver</option>
+        <option value="America/Los_Angeles" {% if tz_str == "America/Los_Angeles" %}selected{% endif %}>America/Los_Angeles</option>
+        <option value="Europe/London" {% if tz_str == "Europe/London" %}selected{% endif %}>Europe/London</option>
+        <option value="Europe/Paris" {% if tz_str == "Europe/Paris" %}selected{% endif %}>Europe/Paris</option>
+        <option value="Europe/Berlin" {% if tz_str == "Europe/Berlin" %}selected{% endif %}>Europe/Berlin</option>
+        <option value="Asia/Tokyo" {% if tz_str == "Asia/Tokyo" %}selected{% endif %}>Asia/Tokyo</option>
+        <option value="Australia/Sydney" {% if tz_str == "Australia/Sydney" %}selected{% endif %}>Australia/Sydney</option>
+    </select>
+</div> 

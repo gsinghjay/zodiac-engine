@@ -7,6 +7,7 @@ from fastapi import Depends
 from app.core.config import Settings
 from app.services.astrology import AstrologyService
 from app.services.chart_visualization import ChartVisualizationService
+from app.services.file_conversion import FileConversionService
 from app.services.geo_service import GeoService
 
 @lru_cache(maxsize=1)
@@ -47,4 +48,16 @@ def get_geo_service() -> GeoService:
     """Dependency provider for GeoService."""
     return GeoService()
 
-GeoServiceDep = Annotated[GeoService, Depends(get_geo_service)] 
+GeoServiceDep = Annotated[GeoService, Depends(get_geo_service)]
+
+@lru_cache(maxsize=32)
+def get_file_conversion_service() -> FileConversionService:
+    """
+    Get an instance of the FileConversionService.
+    
+    This dependency can be used in route functions to get access to file conversion operations.
+    Uses lru_cache to reuse the service instance, improving performance.
+    """
+    return FileConversionService()
+
+FileConversionServiceDep = Annotated[FileConversionService, Depends(get_file_conversion_service)] 

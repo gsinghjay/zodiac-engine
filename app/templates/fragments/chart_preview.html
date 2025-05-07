@@ -1,0 +1,50 @@
+{% if chart_url %}
+<div class="card chart-preview mb-4">
+    <div class="card-body">
+        <h3 class="card-title mb-3">Chart Preview</h3>
+        <div class="svg-container">
+            <img src="{{ chart_url }}" alt="Astrological Chart for {{ name }}" class="chart-svg">
+        </div>
+        {% if chart_data %}
+        <div class="mt-3">
+            <h4 class="h5">Chart Details</h4>
+            <table class="table table-bordered table-sm">
+                <tbody>
+                    <tr>
+                        <th>Name</th>
+                        <td>{{ chart_data.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Date & Time</th>
+                        <td>{{ chart_data.birth_date }}</td>
+                    </tr>
+                    <tr>
+                        <th>Location</th>
+                        <td>{{ chart_data.city }}, {{ chart_data.nation }}</td>
+                    </tr>
+                    <tr>
+                        <th>Coordinates</th>
+                        <td>Lat: {{ chart_data.lat }}, Lng: {{ chart_data.lng }}</td>
+                    </tr>
+                    <tr>
+                        <th>House System</th>
+                        <td>{{ chart_data.houses_system }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        <div class="mt-3">
+            <a href="{{ chart_url }}" class="btn btn-outline-primary btn-sm" download="astrological_chart.svg">
+                Download Chart
+            </a>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="card chart-preview mb-4">
+    <div class="card-body text-center py-5">
+        <p class="text-muted">Chart will appear here after generation</p>
+    </div>
+</div>
+{% endif %} 

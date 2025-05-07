@@ -1,5 +1,5 @@
 ---
-description: his rule documents best practices for writing FastAPI tests in the Zodiac Engine. Call this rule when reviewing or creating tests, implementing test fixtures, or working with async testing. Use it when users need guidance on test structure, mocking dependencies, handling async operations, or optimizing test performance.
+description: This rule documents best practices for writing FastAPI tests in the Zodiac Engine. Call this rule when reviewing or creating tests, implementing test fixtures, or working with async testing. Use it when users need guidance on test structure, mocking dependencies, handling async operations, or optimizing test performance.
 globs: 
 alwaysApply: false
 ---

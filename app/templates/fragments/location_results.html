@@ -1,0 +1,20 @@
+{% if error %}
+<div class="alert alert-danger py-2">
+    <p class="mb-0">{{ error }}</p>
+</div>
+{% elif locations %}
+<div class="list-group mb-3">
+    {% for location in locations %}
+    <button class="list-group-item list-group-item-action" 
+            hx-post="{{ url_for('select_location') }}"
+            hx-vals='{"city": "{{ location.city|default(location.name) }}", "nation": "{{ location.nation|default(location.country_code) }}", "lng": {{ location.lng|default(location.longitude) }}, "lat": {{ location.lat|default(location.latitude) }}, "tz_str": "{{ location.tz_str|default(location.timezone) }}" }'
+            hx-target="#location-fields"
+            hx-swap="innerHTML">
+        {{ location.city|default(location.name) }}, {{ location.nation|default(location.country_code) }} 
+        {% if location.tz_str %}({{ location.tz_str }}){% elif location.timezone %}({{ location.timezone }}){% endif %}
+    </button>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-muted mb-3">No locations found. Please try a different search term.</p>
+{% endif %} 
