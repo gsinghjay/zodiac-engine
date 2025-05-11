@@ -27,6 +27,7 @@ from app.services.report import ReportService
 from app.services.interpretation import InterpretationService
 from app.core.exceptions import FileConversionError
 from app.schemas.chart_visualization import AspectConfiguration, ChartConfiguration
+from app.schemas.report import NatalReportData
 
 router = APIRouter(
     tags=["web"],
@@ -206,7 +207,7 @@ async def chart_report(
         birth_place = f"{chart_data['city']}, {chart_data['nation']}"
         
         # Generate report using ReportService
-        report_text = report_service.generate_natal_report(
+        report_data = report_service.generate_natal_report(
             name=chart_data["name"],
             birth_date=birth_date_dt,
             birth_place=birth_place,
@@ -216,44 +217,20 @@ async def chart_report(
             timezone=chart_data.get("tz_str")
         )
         
-        # Process the report text to extract components
-        # The report title is the first line
-        report_parts = report_text.split('\n')
-        
-        # Extract parts between the tables
-        title = report_parts[0].strip() if report_parts else ""
-        
-        # Find the table boundaries using the ASCII table markers
-        data_table_start = report_text.find("+-----------+")
-        data_table_end = report_text.find("+-----------------+------+")
-        
-        planets_table_start = data_table_end
-        planets_table_end = report_text.find("+----------------+------+")
-        
-        houses_table_start = planets_table_end
-        houses_table_end = report_text.find("Note: For Whole Sign") if "Note: For Whole Sign" in report_text else len(report_text)
-        
-        # Extract the tables
-        data_table = report_text[data_table_start:data_table_end].strip()
-        planets_table = report_text[planets_table_start:planets_table_end].strip()
-        houses_table = report_text[houses_table_start:houses_table_end].strip()
-        
-        # Check if there's a note about Whole Sign houses
-        has_whole_sign_note = "Note: For Whole Sign houses" in report_text
+        # Check if there's a note about Whole Sign houses in the full report
+        has_whole_sign_note = "Note: For Whole Sign houses" in report_data["full_report"]
         whole_sign_note = "Note: For Whole Sign houses, all house positions are 0.0 as each house starts at 0° of its sign." if has_whole_sign_note else ""
         
-        # Return the report fragment
+        # Return the report fragment with structured data
         return templates.TemplateResponse(
             "fragments/report.html",
             {
                 "request": request,
-                "title": title,
-                "data_table": data_table,
-                "planets_table": planets_table,
-                "houses_table": houses_table,
-                "whole_sign_note": whole_sign_note,
-                "chart_id": chart_id,
-                "full_report": report_text
+                "title": report_data["title"],
+                "data_table": report_data["data_table"],
+                "planets_table": report_data["planets_table"],
+                "houses_table": report_data["houses_table"],
+                "whole_sign_note": whole_sign_note
             }
         )
     except HTTPException:
@@ -313,7 +290,7 @@ async def interpret_chart(
         birth_place = f"{chart_data['city']}, {chart_data['nation']}"
         
         # First generate report to get structured data for interpretation
-        report_text = report_service.generate_natal_report(
+        report_data = report_service.generate_natal_report(
             name=chart_data["name"],
             birth_date=birth_date_dt,
             birth_place=birth_place,
@@ -323,9 +300,18 @@ async def interpret_chart(
             timezone=chart_data.get("tz_str")
         )
         
-        # Generate interpretation using InterpretationService
+        # Create a NatalReportData object from the report data dictionary
+        natal_report_data = NatalReportData(
+            title=report_data["title"],
+            data_table=report_data["data_table"],
+            planets_table=report_data["planets_table"],
+            houses_table=report_data["houses_table"],
+            full_report=report_data["full_report"]
+        )
+        
+        # Generate interpretation using InterpretationService with structured data
         interpretation_result = interpretation_service.interpret_natal_chart(
-            report_text=report_text,
+            report_data=natal_report_data,
             aspects_focus=aspects_focus,
             houses_focus=houses_focus,
             planets_focus=planets_focus,
@@ -382,7 +368,7 @@ async def download_report(
         birth_place = f"{chart_data['city']}, {chart_data['nation']}"
         
         # Generate report using ReportService
-        report_text = report_service.generate_natal_report(
+        report_data = report_service.generate_natal_report(
             name=chart_data["name"],
             birth_date=birth_date_dt,
             birth_place=birth_place,
@@ -392,9 +378,12 @@ async def download_report(
             timezone=chart_data.get("tz_str")
         )
         
+        # Use the full_report field from the dictionary
+        full_report_text = report_data["full_report"]
+        
         # Create response with the full report as plain text
         return Response(
-            content=report_text,
+            content=full_report_text,
             media_type="text/plain",
             headers={"Content-Disposition": f"attachment; filename={chart_id}_report.txt"}
         )
