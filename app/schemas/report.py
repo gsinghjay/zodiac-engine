@@ -1,6 +1,6 @@
 """Schemas for astrological reports."""
 from datetime import datetime
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Union, List
 
 from pydantic import BaseModel, Field
 
@@ -89,12 +89,81 @@ class SynastryReportResponse(BaseModel):
     person1: Dict[str, str] = Field(..., description="Report data for the first person")
     person2: Dict[str, str] = Field(..., description="Report data for the second person")
 
-# Schema for LLM Interpretation Request (placeholder for future implementation)
+# Structured report data models for interpretation
+class NatalReportData(BaseModel):
+    """Structured data model for natal chart report data used in interpretations."""
+    title: str = Field(..., description="Report title")
+    data_table: str = Field(..., description="Table containing birth details")
+    planets_table: str = Field(..., description="Table containing planet positions")
+    houses_table: str = Field(..., description="Table containing house positions")
+    full_report: str = Field(..., description="Complete report containing all tables")
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "title": "Kerykeion report for John Doe",
+                "data_table": "Birth data table content...",
+                "planets_table": "Planet positions table content...",
+                "houses_table": "House positions table content...",
+                "full_report": "Complete report content..."
+            }
+        }
+    }
+
+class PersonReportData(BaseModel):
+    """Structured data model for individual person data in synastry reports."""
+    title: str = Field(..., description="Report title for this person")
+    data_table: str = Field(..., description="Table containing birth details")
+    planets_table: str = Field(..., description="Table containing planet positions")
+    houses_table: str = Field(..., description="Table containing house positions")
+    
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "title": "Kerykeion report for John Doe",
+                "data_table": "Birth data table content...",
+                "planets_table": "Planet positions table content...",
+                "houses_table": "House positions table content..."
+            }
+        }
+    }
+
+class SynastryReportData(BaseModel):
+    """Structured data model for synastry chart report data used in interpretations."""
+    person1: PersonReportData = Field(..., description="Report data for the first person")
+    person2: PersonReportData = Field(..., description="Report data for the second person")
+    aspects_table: str | None = Field(None, description="Table containing synastry aspects between the charts")
+    
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "person1": {
+                    "title": "Kerykeion report for John Doe",
+                    "data_table": "Birth data table content...",
+                    "planets_table": "Planet positions table content...",
+                    "houses_table": "House positions table content..."
+                },
+                "person2": {
+                    "title": "Kerykeion report for Jane Smith",
+                    "data_table": "Birth data table content...",
+                    "planets_table": "Planet positions table content...",
+                    "houses_table": "House positions table content..."
+                },
+                "aspects_table": "Synastry aspects table content..."
+            }
+        }
+    }
+
+# Schema for LLM Interpretation Request 
 class InterpretationRequest(BaseModel):
     """Schema for chart interpretation request."""
-    report_data: Dict[str, Any] = Field(..., description="Report data to be interpreted")
+    report_data: Union[NatalReportData, SynastryReportData] = Field(
+        ..., 
+        description="Structured report data to be interpreted"
+    )
     interpretation_type: str = Field(..., description="Type of interpretation (e.g., 'natal', 'synastry')")
     aspects_focus: bool = Field(True, description="Whether to focus on aspects interpretation")
+    compatibility_focus: bool = Field(True, description="Whether to focus on overall compatibility")
     houses_focus: bool = Field(True, description="Whether to focus on house placements interpretation")
     planets_focus: bool = Field(True, description="Whether to focus on planet interpretations")
     tone: str = Field("neutral", description="Tone of the interpretation (neutral, detailed, beginner-friendly)")
@@ -105,12 +174,14 @@ class InterpretationRequest(BaseModel):
             "example": {
                 "report_data": {
                     "title": "Kerykeion report for John Doe",
-                    "planets_table": "...",
-                    "houses_table": "...",
-                    "data_table": "..."
+                    "data_table": "Birth data table content...",
+                    "planets_table": "Planet positions table content...",
+                    "houses_table": "House positions table content...",
+                    "full_report": "Complete report content..."
                 },
                 "interpretation_type": "natal",
                 "aspects_focus": True,
+                "compatibility_focus": True,
                 "houses_focus": True,
                 "planets_focus": True,
                 "tone": "beginner-friendly",

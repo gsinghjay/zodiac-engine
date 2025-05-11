@@ -105,17 +105,21 @@ def generate_natal_report(
                 detail="Either city/nation or longitude/latitude must be provided"
             )
 
+        # Get birth place information
+        birth_place = f"{request.city}, {request.nation}" if request.city and request.nation else "Unknown"
+
+        # Generate report
         report_data = report_service.generate_natal_report(
             name=request.name,
             birth_date=request.birth_date,
-            city=request.city,
-            nation=request.nation,
-            lng=request.lng,
-            lat=request.lat,
-            tz_str=request.tz_str,
-            houses_system=request.houses_system
+            birth_place=birth_place,
+            lat=request.lat or 0.0,
+            lng=request.lng or 0.0,
+            house_system=request.houses_system,
+            timezone=request.tz_str
         )
         
+        # The service now returns a dictionary with the correct structure for NatalReportResponse
         return NatalReportResponse(**report_data)
         
     except HTTPException:
@@ -197,26 +201,27 @@ def generate_synastry_report(
                 detail="Either city/nation or longitude/latitude must be provided for the second individual"
             )
 
+        # Get birth place information
+        birth_place1 = f"{request.city1}, {request.nation1}" if request.city1 and request.nation1 else "Unknown"
+        birth_place2 = f"{request.city2}, {request.nation2}" if request.city2 and request.nation2 else "Unknown"
+
+        # Generate report
         report_data = report_service.generate_synastry_report(
-            name1=request.name1,
-            birth_date1=request.birth_date1,
-            city1=request.city1,
-            nation1=request.nation1,
-            lng1=request.lng1,
-            lat1=request.lat1,
-            tz_str1=request.tz_str1,
-            
-            name2=request.name2,
-            birth_date2=request.birth_date2,
-            city2=request.city2,
-            nation2=request.nation2,
-            lng2=request.lng2,
-            lat2=request.lat2,
-            tz_str2=request.tz_str2,
-            
-            houses_system=request.houses_system
+            person1_name=request.name1,
+            person1_birth_date=request.birth_date1,
+            person1_birth_place=birth_place1,
+            person1_lat=request.lat1 or 0.0,
+            person1_lng=request.lng1 or 0.0,
+            person2_name=request.name2,
+            person2_birth_date=request.birth_date2,
+            person2_birth_place=birth_place2,
+            person2_lat=request.lat2 or 0.0,
+            person2_lng=request.lng2 or 0.0,
+            house_system=request.houses_system,
+            timezone=request.tz_str1 or request.tz_str2
         )
         
+        # The service now returns a dictionary with the correct structure for SynastryReportResponse
         return SynastryReportResponse(**report_data)
         
     except HTTPException:

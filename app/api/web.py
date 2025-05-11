@@ -9,6 +9,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse, Resp
 from typing import Optional, Dict, Any, List, Union, Literal
 from pathlib import Path
 import logging
+from starlette.concurrency import run_in_threadpool
 
 from app.templates import templates
 from app.core.config import settings
@@ -26,6 +27,7 @@ from app.services.report import ReportService
 from app.services.interpretation import InterpretationService
 from app.core.exceptions import FileConversionError
 from app.schemas.chart_visualization import AspectConfiguration, ChartConfiguration
+from app.schemas.report import NatalReportData
 
 router = APIRouter(
     tags=["web"],
@@ -36,6 +38,31 @@ router = APIRouter(
 chart_cache = {}
 
 logger = logging.getLogger(__name__)
+
+def parse_birth_date_from_cache(birth_date_str: str) -> datetime:
+    """
+    Convert a formatted birth date string from the chart cache to a datetime object.
+    
+    Args:
+        birth_date_str: Formatted date string (e.g., "July 17, 1994 at 10:30 AM")
+        
+    Returns:
+        datetime: Parsed datetime object
+    """
+    try:
+        # Try to directly parse the formatted date string
+        # Example: "July 17, 1994 at 10:30 AM"
+        return datetime.strptime(birth_date_str, "%B %d, %Y at %I:%M %p")
+    except ValueError as e:
+        logger.warning(f"Failed to parse birth_date with standard format: {e}")
+        try:
+            # Fallback for potential ISO format (YYYY-MM-DDTHH:MM:SS)
+            return datetime.fromisoformat(birth_date_str)
+        except ValueError:
+            logger.error(f"Could not parse birth_date string: {birth_date_str}")
+            # Return current time as a last resort to avoid breaking the entire application
+            # This is not ideal, but better than crashing
+            return datetime.now()
 
 @router.get("/", response_class=HTMLResponse, name="home")
 async def home(request: Request):
@@ -173,27 +200,37 @@ async def chart_report(
         
         chart_data = chart_cache[chart_id]
         
+        # Convert birth_date string to datetime
+        birth_date_dt = parse_birth_date_from_cache(chart_data["birth_date"])
+        
+        # Get birth place information
+        birth_place = f"{chart_data['city']}, {chart_data['nation']}"
+        
         # Generate report using ReportService
         report_data = report_service.generate_natal_report(
             name=chart_data["name"],
-            birth_date=chart_data["birth_date"],
-            city=chart_data["city"],
-            nation=chart_data["nation"],
-            lng=chart_data["lng"],
+            birth_date=birth_date_dt,
+            birth_place=birth_place,
             lat=chart_data["lat"],
-            tz_str=chart_data.get("tz_str"),
-            houses_system=chart_data.get("houses_system", "P"),
+            lng=chart_data["lng"],
+            house_system=chart_data.get("houses_system", "Placidus"),
+            timezone=chart_data.get("tz_str")
         )
         
-        # Add chart_id to report data for download links
-        report_data["chart_id"] = chart_id
+        # Check if there's a note about Whole Sign houses in the full report
+        has_whole_sign_note = "Note: For Whole Sign houses" in report_data["full_report"]
+        whole_sign_note = "Note: For Whole Sign houses, all house positions are 0.0 as each house starts at 0° of its sign." if has_whole_sign_note else ""
         
-        # Return the report fragment
+        # Return the report fragment with structured data
         return templates.TemplateResponse(
             "fragments/report.html",
             {
                 "request": request,
-                **report_data
+                "title": report_data["title"],
+                "data_table": report_data["data_table"],
+                "planets_table": report_data["planets_table"],
+                "houses_table": report_data["houses_table"],
+                "whole_sign_note": whole_sign_note
             }
         )
     except HTTPException:
@@ -246,21 +283,35 @@ async def interpret_chart(
         
         chart_data = chart_cache[chart_id]
         
+        # Convert birth_date string to datetime
+        birth_date_dt = parse_birth_date_from_cache(chart_data["birth_date"])
+        
+        # Get birth place information
+        birth_place = f"{chart_data['city']}, {chart_data['nation']}"
+        
         # First generate report to get structured data for interpretation
         report_data = report_service.generate_natal_report(
             name=chart_data["name"],
-            birth_date=chart_data["birth_date"],
-            city=chart_data["city"],
-            nation=chart_data["nation"],
-            lng=chart_data["lng"],
+            birth_date=birth_date_dt,
+            birth_place=birth_place,
             lat=chart_data["lat"],
-            tz_str=chart_data.get("tz_str"),
-            houses_system=chart_data.get("houses_system", "P"),
+            lng=chart_data["lng"],
+            house_system=chart_data.get("houses_system", "Placidus"),
+            timezone=chart_data.get("tz_str")
         )
         
-        # Generate interpretation using InterpretationService
+        # Create a NatalReportData object from the report data dictionary
+        natal_report_data = NatalReportData(
+            title=report_data["title"],
+            data_table=report_data["data_table"],
+            planets_table=report_data["planets_table"],
+            houses_table=report_data["houses_table"],
+            full_report=report_data["full_report"]
+        )
+        
+        # Generate interpretation using InterpretationService with structured data
         interpretation_result = interpretation_service.interpret_natal_chart(
-            report_data=report_data,
+            report_data=natal_report_data,
             aspects_focus=aspects_focus,
             houses_focus=houses_focus,
             planets_focus=planets_focus,
@@ -310,21 +361,29 @@ async def download_report(
         
         chart_data = chart_cache[chart_id]
         
+        # Convert birth_date string to datetime
+        birth_date_dt = parse_birth_date_from_cache(chart_data["birth_date"])
+        
+        # Get birth place information
+        birth_place = f"{chart_data['city']}, {chart_data['nation']}"
+        
         # Generate report using ReportService
         report_data = report_service.generate_natal_report(
             name=chart_data["name"],
-            birth_date=chart_data["birth_date"],
-            city=chart_data["city"],
-            nation=chart_data["nation"],
-            lng=chart_data["lng"],
+            birth_date=birth_date_dt,
+            birth_place=birth_place,
             lat=chart_data["lat"],
-            tz_str=chart_data.get("tz_str"),
-            houses_system=chart_data.get("houses_system", "P"),
+            lng=chart_data["lng"],
+            house_system=chart_data.get("houses_system", "Placidus"),
+            timezone=chart_data.get("tz_str")
         )
+        
+        # Use the full_report field from the dictionary
+        full_report_text = report_data["full_report"]
         
         # Create response with the full report as plain text
         return Response(
-            content=report_data["full_report"],
+            content=full_report_text,
             media_type="text/plain",
             headers={"Content-Disposition": f"attachment; filename={chart_id}_report.txt"}
         )
@@ -341,44 +400,62 @@ async def search_location(
     city: Optional[str] = Form(None),
     hx_request: Optional[str] = Header(None)
 ):
-    """Search for locations based on city name."""
+    """
+    Search for locations matching the city name.
+    
+    Args:
+        request: The FastAPI request object
+        geo_service: GeoService dependency
+        city: City name to search for
+        hx_request: HTMX request header
+        
+    Returns:
+        HTML fragment with location search results
+    """
+    # Default context
+    context = {
+        "request": request,
+        "locations": [],
+        "city": city or "",
+        "error": None
+    }
+    
+    # Validate city input
+    if not city or len(city.strip()) < 3:
+        context["error"] = "Please enter at least 3 characters for city search"
+        return templates.TemplateResponse("fragments/location_fields.html", context)
+    
     try:
-        if not city or len(city.strip()) < 2:
-            return templates.TemplateResponse(
-                "fragments/location_results.html",
-                {
-                    "request": request,
-                    "locations": [],
-                    "error": "Please enter at least 2 characters for city search"
-                }
-            )
-            
-        # Search for locations using GeoService
-        locations = await geo_service.search_cities(city)
+        # Use run_in_threadpool to run potentially blocking I/O operation in a separate thread
+        # since the method is now synchronous but we're in an async route
+        locations = await run_in_threadpool(geo_service.search_cities, city.strip(), 10)
         
-        # For debugging
-        print(f"Search results for '{city}': {len(locations)} locations found")
-        
-        # Return the locations fragment
-        return templates.TemplateResponse(
-            "fragments/location_results.html",
+        # Format results for the template
+        context["locations"] = [
             {
-                "request": request,
-                "locations": locations
+                "name": loc.name,
+                "country_code": loc.country_code,
+                "latitude": loc.latitude,
+                "longitude": loc.longitude,
+                "timezone": loc.timezone,
+                "display": f"{loc.name}, {loc.country_code}"
             }
-        )
+            for loc in locations
+        ]
+        
+        # If HTMX request, return only the results fragment
+        if hx_request:
+            return templates.TemplateResponse("fragments/location_results.html", context)
+        
+        # Otherwise return the full fields
+        return templates.TemplateResponse("fragments/location_fields.html", context)
+        
     except Exception as e:
-        # For debugging
-        print(f"Error in search_location: {str(e)}")
-        
-        return templates.TemplateResponse(
-            "fragments/location_results.html",
-            {
-                "request": request,
-                "locations": [],
-                "error": str(e)
-            }
-        )
+        context["error"] = f"Error searching locations: {str(e)}"
+        if hx_request:
+            return templates.TemplateResponse("fragments/location_results.html", context)
+            
+        return templates.TemplateResponse("fragments/location_fields.html", context)
 
 @router.post("/select-location", response_class=HTMLResponse, name="select_location")
 async def select_location(

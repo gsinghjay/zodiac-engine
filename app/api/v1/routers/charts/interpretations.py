@@ -2,9 +2,10 @@
 from typing import Annotated, Optional
 
 from fastapi import APIRouter, HTTPException, status, Depends, Query
+from pydantic import ValidationError
 
 from app.core.dependencies import ReportServiceDep, InterpretationServiceDep
-from app.schemas.report import InterpretationRequest, InterpretationResponse
+from app.schemas.report import InterpretationRequest, InterpretationResponse, NatalReportData, SynastryReportData
 from app.services.report import ReportService
 from app.services.interpretation import InterpretationService
 
@@ -93,9 +94,22 @@ def generate_natal_interpretation(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Invalid interpretation type. Must be 'natal' for this endpoint."
             )
+            
+        # Validate that the report data is the correct type for natal interpretation
+        if not isinstance(request.report_data, NatalReportData):
+            try:
+                # Attempt to convert to NatalReportData if it's in the right format
+                natal_report_data = NatalReportData.model_validate(request.report_data)
+            except ValidationError as e:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Invalid report data format for natal chart interpretation: {str(e)}"
+                )
+        else:
+            natal_report_data = request.report_data
 
         interpretation_result = interpretation_service.interpret_natal_chart(
-            report_data=request.report_data,
+            report_data=natal_report_data,
             aspects_focus=request.aspects_focus,
             houses_focus=request.houses_focus,
             planets_focus=request.planets_focus,
@@ -161,11 +175,24 @@ def generate_synastry_interpretation(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Invalid interpretation type. Must be 'synastry' for this endpoint."
             )
+            
+        # Validate that the report data is the correct type for synastry interpretation
+        if not isinstance(request.report_data, SynastryReportData):
+            try:
+                # Attempt to convert to SynastryReportData if it's in the right format
+                synastry_report_data = SynastryReportData.model_validate(request.report_data)
+            except ValidationError as e:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Invalid report data format for synastry chart interpretation: {str(e)}"
+                )
+        else:
+            synastry_report_data = request.report_data
 
         interpretation_result = interpretation_service.interpret_synastry_chart(
-            report_data=request.report_data,
+            report_data=synastry_report_data,
             aspects_focus=request.aspects_focus,
-            compatibility_focus=True,  # Default to true for synastry
+            compatibility_focus=request.compatibility_focus,
             tone=request.tone,
             max_length=request.max_length
         )
