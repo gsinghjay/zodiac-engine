@@ -12,10 +12,18 @@ import logging
 
 from app.templates import templates
 from app.core.config import settings
-from app.core.dependencies import ChartVisualizationServiceDep, GeoServiceDep, FileConversionServiceDep
+from app.core.dependencies import (
+    ChartVisualizationServiceDep, 
+    GeoServiceDep, 
+    FileConversionServiceDep,
+    ReportServiceDep,
+    InterpretationServiceDep
+)
 from app.services.chart_visualization import ChartVisualizationService
 from app.services.geo_service import GeoService
 from app.services.file_conversion import FileConversionService, OutputFormat
+from app.services.report import ReportService
+from app.services.interpretation import InterpretationService
 from app.core.exceptions import FileConversionError
 from app.schemas.chart_visualization import AspectConfiguration, ChartConfiguration
 
@@ -101,49 +109,230 @@ async def download_chart(
     # Check if the file exists
     if not svg_path.exists():
         raise HTTPException(status_code=404, detail="Chart not found")
-
+    
+    # Conversion logic based on format
     try:
-        # Get proper filename
-        filename = f"astrological_chart_{chart_id}.{format.lower()}"
-        
-        # Handle SVG format (no conversion needed)
-        if format.lower() == "svg":
+        if format == "svg":
+            # SVG doesn't need conversion, just return the file
             return FileResponse(
-                svg_path, 
+                svg_path,
                 media_type="image/svg+xml",
-                filename=filename
+                filename=f"{chart_id}.svg"
             )
         
-        # Validate DPI
-        if dpi < 72 or dpi > 600:
-            logger.warning(f"Invalid DPI requested: {dpi}, using default 96 dpi")
-            dpi = 96
+        # For other formats, use the conversion service
+        output_format = OutputFormat(format.upper())
         
-        # Read the SVG file content
-        with open(svg_path, "r", encoding="utf-8") as file:
-            svg_content = file.read()
-        
-        # Convert to requested format using FileConversionService
-        output_bytes, content_type = conversion_service.convert_svg_to_format(
-            svg_content=svg_content,
-            output_format=format.lower(),  # type: ignore (we've already validated the format)
+        # Convert file
+        result_path, content_type = conversion_service.convert_svg_file(
+            svg_path, 
+            output_format=output_format,
             dpi=dpi
         )
         
+        # Set the proper filename extension
+        extension = format.lower()
+        
         # Return the converted file
-        return Response(
-            content=output_bytes,
+        return FileResponse(
+            result_path,
             media_type=content_type,
-            headers={"Content-Disposition": f"attachment; filename={filename}"}
+            filename=f"{chart_id}.{extension}"
         )
         
     except FileConversionError as e:
-        logger.error(f"Error converting chart {chart_id} to {format}: {str(e)}")
+        logger.error(f"File conversion error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error converting chart: {str(e)}")
-    
     except Exception as e:
-        logger.error(f"Unexpected error while downloading chart {chart_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail="An unexpected error occurred")
+        logger.error(f"Error in download_chart: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error processing chart: {str(e)}")
+
+@router.get("/chart-report/{chart_id}", response_class=HTMLResponse, name="chart_report")
+async def chart_report(
+    request: Request,
+    chart_id: str,
+    report_service: ReportServiceDep,
+    hx_request: Optional[str] = Header(None)
+):
+    """
+    Generate and display a report for a chart.
+    
+    Args:
+        request: The FastAPI request object
+        chart_id: The unique identifier for the chart
+        report_service: ReportService dependency
+        hx_request: HTMX request header
+        
+    Returns:
+        HTML template with the chart report
+    """
+    try:
+        # Get chart data from cache
+        if chart_id not in chart_cache:
+            raise HTTPException(status_code=404, detail="Chart not found")
+        
+        chart_data = chart_cache[chart_id]
+        
+        # Generate report using ReportService
+        report_data = report_service.generate_natal_report(
+            name=chart_data["name"],
+            birth_date=chart_data["birth_date"],
+            city=chart_data["city"],
+            nation=chart_data["nation"],
+            lng=chart_data["lng"],
+            lat=chart_data["lat"],
+            tz_str=chart_data.get("tz_str"),
+            houses_system=chart_data.get("houses_system", "P"),
+        )
+        
+        # Add chart_id to report data for download links
+        report_data["chart_id"] = chart_id
+        
+        # Return the report fragment
+        return templates.TemplateResponse(
+            "fragments/report.html",
+            {
+                "request": request,
+                **report_data
+            }
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error generating report: {str(e)}")
+        return templates.TemplateResponse(
+            "fragments/report.html",
+            {
+                "request": request,
+                "error": f"Error generating report: {str(e)}"
+            }
+        )
+
+@router.get("/interpret-chart/{chart_id}", response_class=HTMLResponse, name="interpret_chart")
+async def interpret_chart(
+    request: Request,
+    chart_id: str,
+    interpretation_service: InterpretationServiceDep,
+    report_service: ReportServiceDep,
+    planets_focus: bool = True,
+    houses_focus: bool = True,
+    aspects_focus: bool = True,
+    tone: Literal["beginner-friendly", "neutral", "detailed"] = "neutral",
+    max_length: int = 1000,
+    hx_request: Optional[str] = Header(None)
+):
+    """
+    Generate and display an interpretation for a chart.
+    
+    Args:
+        request: The FastAPI request object
+        chart_id: The unique identifier for the chart
+        interpretation_service: InterpretationService dependency
+        report_service: ReportService dependency
+        planets_focus: Whether to focus on planet interpretations
+        houses_focus: Whether to focus on house placement interpretations
+        aspects_focus: Whether to focus on aspect interpretations
+        tone: The tone of the interpretation
+        max_length: Maximum length of the interpretation in words
+        hx_request: HTMX request header
+        
+    Returns:
+        HTML template with the chart interpretation
+    """
+    try:
+        # Get chart data from cache
+        if chart_id not in chart_cache:
+            raise HTTPException(status_code=404, detail="Chart not found")
+        
+        chart_data = chart_cache[chart_id]
+        
+        # First generate report to get structured data for interpretation
+        report_data = report_service.generate_natal_report(
+            name=chart_data["name"],
+            birth_date=chart_data["birth_date"],
+            city=chart_data["city"],
+            nation=chart_data["nation"],
+            lng=chart_data["lng"],
+            lat=chart_data["lat"],
+            tz_str=chart_data.get("tz_str"),
+            houses_system=chart_data.get("houses_system", "P"),
+        )
+        
+        # Generate interpretation using InterpretationService
+        interpretation_result = interpretation_service.interpret_natal_chart(
+            report_data=report_data,
+            aspects_focus=aspects_focus,
+            houses_focus=houses_focus,
+            planets_focus=planets_focus,
+            tone=tone,
+            max_length=max_length
+        )
+        
+        # Return the interpretation fragment
+        return templates.TemplateResponse(
+            "fragments/interpretation.html",
+            {
+                "request": request,
+                **interpretation_result
+            }
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error generating interpretation: {str(e)}")
+        return templates.TemplateResponse(
+            "fragments/interpretation.html",
+            {
+                "request": request,
+                "error": f"Error generating interpretation: {str(e)}"
+            }
+        )
+
+@router.get("/download-report/{chart_id}", name="download_report")
+async def download_report(
+    chart_id: str,
+    report_service: ReportServiceDep
+):
+    """
+    Download a text report for a chart.
+    
+    Args:
+        chart_id: The unique identifier for the chart
+        report_service: ReportService dependency
+        
+    Returns:
+        Text file with the chart report
+    """
+    try:
+        # Get chart data from cache
+        if chart_id not in chart_cache:
+            raise HTTPException(status_code=404, detail="Chart not found")
+        
+        chart_data = chart_cache[chart_id]
+        
+        # Generate report using ReportService
+        report_data = report_service.generate_natal_report(
+            name=chart_data["name"],
+            birth_date=chart_data["birth_date"],
+            city=chart_data["city"],
+            nation=chart_data["nation"],
+            lng=chart_data["lng"],
+            lat=chart_data["lat"],
+            tz_str=chart_data.get("tz_str"),
+            houses_system=chart_data.get("houses_system", "P"),
+        )
+        
+        # Create response with the full report as plain text
+        return Response(
+            content=report_data["full_report"],
+            media_type="text/plain",
+            headers={"Content-Disposition": f"attachment; filename={chart_id}_report.txt"}
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error generating report for download: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error generating report: {str(e)}")
 
 @router.post("/search-location", response_class=HTMLResponse, name="search_location")
 async def search_location(
