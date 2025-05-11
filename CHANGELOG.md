@@ -1,6 +1,86 @@
 # CHANGELOG
 
 
+## v0.5.0 (2025-05-11)
+
+### Bug Fixes
+
+- Add date string parsing for chart reports
+  ([`932b562`](https://github.com/gsinghjay/zodiac-engine/commit/932b5621af23e73c04b22b86ce109949d30543b8))
+
+- Centralize chart configuration defaults using ChartConfiguration schema
+  ([`8d3d5a3`](https://github.com/gsinghjay/zodiac-engine/commit/8d3d5a3f42fa027176b7b48a14cb0150733001c8))
+
+- Update API report endpoints to handle structured data
+  ([`6d5983f`](https://github.com/gsinghjay/zodiac-engine/commit/6d5983fb6b1ec1bcedd0af51d0f6ac0cb74f29be))
+
+- Update interpret methods to use report_data instead of report_text
+  ([`2b71346`](https://github.com/gsinghjay/zodiac-engine/commit/2b71346080a2beef2f6219e3a2c20d37c277e468))
+
+- Update InterpretationService to accept structured report data
+  ([`e3ceacd`](https://github.com/gsinghjay/zodiac-engine/commit/e3ceacd3e2c52abdf73c534fa2565e7415f3bcdc))
+
+- Update ReportService to return structured data for API responses
+  ([`084920d`](https://github.com/gsinghjay/zodiac-engine/commit/084920d69bc34227c5dda55329689a33c0253927))
+
+- Update web routes to work with structured report data
+  ([`7bea502`](https://github.com/gsinghjay/zodiac-engine/commit/7bea50241205f370d8d26e5d04ee46a3f22f9a6c))
+
+- Use compatibility_focus from request in synastry interpretation router
+  ([`f23e27e`](https://github.com/gsinghjay/zodiac-engine/commit/f23e27e9d8b3c64e626f22fd8ef25eb95816d559))
+
+- Use house system mapping in ReportService
+  ([`a9ba5f0`](https://github.com/gsinghjay/zodiac-engine/commit/a9ba5f0b0bacffb32d199d56bf1967e83872ffab))
+
+- **api**: Use run_in_threadpool for synchronous GeoService calls
+  ([`7a41e63`](https://github.com/gsinghjay/zodiac-engine/commit/7a41e631bb04ead786fa7b6288ffaf24a24c7fb3))
+
+- **deps**: Update GeoService dependency injection to match constructor
+  ([`24bd240`](https://github.com/gsinghjay/zodiac-engine/commit/24bd240d652c958467eebf89d59b245ea16d9ef3))
+
+- **geo**: Make GeoService methods synchronous to match requests_cache usage
+  ([`df2e56e`](https://github.com/gsinghjay/zodiac-engine/commit/df2e56ed8971f8d424b4e374b77e78e03a0a52c2))
+
+- **interpret**: Update InterpretationService to use report text format
+  ([`11594a8`](https://github.com/gsinghjay/zodiac-engine/commit/11594a805a8c87659d9b699b39f632016561c7fc))
+
+- **report**: Fix house system mapping and add ReportGenerationError
+  ([`627f42b`](https://github.com/gsinghjay/zodiac-engine/commit/627f42b08c9b8fef740c5f1da7247f33b61f8f56))
+
+- **web**: Update chart report routes to handle report text format
+  ([`5100aa5`](https://github.com/gsinghjay/zodiac-engine/commit/5100aa5cf5de62cd4d1c05d24d81223f7de4bd09))
+
+- **web**: Update location search to use run_in_threadpool and fix template variable name
+  ([`19170d9`](https://github.com/gsinghjay/zodiac-engine/commit/19170d95f2d230907bbea72ef9c52e5ce9e4fe73))
+
+### Documentation
+
+- Update memory bank with house system mapping fixes
+  ([`0bcacd0`](https://github.com/gsinghjay/zodiac-engine/commit/0bcacd0004f7f027ef6cbc24e1015c59e97719f1))
+
+### Features
+
+- Add compatibility_focus field to InterpretationRequest schema
+  ([`030e86b`](https://github.com/gsinghjay/zodiac-engine/commit/030e86b9ca01faab7bcfffb735e1bb06a99afa68))
+
+- Add structured report data models for interpretations
+  ([`6fbfeb6`](https://github.com/gsinghjay/zodiac-engine/commit/6fbfeb6a81214ee72d6a41c529bdf512f90f29d0))
+
+- Add type validation for report data in interpretation endpoints
+  ([`0631bc6`](https://github.com/gsinghjay/zodiac-engine/commit/0631bc69f642668c7c6f2a15dbb47b0267974309))
+
+- **report**: Enhance whole sign house explanation in template
+  ([`855f39f`](https://github.com/gsinghjay/zodiac-engine/commit/855f39f99e0e41b6200f650f9ae627e837d9c733))
+
+### Refactoring
+
+- Optimize chart configuration handling in visualization service
+  ([`6fdef5b`](https://github.com/gsinghjay/zodiac-engine/commit/6fdef5b24cf6b7ac25e099b58e433e254230578a))
+
+- Update interpretation service to use structured report data
+  ([`dc9445f`](https://github.com/gsinghjay/zodiac-engine/commit/dc9445f907d1089e5ba13c381727e66eca556218))
+
+
 ## v0.4.0 (2025-05-11)
 
 ### Bug Fixes
