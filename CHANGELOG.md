@@ -1,6 +1,42 @@
 # CHANGELOG
 
 
+## v0.6.0 (2025-05-11)
+
+### Chores
+
+- Remove unused repomix output file
+  ([`65e81cb`](https://github.com/gsinghjay/zodiac-engine/commit/65e81cb3152c9d5751f44800d649d273763ad824))
+
+### Documentation
+
+- Update active context with markdown formatting implementation
+  ([`eccaf90`](https://github.com/gsinghjay/zodiac-engine/commit/eccaf909f793dd103688c6b00d979f27e5b29dce))
+
+- Update progress with Gemini API integration status
+  ([`b855da3`](https://github.com/gsinghjay/zodiac-engine/commit/b855da3c9db1645cb1fc3268a2c4eb8f7304e438))
+
+- Update system patterns with markdown formatting pattern
+  ([`74b575f`](https://github.com/gsinghjay/zodiac-engine/commit/74b575f9972296e4e7498d864da82e1eea3664b5))
+
+- Update tech context with markdown library and Gemini API details
+  ([`42b4a26`](https://github.com/gsinghjay/zodiac-engine/commit/42b4a2645c1d2deefbe280d4073e8614127a8264))
+
+### Features
+
+- Implement markdown formatting for Gemini API responses
+  ([`834af50`](https://github.com/gsinghjay/zodiac-engine/commit/834af505062cc27740caa05f059a7207bb6c8607))
+
+- Update interpretation service dependency to include LLM provider parameter
+  ([`0df8836`](https://github.com/gsinghjay/zodiac-engine/commit/0df8836d5b342e4b914eb40c13f54e518c0c0a18))
+
+- Update template to support HTML rendering from markdown
+  ([`db5e9f1`](https://github.com/gsinghjay/zodiac-engine/commit/db5e9f1a138a6a79765386a955f46d9cbbdbe9b4))
+
+- Update web routes to use run_in_threadpool for Gemini API calls
+  ([`f89caf5`](https://github.com/gsinghjay/zodiac-engine/commit/f89caf5820aa02100a1d33b326c28c799e7cb88e))
+
+
 ## v0.5.0 (2025-05-11)
 
 ### Bug Fixes
