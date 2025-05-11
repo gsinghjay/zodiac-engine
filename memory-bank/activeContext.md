@@ -2,6 +2,13 @@
 
 ## Current Focus
 
+- **LLM Interpretation API Integration**: Implementing integration with LLM providers (Gemini/Anthropic/OpenAI) for the chart interpretation service.
+- **LLM API Selection**: Configuring environment variables for chosen LLM provider and setting up caching strategy.
+- **UI Implementation Complete**: Successfully implemented the frontend elements for chart interpretation, including options customization and HTMX integration.
+- **API Endpoints Complete**: Successfully created the API structure for both report generation and interpretation services.
+- **Report Generation Framework**: Successfully implemented report generation service using Kerykeion's Report class for formatted tabular data.
+- **Fragment Templates**: Created template fragments for displaying interpretation results and formatted reports.
+- **Environment Configuration for LLM**: Created settings structure for LLM API keys and model selection with appropriate defaults.
 - **SVG Conversion Implementation**: Successfully implemented SVG to PNG, PDF, and JPEG conversion for chart downloads using CairoSVG and Pillow libraries.
 - **CSS Variable Preprocessing**: Created utilities to handle CSS variables in SVG files before conversion to ensure proper rendering across all formats.
 - **Download Options Enhancement**: Updated the chart download endpoint to support multiple formats with appropriate content types and file extensions.
@@ -16,6 +23,80 @@
 - **Roadmap Reprioritization**: Updated the project roadmap to prioritize API structure reorganization and SQLite-based data persistence.
 
 ## Recent Changes
+
+- **Chart Interpretation UI Implementation**:
+  - Updated the chart_details.html template to include interpretation and report sections
+  - Added HTMX-powered buttons for generating interpretations with customization options
+  - Created form inputs for customizing interpretation focus areas, tone, and length
+  - Added loading indicators for LLM processing
+  - Created a print-friendly option for interpretations and reports
+  - Added responsive layout for both mobile and desktop views
+
+- **Interpretation Fragment Template**:
+  - Created template fragment at app/templates/fragments/interpretation.html
+  - Implemented sections for main interpretation text, key highlights, and suggestions
+  - Added error handling for failed interpretations
+  - Styled with Bootstrap for consistent appearance
+
+- **Report Fragment Template**:
+  - Created template fragment at app/templates/fragments/report.html
+  - Implemented sections for birth data, planet positions, and house positions
+  - Added monospace formatting for ASCII tables
+  - Added download and print options for reports
+  - Styled with Bootstrap for consistent appearance
+
+- **Web Routes for Interpretation**:
+  - Added /interpret-chart/{chart_id} endpoint for generating interpretations
+  - Added /chart-report/{chart_id} endpoint for generating reports
+  - Added /download-report/{chart_id} endpoint for downloading full reports
+  - All endpoints support HTMX for dynamic content loading
+  - Implemented proper error handling with user-friendly messages
+
+- **API Endpoints Creation**:
+  - Created new router at app/api/v1/routers/charts/interpretations.py
+  - Implemented /api/v1/charts/interpretations/natal endpoint
+  - Implemented /api/v1/charts/interpretations/synastry endpoint
+  - Added comprehensive validation and detailed error responses
+  - Added the interpretations router to the charts router
+
+- **Settings Configuration**:
+  - Updated Settings class in app/core/config.py to include LLM configuration
+  - Added configuration for LLM API key, model name, provider, and caching options
+  - Added llm_config property method for easy access to all LLM settings
+  - Updated README with LLM configuration instructions
+
+- **Dependency Injection**:
+  - Added InterpretationServiceDep to app/core/dependencies.py
+  - Implemented factory method for InterpretationService with settings dependency
+  - Updated web.py routes to use the new dependency
+
+- **Report Generation Service Implementation**:
+  - Created a new `ReportService` class in `app/services/report.py` to generate formatted astrological reports
+  - Implemented methods for both natal and synastry report generation
+  - Integrated with Kerykeion's Report class to generate tabular ASCII reports
+  - Set up proper error handling and logging
+  - Added dependency injection for the service in `app/core/dependencies.py`
+
+- **Report API Endpoints Implementation**:
+  - Created a new router at `app/api/v1/routers/charts/reports.py` for report-related endpoints
+  - Implemented `/api/v1/charts/reports/natal` endpoint for generating natal chart reports
+  - Implemented `/api/v1/charts/reports/synastry` endpoint for generating synastry reports
+  - Added comprehensive validation and error handling
+  - Updated the charts router to include the new reports router
+
+- **Report Schemas Creation**:
+  - Created schema definitions in `app/schemas/report.py` for request/response models
+  - Implemented request validation schemas with proper documentation
+  - Created response models for both natal and synastry reports
+  - Added examples and type annotations for better API documentation
+  - Created schemas for future LLM interpretation requests/responses
+
+- **LLM Interpretation Placeholder**:
+  - Created `InterpretationService` class in `app/services/interpretation.py` as a placeholder for LLM integration
+  - Implemented prompt template methods for different chart types
+  - Added parameter preferences to customize interpretations based on user needs
+  - Created methods for both natal and synastry chart interpretations
+  - Set up structure to support different LLM providers (Gemini/Anthropic/OpenAI)
 
 - **SVG Conversion Implementation**:
   - Created a new `FileConversionService` class in `app/services/file_conversion.py` to handle SVG conversion to different formats
@@ -105,65 +186,69 @@
   - Confirmed all tests continue to pass after the changes.
   - This brings the codebase in line with FastAPI best practices by keeping all routes under the `app/api/` directory.
 
-- **GeoService Improvements**:
-  - Fixed an issue where `GeoService` was calling a non-existent `search_city` method.
-  - Renamed the method call to `search_cities` to match the actual implementation.
-  - Made the `search_cities` and `_get_timezone` methods asynchronous to properly work with the async route handlers.
-  - Added appropriate `await` keyword to method calls.
-  - This resolves errors in the location search functionality.
-
-- **Web Interface Added**:
-  - Created a user-friendly web interface with FastAPI and Jinja2 templates.
-  - Implemented tabs for Western (Tropical) and Vedic (Sidereal) chart generation.
-  - Added form-based input for birth details and chart configuration.
-  - Integrated with existing chart visualization service for SVG generation.
-  - Added responsive design with modern CSS styling.
-  - Implemented background task processing for chart generation.
-  - Fixed duplicate dependencies in requirements.txt.
-
-- **Refactoring Complete**:
-  - Successfully implemented all FastAPI best practices outlined previously.
-  - Successfully migrated API structure from `endpoints/` to `routers/`.
-  - Updated dependencies, configuration, services (instance methods/DI), Pydantic models (v2), tests, error handling, and response codes/models.
-  - Ensured async/sync consistency.
-  - All tests confirmed passing after refactoring and migration.
-
 ## Next Steps
 
-1. **API Structure Reorganization**:
+1. **LLM API Integration** (HIGHEST PRIORITY):
+   * Choose and implement actual LLM API integration (Anthropic Claude, OpenAI GPT-4, or Google Gemini)
+   * Update the InterpretationService to use the selected LLM API
+   * Test with actual API keys to ensure proper functioning
+   * Implement caching for LLM responses to reduce API costs
+   * Create error handling for API rate limits and failures
+   * Document the required environment variables for LLM setup
+
+2. **Testing for Interpretation**:
+   * Create comprehensive unit tests for the InterpretationService
+   * Test with mock LLM responses to avoid API costs during testing
+   * Implement integration tests for the interpretation endpoints
+   * Create test fixtures with sample report data
+   * Test the interpretation UI with Selenium or similar tools
+
+3. **API Structure Reorganization**:
    * Move `app/api/web.py` into a dedicated web folder (`app/api/web/`)
    * Split web.py into logical components (chart generation, location search, download functionality)
    * Update imports in `app/api/__init__.py` to reflect the new structure
    * Ensure all tests continue to pass after the reorganization
    * This will improve code organization and maintainability by grouping related functionality
 
-2. **Chart Data Persistence with SQLite**:
+4. **Chart Data Persistence with SQLite**:
    * Implement SQLite database for storing chart data and user preferences
    * Create appropriate database models and migration scripts using SQLAlchemy
    * Add expiration times for generated charts
    * Implement database connection pooling and proper error handling
    * Create a data access layer with repository pattern for chart data
 
-3. **UI Improvements**:
+5. **UI Improvements**:
    * Add more interactive elements using Bootstrap's components
    * Improve mobile responsiveness
    * Enhance form validation with clearer error messages
    * Add tooltips for chart options and configurations
    
-4. **Extend HTMX Implementation**:
+6. **Extend HTMX Implementation**:
    * Add more sophisticated HTMX patterns for complex interactions
    * Implement websockets for real-time updates using HTMX's SSE support
    * Create more partial templates for dynamic content loading
    * Add animation effects for state transitions
    
-5. **Implement Natal Chart Expansion Plan**: Proceed with the features detailed in `docs/natal-chart-expansion-plan.md`. Prioritize:
+7. **Implement Natal Chart Expansion Plan**: Proceed with the features detailed in `docs/natal-chart-expansion-plan.md`. Prioritize:
    - Enhanced Planet/House Info (Schema updates, Service logic)
    - Element/Quality Analysis (Schema updates, Service logic)
    - Lunar Phase Info (Schema updates, Service logic)
-   
-6. **Future Feature Development**: Defer work on other features (transit calculations, LLM interpretations) until after the natal chart expansion core items are addressed.
 
 ## Active Decisions & Considerations
+
+- **LLM Provider Selection**: Considering the trade-offs between OpenAI GPT-4, Anthropic Claude, and Google Gemini models. Each has different strengths for astrological knowledge, with cost and performance considerations.
+- **LLM API Error Handling**: Designing robust error handling for LLM API failures, with graceful degradation and helpful user feedback.
+- **Caching Strategy**: Planning to implement caching for LLM responses to reduce API costs, with consideration for cache invalidation on report data changes.
+- **Prompt Engineering**: Refining prompt templates for astrological interpretation to get consistently high-quality results from the selected LLM.
+- **Response Formatting**: Ensuring LLM responses have consistent structure for proper display in the UI, potentially using output parsers.
+
+- **LLM Integration Approach**: Planning to support multiple LLM providers (primarily Anthropic/Claude and Google Gemini) to give users flexibility, with clear configuration options.
+- **Interpretation Customization**: Will allow users to customize interpretations based on focus areas (planets, houses, aspects) and tone (beginner-friendly, detailed, etc.).
+- **Prompt Engineering**: Creating specific prompt templates for astrological interpretation that leverage the Report output format for consistent results.
+- **Frontend Integration**: Using HTMX for the interpretation UI to maintain our progressive enhancement approach without heavy JavaScript.
+- **Interpretation Privacy**: Ensuring any data sent to LLM providers is anonymized appropriately and users are informed about data usage.
+- **Error Handling**: Implementing robust error handling for API failures, with graceful fallbacks if the LLM service is unavailable.
+- **Cost Management**: Designing the system to be mindful of LLM API costs through appropriate caching and request optimization.
 
 - **File Conversion Approach**: Chose CairoSVG as the primary conversion solution due to its excellent support for SVG standards and Pillow for additional JPEG conversion capability.
 - **CSS Variable Handling**: Implemented a preprocessing approach for CSS variables rather than relying on the SVG libraries to handle them natively, as many conversion libraries don't fully support modern CSS features.
@@ -191,6 +276,13 @@
 
 ## Important Patterns & Preferences
 
+- **LLM Integration**: Use dependency injection for LLM service configuration, with appropriate factory methods in core/dependencies.py.
+- **Environment Variables**: Use pydantic-settings for LLM API keys and configuration, following the existing pattern for sensitive values.
+- **Prompt Templates**: Maintain prompt templates as methods within the InterpretationService class to keep them organized and maintainable.
+- **Response Formatting**: Format LLM responses consistently with other API responses, using Pydantic models to validate structure.
+- **Error Boundaries**: Implement specific exception types for LLM-related errors to provide clear error messages to users.
+- **Caching**: Use an appropriate caching strategy for LLM responses to reduce API costs and improve performance.
+
 - **SVG Conversion**: Use CairoSVG for primary conversion and Pillow for additional formats like JPEG when needed.
 - **CSS Variable Handling**: Use regex-based preprocessing to handle modern CSS features that might not be supported by conversion libraries.
 - **Download Experience**: Provide multiple download formats with proper content types and meaningful filenames.
@@ -210,6 +302,18 @@
 - **Mapping Functions**: Use mapping functions for converting between user-friendly values and library-required formats.
 
 ## Learnings & Insights
+
+- **Frontend Preparation First**: Implementing the UI components before the actual LLM integration allows for testing with placeholder data and ensures a smooth user experience.
+- **HTMX Advantages for LLM UIs**: HTMX's approach to progressive enhancement is particularly well-suited for LLM applications, as it handles the loading states and asynchronous updates gracefully.
+- **Modular Template Structure**: Using template fragments for interpretation and report display makes the code more maintainable and enables reuse.
+- **Interpretation Options Value**: Giving users control over their interpretation focus (planets, houses, aspects) and tone provides a more personalized experience.
+- **Environment-First Development**: Setting up the configuration infrastructure before implementing the actual API integration makes testing easier and enables quick switching between providers.
+
+- **LLM Integration Considerations**: Implementing the Report service first gives us structured data that can be more easily passed to LLM APIs for interpretation.
+- **Astrological Interpretation Complexity**: The depth of astrological interpretation requires careful prompt engineering to get meaningful results from LLMs.
+- **User Experience Focus**: LLM interpretation adds significant value to the user experience, making it worth prioritizing ahead of some infrastructure improvements.
+- **Report Generation Efficiency**: Kerykeion's built-in Report class provides an efficient way to generate formatted tabular data that's both human-readable and machine-parseable.
+- **Progress Through Layers**: Our layered approach (from Service to API to UI) continues to be effective for implementing new features.
 
 - **SVG Conversion Complexity**: Converting SVG to other formats involves handling CSS variables and ensuring consistent rendering across different libraries.
 - **CairoSVG Capabilities**: CairoSVG provides excellent SVG rendering but requires preprocessing of modern CSS features like variables.
