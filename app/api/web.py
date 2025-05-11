@@ -202,27 +202,58 @@ async def chart_report(
         # Convert birth_date string to datetime
         birth_date_dt = parse_birth_date_from_cache(chart_data["birth_date"])
         
+        # Get birth place information
+        birth_place = f"{chart_data['city']}, {chart_data['nation']}"
+        
         # Generate report using ReportService
-        report_data = report_service.generate_natal_report(
+        report_text = report_service.generate_natal_report(
             name=chart_data["name"],
             birth_date=birth_date_dt,
-            city=chart_data["city"],
-            nation=chart_data["nation"],
-            lng=chart_data["lng"],
+            birth_place=birth_place,
             lat=chart_data["lat"],
-            tz_str=chart_data.get("tz_str"),
-            houses_system=chart_data.get("houses_system", "P"),
+            lng=chart_data["lng"],
+            house_system=chart_data.get("houses_system", "Placidus"),
+            timezone=chart_data.get("tz_str")
         )
         
-        # Add chart_id to report data for download links
-        report_data["chart_id"] = chart_id
+        # Process the report text to extract components
+        # The report title is the first line
+        report_parts = report_text.split('\n')
+        
+        # Extract parts between the tables
+        title = report_parts[0].strip() if report_parts else ""
+        
+        # Find the table boundaries using the ASCII table markers
+        data_table_start = report_text.find("+-----------+")
+        data_table_end = report_text.find("+-----------------+------+")
+        
+        planets_table_start = data_table_end
+        planets_table_end = report_text.find("+----------------+------+")
+        
+        houses_table_start = planets_table_end
+        houses_table_end = report_text.find("Note: For Whole Sign") if "Note: For Whole Sign" in report_text else len(report_text)
+        
+        # Extract the tables
+        data_table = report_text[data_table_start:data_table_end].strip()
+        planets_table = report_text[planets_table_start:planets_table_end].strip()
+        houses_table = report_text[houses_table_start:houses_table_end].strip()
+        
+        # Check if there's a note about Whole Sign houses
+        has_whole_sign_note = "Note: For Whole Sign houses" in report_text
+        whole_sign_note = "Note: For Whole Sign houses, all house positions are 0.0 as each house starts at 0° of its sign." if has_whole_sign_note else ""
         
         # Return the report fragment
         return templates.TemplateResponse(
             "fragments/report.html",
             {
                 "request": request,
-                **report_data
+                "title": title,
+                "data_table": data_table,
+                "planets_table": planets_table,
+                "houses_table": houses_table,
+                "whole_sign_note": whole_sign_note,
+                "chart_id": chart_id,
+                "full_report": report_text
             }
         )
     except HTTPException:
@@ -278,21 +309,23 @@ async def interpret_chart(
         # Convert birth_date string to datetime
         birth_date_dt = parse_birth_date_from_cache(chart_data["birth_date"])
         
+        # Get birth place information
+        birth_place = f"{chart_data['city']}, {chart_data['nation']}"
+        
         # First generate report to get structured data for interpretation
-        report_data = report_service.generate_natal_report(
+        report_text = report_service.generate_natal_report(
             name=chart_data["name"],
             birth_date=birth_date_dt,
-            city=chart_data["city"],
-            nation=chart_data["nation"],
-            lng=chart_data["lng"],
+            birth_place=birth_place,
             lat=chart_data["lat"],
-            tz_str=chart_data.get("tz_str"),
-            houses_system=chart_data.get("houses_system", "P"),
+            lng=chart_data["lng"],
+            house_system=chart_data.get("houses_system", "Placidus"),
+            timezone=chart_data.get("tz_str")
         )
         
         # Generate interpretation using InterpretationService
         interpretation_result = interpretation_service.interpret_natal_chart(
-            report_data=report_data,
+            report_text=report_text,
             aspects_focus=aspects_focus,
             houses_focus=houses_focus,
             planets_focus=planets_focus,
@@ -345,21 +378,23 @@ async def download_report(
         # Convert birth_date string to datetime
         birth_date_dt = parse_birth_date_from_cache(chart_data["birth_date"])
         
+        # Get birth place information
+        birth_place = f"{chart_data['city']}, {chart_data['nation']}"
+        
         # Generate report using ReportService
-        report_data = report_service.generate_natal_report(
+        report_text = report_service.generate_natal_report(
             name=chart_data["name"],
             birth_date=birth_date_dt,
-            city=chart_data["city"],
-            nation=chart_data["nation"],
-            lng=chart_data["lng"],
+            birth_place=birth_place,
             lat=chart_data["lat"],
-            tz_str=chart_data.get("tz_str"),
-            houses_system=chart_data.get("houses_system", "P"),
+            lng=chart_data["lng"],
+            house_system=chart_data.get("houses_system", "Placidus"),
+            timezone=chart_data.get("tz_str")
         )
         
         # Create response with the full report as plain text
         return Response(
-            content=report_data["full_report"],
+            content=report_text,
             media_type="text/plain",
             headers={"Content-Disposition": f"attachment; filename={chart_id}_report.txt"}
         )
