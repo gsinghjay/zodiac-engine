@@ -9,6 +9,7 @@ from typing import Dict, Any
 from kerykeion import AstrologicalSubject, KerykeionChartSVG
 
 from app.core.config import Settings
+from app.schemas.chart_visualization import ChartConfiguration
 
 # Get logger
 logger = logging.getLogger(__name__)
@@ -106,25 +107,17 @@ class ChartVisualizationService:
             Dictionary with chart_id and svg_url
         """
         try:
+            # Get default config by instantiating ChartConfiguration and use these defaults if config is None
+            default_config = ChartConfiguration().model_dump()
+            
             # Default config if not provided
             if config is None:
-                config = {
-                    "houses_system": "P",
-                    "zodiac_type": "Tropic",
-                    "active_points": [
-                        "Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", 
-                        "Neptune", "Pluto", "Mean_Node", "Chiron", "Ascendant", "Medium_Coeli", 
-                        "Mean_Lilith", "Mean_South_Node"
-                    ],
-                    "active_aspects": [
-                        {"name": "conjunction", "orb": 10}, 
-                        {"name": "opposition", "orb": 10}, 
-                        {"name": "trine", "orb": 8}, 
-                        {"name": "sextile", "orb": 6}, 
-                        {"name": "square", "orb": 5}, 
-                        {"name": "quintile", "orb": 1}
-                    ]
-                }
+                config = default_config
+            else:
+                # Merge provided config with defaults for any missing keys
+                for key, value in default_config.items():
+                    if key not in config:
+                        config[key] = value
                 
             # Extract configuration options
             original_house_system = config.get("houses_system", "P")
@@ -135,22 +128,11 @@ class ChartVisualizationService:
             chart_language = chart_language.upper()
             logger.info(f"Using chart language: {chart_language}")
             
-            zodiac_type = config.get("zodiac_type", "Tropic")
-            sidereal_mode = config.get("sidereal_mode", None)
-            perspective_type = config.get("perspective_type", "Apparent Geocentric")
-            active_points = config.get("active_points", [
-                "Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", 
-                "Neptune", "Pluto", "Mean_Node", "Chiron", "Ascendant", "Medium_Coeli", 
-                "Mean_Lilith", "Mean_South_Node"
-            ])
-            active_aspects = config.get("active_aspects", [
-                {"name": "conjunction", "orb": 10}, 
-                {"name": "opposition", "orb": 10}, 
-                {"name": "trine", "orb": 8}, 
-                {"name": "sextile", "orb": 6}, 
-                {"name": "square", "orb": 5}, 
-                {"name": "quintile", "orb": 1}
-            ])
+            zodiac_type = config.get("zodiac_type")
+            sidereal_mode = config.get("sidereal_mode")
+            perspective_type = config.get("perspective_type")
+            active_points = config.get("active_points")
+            active_aspects = config.get("active_aspects")
             
             # Generate a unique ID if not provided
             if not chart_id:
@@ -258,25 +240,17 @@ class ChartVisualizationService:
             Dictionary with chart_id and svg_url
         """
         try:
+            # Get default config by instantiating ChartConfiguration and use these defaults if config is None
+            default_config = ChartConfiguration().model_dump()
+            
             # Default config if not provided
             if config is None:
-                config = {
-                    "houses_system": "P",
-                    "zodiac_type": "Tropic",
-                    "active_points": [
-                        "Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", 
-                        "Neptune", "Pluto", "Mean_Node", "Chiron", "Ascendant", "Medium_Coeli", 
-                        "Mean_Lilith", "Mean_South_Node"
-                    ],
-                    "active_aspects": [
-                        {"name": "conjunction", "orb": 10}, 
-                        {"name": "opposition", "orb": 10}, 
-                        {"name": "trine", "orb": 8}, 
-                        {"name": "sextile", "orb": 6}, 
-                        {"name": "square", "orb": 5}, 
-                        {"name": "quintile", "orb": 1}
-                    ]
-                }
+                config = default_config
+            else:
+                # Merge provided config with defaults for any missing keys
+                for key, value in default_config.items():
+                    if key not in config:
+                        config[key] = value
                 
             # Extract configuration options
             original_house_system = config.get("houses_system", "P")
@@ -287,22 +261,11 @@ class ChartVisualizationService:
             chart_language = chart_language.upper()
             logger.info(f"Using chart language: {chart_language}")
             
-            zodiac_type = config.get("zodiac_type", "Tropic")
-            sidereal_mode = config.get("sidereal_mode", None)
-            perspective_type = config.get("perspective_type", "Apparent Geocentric")
-            active_points = config.get("active_points", [
-                "Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", 
-                "Neptune", "Pluto", "Mean_Node", "Chiron", "Ascendant", "Medium_Coeli", 
-                "Mean_Lilith", "Mean_South_Node"
-            ])
-            active_aspects = config.get("active_aspects", [
-                {"name": "conjunction", "orb": 10}, 
-                {"name": "opposition", "orb": 10}, 
-                {"name": "trine", "orb": 8}, 
-                {"name": "sextile", "orb": 6}, 
-                {"name": "square", "orb": 5}, 
-                {"name": "quintile", "orb": 1}
-            ])
+            zodiac_type = config.get("zodiac_type")
+            sidereal_mode = config.get("sidereal_mode")
+            perspective_type = config.get("perspective_type")
+            active_points = config.get("active_points")
+            active_aspects = config.get("active_aspects")
             
             # Generate a unique ID if not provided
             if not chart_id:
