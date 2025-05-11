@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 
 from kerykeion import AstrologicalSubject, Report
+from app.services.chart_visualization import map_house_system
 
 logger = logging.getLogger(__name__)
 
@@ -32,13 +33,22 @@ class ReportService:
             lng: Optional longitude of birth place
             lat: Optional latitude of birth place
             tz_str: Optional timezone string
-            houses_system: House system identifier
+            houses_system: House system identifier (can be human-readable name or single-letter code)
             
         Returns:
             Dictionary containing various report sections as strings
         """
         try:
             logger.info(f"Generating natal report for {name} born on {birth_date}")
+            
+            # Map house system to Kerykeion-compatible format
+            mapped_houses_system = map_house_system(houses_system)
+            logger.debug(f"Mapped house system from '{houses_system}' to '{mapped_houses_system}'")
+            
+            # Set default timezone if None
+            if tz_str is None:
+                logger.warning("No timezone provided for natal report, defaulting to UTC")
+                tz_str = "UTC"
             
             # Create AstrologicalSubject
             subject = AstrologicalSubject(
@@ -53,7 +63,7 @@ class ReportService:
                 lng=lng,
                 lat=lat,
                 tz_str=tz_str,
-                houses_system_identifier=houses_system,
+                houses_system_identifier=mapped_houses_system,
             )
             
             logger.debug("Created AstrologicalSubject successfully")
@@ -100,12 +110,26 @@ class ReportService:
         
         Args:
             Parameters for both individuals' birth details
+            houses_system: House system identifier (can be human-readable name or single-letter code)
             
         Returns:
             Dictionary containing report data for both charts
         """
         try:
             logger.info(f"Generating synastry report for {name1} and {name2}")
+            
+            # Map house system to Kerykeion-compatible format
+            mapped_houses_system = map_house_system(houses_system)
+            logger.debug(f"Mapped house system from '{houses_system}' to '{mapped_houses_system}'")
+            
+            # Set default timezones if None
+            if tz_str1 is None:
+                logger.warning(f"No timezone provided for {name1}, defaulting to UTC")
+                tz_str1 = "UTC"
+                
+            if tz_str2 is None:
+                logger.warning(f"No timezone provided for {name2}, defaulting to UTC")
+                tz_str2 = "UTC"
             
             # Create AstrologicalSubject for first person
             subject1 = AstrologicalSubject(
@@ -120,7 +144,7 @@ class ReportService:
                 lng=lng1,
                 lat=lat1,
                 tz_str=tz_str1,
-                houses_system_identifier=houses_system,
+                houses_system_identifier=mapped_houses_system,
             )
             
             # Create AstrologicalSubject for second person
@@ -136,7 +160,7 @@ class ReportService:
                 lng=lng2,
                 lat=lat2,
                 tz_str=tz_str2,
-                houses_system_identifier=houses_system,
+                houses_system_identifier=mapped_houses_system,
             )
             
             logger.debug("Created AstrologicalSubject instances successfully")
