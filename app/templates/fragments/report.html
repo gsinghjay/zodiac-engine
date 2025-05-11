@@ -20,6 +20,17 @@
     <div class="mb-4">
         <h5 class="mb-2">Houses</h5>
         <pre>{{ houses_table }}</pre>
+        {% if whole_sign_note %}
+        <div class="alert alert-info mt-2">
+            <small>
+                <i class="bi bi-info-circle"></i> {{ whole_sign_note }}
+                <br>
+                <strong>About Whole Sign Houses:</strong> In the Whole Sign house system, each house corresponds exactly to one sign of the zodiac. 
+                The rising sign (Ascendant) marks the beginning of the 1st house, and each subsequent house begins at 0° of the next sign.
+                This is one of the oldest house systems, dating back to Hellenistic astrology.
+            </small>
+        </div>
+        {% endif %}
     </div>
     
     <div class="text-center mt-4">
