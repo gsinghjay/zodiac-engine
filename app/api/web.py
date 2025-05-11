@@ -310,7 +310,9 @@ async def interpret_chart(
         )
         
         # Generate interpretation using InterpretationService with structured data
-        interpretation_result = interpretation_service.interpret_natal_chart(
+        # Use run_in_threadpool for the blocking API call to Gemini
+        interpretation_result = await run_in_threadpool(
+            interpretation_service.interpret_natal_chart,
             report_data=natal_report_data,
             aspects_focus=aspects_focus,
             houses_focus=houses_focus,

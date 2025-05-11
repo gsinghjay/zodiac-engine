@@ -10,6 +10,7 @@
 - **SVG Conversion**: CairoSVG for SVG to PNG/PDF conversion, Pillow for further image processing
 - **Async Support**: Primarily via FastAPI and `asyncio`, potentially `anyio` via testing setup.
 - **Web Server**: Uvicorn (standard)
+- **LLM Integration**: Google's Gemini API for astrological interpretations
 
 ## 2. Key Dependencies
 
@@ -28,6 +29,8 @@
 - `pytest`, `pytest-asyncio`: For testing.
 - `requests`, `requests-cache`: Used by Kerykeion for potential online features (like geonames integration).
 - `python-dotenv`: Loading environment variables from `.env` file.
+- `google-generativeai`: Google's Gemini API client for LLM interpretations.
+- `markdown`: Library for converting Markdown to HTML, used for formatting LLM output.
 
 ## 3. Development Setup
 
@@ -74,6 +77,9 @@
 - **FastAPI Form Processing**: Used for handling form submissions in the web interface.
 - **FastAPI Background Tasks**: Used for asynchronous processing of chart generation.
 - **FastAPI StaticFiles**: Used for serving static files (CSS, JavaScript, generated SVGs).
+- **Google Gemini API**: Used to generate astrological interpretations from chart data.
+- **Markdown**: Used to convert Gemini's Markdown output to properly formatted HTML.
+- **Thread Pool**: Used via `starlette.concurrency.run_in_threadpool` to handle blocking API calls in async routes.
 - **Pytest**: Used for writing and running unit and integration tests.
 - **Git/GitHub**: Used for version control and CI (Semantic Release).
 - **Uvicorn**: Used as the ASGI server for local development and production deployment. 

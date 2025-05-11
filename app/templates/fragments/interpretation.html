@@ -6,7 +6,7 @@
 {% else %}
 <div class="interpretation-result">
     <div class="interpretation-text mb-4">
-        {{ interpretation | safe }}
+        {{ interpretation_html | safe }}
     </div>
     
     {% if highlights and highlights|length > 0 %}
