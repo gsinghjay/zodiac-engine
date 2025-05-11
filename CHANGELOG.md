@@ -1,6 +1,140 @@
 # CHANGELOG
 
 
+## v0.4.0 (2025-05-11)
+
+### Bug Fixes
+
+- **geo**: Update GeoService to use async methods and fix naming inconsistencies
+  ([`ee563c6`](https://github.com/gsinghjay/zodiac-engine/commit/ee563c66ee36ac479ae575138357a9c57ea281c2))
+
+- **ui**: Ensure card headers are flush with top of cards
+  ([`0d7301a`](https://github.com/gsinghjay/zodiac-engine/commit/0d7301ab76afeb3325ed2095c81f02f6f7960533))
+
+- **web**: Resolve dependency injection issue in chart download endpoint
+  ([`938abf9`](https://github.com/gsinghjay/zodiac-engine/commit/938abf9a2838ed9ec3f5973ec5051921ee6ed046))
+
+### Build System
+
+- **deps**: Add cairosvg and Pillow dependencies for file conversion
+  ([`8d78ee2`](https://github.com/gsinghjay/zodiac-engine/commit/8d78ee274e4d0e182ae4b0c1e6b7f311da4864b6))
+
+### Chores
+
+- Update gitignore to exclude generated chart files
+  ([`f1dfd96`](https://github.com/gsinghjay/zodiac-engine/commit/f1dfd9655e51959c4b47bfe587999ef31121276e))
+
+- Updated leftover files
+  ([`d7e34b0`](https://github.com/gsinghjay/zodiac-engine/commit/d7e34b011201e7cf0489a62d020071a24f182da4))
+
+### Documentation
+
+- Add API structure reorganization plan to memory bank
+  ([`7c51e3a`](https://github.com/gsinghjay/zodiac-engine/commit/7c51e3ae650143603bf897c51b8a449b0ea423a1))
+
+- Update activeContext with HTMX implementation details
+  ([`772b03e`](https://github.com/gsinghjay/zodiac-engine/commit/772b03e5117b332ed5a672ce32e6f401024db398))
+
+- Update memory bank with Bootstrap migration and chart details implementation
+  ([`5c4381a`](https://github.com/gsinghjay/zodiac-engine/commit/5c4381a93eaf90773d12fa433afaf2f1dbe726ea))
+
+- Update memory bank with LLM interpretation progress
+  ([`7e74058`](https://github.com/gsinghjay/zodiac-engine/commit/7e740584d8845c3690c5af43e2974929427f3d3b))
+
+- Update progress with HTMX integration status and next steps
+  ([`49b0248`](https://github.com/gsinghjay/zodiac-engine/commit/49b024857640bc119bcfc59304bb5b5e70838c15))
+
+- Update README with LLM API configuration instructions
+  ([`aca8ae0`](https://github.com/gsinghjay/zodiac-engine/commit/aca8ae0c2ab0430819e13633cb4998621405f341))
+
+- Update techContext with API structure reorganization plan
+  ([`344846d`](https://github.com/gsinghjay/zodiac-engine/commit/344846d801e9c51a365b5cfea6b9570bb1475bda))
+
+### Features
+
+- Add interpretation and report UI to chart details page
+  ([`2531256`](https://github.com/gsinghjay/zodiac-engine/commit/25312566c9de22a1c9cbfcac914df906dd72f937))
+
+- Add interpretations router to chart routers
+  ([`0bd06b2`](https://github.com/gsinghjay/zodiac-engine/commit/0bd06b23c99d42e45c18e2c869b837feaee95f02))
+
+- Add InterpretationService dependency injection
+  ([`8b50612`](https://github.com/gsinghjay/zodiac-engine/commit/8b506120cabedad1bb088da425adff505d554e8a))
+
+- Add LLM API settings configuration
+  ([`e1fe81d`](https://github.com/gsinghjay/zodiac-engine/commit/e1fe81df457a79622079c0e0c8802f00040b8930))
+
+- Add web routes for interpretation and report generation
+  ([`e7f9fb6`](https://github.com/gsinghjay/zodiac-engine/commit/e7f9fb69e420f20446acc1b0adc22ecb886304e7))
+
+- Create chart interpretation API endpoints
+  ([`2f4e7dc`](https://github.com/gsinghjay/zodiac-engine/commit/2f4e7dcc64cf5fa3d03f0a5c4dbe2806e77d0196))
+
+- Create chart report API endpoints
+  ([`710787b`](https://github.com/gsinghjay/zodiac-engine/commit/710787bedac8a593bf72a71aab8980971eb986b7))
+
+- Create interpretation display template fragment
+  ([`0e7ac23`](https://github.com/gsinghjay/zodiac-engine/commit/0e7ac23971ea7cea63ae12d4fae626e7ee5d931c))
+
+- Create interpretation service with LLM integration structure
+  ([`89fa8fd`](https://github.com/gsinghjay/zodiac-engine/commit/89fa8fd4c1f2af7ee9608df962b1b3ecc3595fd2))
+
+- Create report display template fragment
+  ([`ba65673`](https://github.com/gsinghjay/zodiac-engine/commit/ba656735beaa585698a157029a13c84cc9b73bd9))
+
+- Create schemas for report and interpretation data
+  ([`57322c9`](https://github.com/gsinghjay/zodiac-engine/commit/57322c97a34675eb748d1fd27b5a9427142a5dc9))
+
+- Implement report generation service with Kerykeion integration
+  ([`8f69663`](https://github.com/gsinghjay/zodiac-engine/commit/8f6966345538292f3452a5a73e2a825f397657bc))
+
+- **cache**: Implement in-memory chart data cache for persistence between requests
+  ([`c284cf9`](https://github.com/gsinghjay/zodiac-engine/commit/c284cf9d7e9f0b34d863ecb88fd9d82f8bca6356))
+
+- **core**: Add dependency injection for FileConversionService
+  ([`f23dda3`](https://github.com/gsinghjay/zodiac-engine/commit/f23dda3b2340b9dec9c4bee0a151aa7473951c79))
+
+- **core**: Add FileConversionError to exception handling
+  ([`72c6f70`](https://github.com/gsinghjay/zodiac-engine/commit/72c6f70531ceadd3f97d23f7f8022590557352d3))
+
+- **core**: Add SVG CSS variable preprocessing utility functions
+  ([`e6b7be7`](https://github.com/gsinghjay/zodiac-engine/commit/e6b7be7d84a78015efa340d2f2d5a0fe18aa3c80))
+
+- **routes**: Update web routes to handle chart details page and implement redirect flow
+  ([`9aaacc5`](https://github.com/gsinghjay/zodiac-engine/commit/9aaacc5d0ef7f6638cf5728af13777708532d7a3))
+
+- **services**: Implement FileConversionService for SVG to PNG/PDF/JPEG conversion
+  ([`6a65ab8`](https://github.com/gsinghjay/zodiac-engine/commit/6a65ab8c9e0f966d835e1e3131edd78f70743969))
+
+- **ui**: Add JPEG download option and DPI guidance to chart details page
+  ([`271ab69`](https://github.com/gsinghjay/zodiac-engine/commit/271ab69eab04f1df90b13c29bc689826a96d5c62))
+
+- **ui**: Add reusable template fragments for component consistency
+  ([`6e65fd7`](https://github.com/gsinghjay/zodiac-engine/commit/6e65fd70a2f962925140eaabcfe7168e8c98b904))
+
+- **ui**: Create dedicated chart details page with two-column layout
+  ([`dec625d`](https://github.com/gsinghjay/zodiac-engine/commit/dec625d990a106e65d7e1fbfa0599c52e605e6bd))
+
+- **ui**: Integrate Bootstrap CSS and JS into layout template
+  ([`45e3624`](https://github.com/gsinghjay/zodiac-engine/commit/45e3624ecae75cb51d7918c634409d2d3c8a8b1e))
+
+### Refactoring
+
+- Consolidate router structure to follow FastAPI best practices
+  ([`7c11179`](https://github.com/gsinghjay/zodiac-engine/commit/7c11179d52ad25741ebfd04a8be41315ffb2c026))
+
+- **css**: Simplify custom styles to use Bootstrap with minimal overrides
+  ([`ffe0eac`](https://github.com/gsinghjay/zodiac-engine/commit/ffe0eac76d341f25d53373b058695bfcb5740382))
+
+- **ui**: Update home page forms with Bootstrap components and classes
+  ([`8028064`](https://github.com/gsinghjay/zodiac-engine/commit/8028064a4f809d0ddd49aa635e9dcca1b370d16e))
+
+### Testing
+
+- **scripts**: Add test scripts for SVG preprocessing and file conversion
+  ([`a348667`](https://github.com/gsinghjay/zodiac-engine/commit/a348667d162e2c457e07a771cfc3c14d8dda4c13))
+
+
 ## v0.3.0 (2025-04-29)
 
 ### Bug Fixes
