@@ -25,6 +25,61 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Interpretation Section -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h2 class="h5 mb-0">Chart Interpretation</h2>
+                    <button id="interpret-btn" class="btn btn-sm btn-light" hx-get="/interpret-chart/{{ chart_id }}" hx-target="#interpretation-content" hx-indicator="#interpretation-loading">
+                        <i class="bi bi-magic"></i> Generate Interpretation
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div id="interpretation-loading" class="htmx-indicator text-center py-3">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Generating interpretation... This may take a moment.</p>
+                    </div>
+                    <div id="interpretation-content" class="interpretation-container">
+                        <div class="text-center py-4">
+                            <p class="text-muted mb-0">
+                                <i class="bi bi-info-circle"></i> Click the "Generate Interpretation" button to get an astrological reading of this chart.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">
+                        <i class="bi bi-info-circle"></i> Interpretations are generated using AI and should be considered as a starting point for understanding the chart.
+                    </small>
+                </div>
+            </div>
+            
+            <!-- Report Section -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h2 class="h5 mb-0">Chart Report</h2>
+                    <button id="report-btn" class="btn btn-sm btn-light" hx-get="/chart-report/{{ chart_id }}" hx-target="#report-content" hx-indicator="#report-loading">
+                        <i class="bi bi-table"></i> View Report
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div id="report-loading" class="htmx-indicator text-center py-3">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Generating report...</p>
+                    </div>
+                    <div id="report-content" class="report-container">
+                        <div class="text-center py-4">
+                            <p class="text-muted mb-0">
+                                <i class="bi bi-info-circle"></i> Click the "View Report" button to see a detailed tabular report of this chart.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Chart Information and Download Options -->
@@ -63,6 +118,51 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- Interpretation Options -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Interpretation Options</h2>
+                </div>
+                <div class="card-body">
+                    <form id="interpretation-options" hx-get="/interpret-chart/{{ chart_id }}" hx-target="#interpretation-content" hx-indicator="#interpretation-loading">
+                        <div class="mb-3">
+                            <label class="form-label">Focus Areas:</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="planets-focus" name="planets_focus" value="true" checked>
+                                <label class="form-check-label" for="planets-focus">Planets & Signs</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="houses-focus" name="houses_focus" value="true" checked>
+                                <label class="form-check-label" for="houses-focus">Houses & Placements</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="aspects-focus" name="aspects_focus" value="true" checked>
+                                <label class="form-check-label" for="aspects-focus">Aspects & Patterns</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tone" class="form-label">Interpretation Tone:</label>
+                            <select class="form-select form-select-sm" id="tone" name="tone">
+                                <option value="beginner-friendly">Beginner-Friendly</option>
+                                <option value="neutral" selected>Neutral</option>
+                                <option value="detailed">Detailed/Technical</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="max-length" class="form-label">Length:</label>
+                            <select class="form-select form-select-sm" id="max-length" name="max_length">
+                                <option value="500">Brief</option>
+                                <option value="1000" selected>Standard</option>
+                                <option value="2000">Comprehensive</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm w-100">
+                            <i class="bi bi-magic"></i> Generate With Options
+                        </button>
+                    </form>
                 </div>
             </div>
 
@@ -129,6 +229,43 @@
     .chart-svg {
         max-width: 100%;
         height: auto;
+    }
+    
+    .interpretation-container {
+        min-height: 200px;
+    }
+    
+    .report-container {
+        min-height: 150px;
+        max-height: 400px;
+        overflow-y: auto;
+        font-family: monospace;
+    }
+    
+    .htmx-indicator {
+        display: none;
+    }
+    
+    .htmx-request .htmx-indicator {
+        display: block;
+    }
+    
+    .htmx-request.htmx-indicator {
+        display: block;
+    }
+    
+    pre {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 0.25rem;
+    }
+    
+    .highlight {
+        background-color: #ffc;
+        padding: 0.25rem;
+        border-radius: 0.25rem;
     }
 </style>
 {% endblock %}
