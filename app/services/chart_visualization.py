@@ -107,20 +107,13 @@ class ChartVisualizationService:
             Dictionary with chart_id and svg_url
         """
         try:
-            # Get default config by instantiating ChartConfiguration and use these defaults if config is None
-            default_config = ChartConfiguration().model_dump()
+            # Use either the provided config or the default configuration
+            # If config is None, use all defaults from ChartConfiguration
+            # If config is provided, it already contains defaults for any missing keys from the Pydantic model
+            current_config = config if config is not None else ChartConfiguration().model_dump()
             
-            # Default config if not provided
-            if config is None:
-                config = default_config
-            else:
-                # Merge provided config with defaults for any missing keys
-                for key, value in default_config.items():
-                    if key not in config:
-                        config[key] = value
-                
             # Extract configuration options
-            original_house_system = config.get("houses_system", "P")
+            original_house_system = current_config.get("houses_system", "P")
             houses_system = map_house_system(original_house_system)
             logger.info(f"Mapped house system from '{original_house_system}' to '{houses_system}'")
             
@@ -128,11 +121,11 @@ class ChartVisualizationService:
             chart_language = chart_language.upper()
             logger.info(f"Using chart language: {chart_language}")
             
-            zodiac_type = config.get("zodiac_type")
-            sidereal_mode = config.get("sidereal_mode")
-            perspective_type = config.get("perspective_type")
-            active_points = config.get("active_points")
-            active_aspects = config.get("active_aspects")
+            zodiac_type = current_config.get("zodiac_type")
+            sidereal_mode = current_config.get("sidereal_mode")
+            perspective_type = current_config.get("perspective_type")
+            active_points = current_config.get("active_points")
+            active_aspects = current_config.get("active_aspects")
             
             # Generate a unique ID if not provided
             if not chart_id:
@@ -240,20 +233,13 @@ class ChartVisualizationService:
             Dictionary with chart_id and svg_url
         """
         try:
-            # Get default config by instantiating ChartConfiguration and use these defaults if config is None
-            default_config = ChartConfiguration().model_dump()
+            # Use either the provided config or the default configuration
+            # If config is None, use all defaults from ChartConfiguration
+            # If config is provided, it already contains defaults for any missing keys from the Pydantic model
+            current_config = config if config is not None else ChartConfiguration().model_dump()
             
-            # Default config if not provided
-            if config is None:
-                config = default_config
-            else:
-                # Merge provided config with defaults for any missing keys
-                for key, value in default_config.items():
-                    if key not in config:
-                        config[key] = value
-                
             # Extract configuration options
-            original_house_system = config.get("houses_system", "P")
+            original_house_system = current_config.get("houses_system", "P")
             houses_system = map_house_system(original_house_system)
             logger.info(f"Mapped house system from '{original_house_system}' to '{houses_system}'")
             
@@ -261,11 +247,11 @@ class ChartVisualizationService:
             chart_language = chart_language.upper()
             logger.info(f"Using chart language: {chart_language}")
             
-            zodiac_type = config.get("zodiac_type")
-            sidereal_mode = config.get("sidereal_mode")
-            perspective_type = config.get("perspective_type")
-            active_points = config.get("active_points")
-            active_aspects = config.get("active_aspects")
+            zodiac_type = current_config.get("zodiac_type")
+            sidereal_mode = current_config.get("sidereal_mode")
+            perspective_type = current_config.get("perspective_type")
+            active_points = current_config.get("active_points")
+            active_aspects = current_config.get("active_aspects")
             
             # Generate a unique ID if not provided
             if not chart_id:
