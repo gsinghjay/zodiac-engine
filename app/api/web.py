@@ -9,6 +9,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse, Resp
 from typing import Optional, Dict, Any, List, Union, Literal
 from pathlib import Path
 import logging
+from starlette.concurrency import run_in_threadpool
 
 from app.templates import templates
 from app.core.config import settings
@@ -341,44 +342,62 @@ async def search_location(
     city: Optional[str] = Form(None),
     hx_request: Optional[str] = Header(None)
 ):
-    """Search for locations based on city name."""
+    """
+    Search for locations matching the city name.
+    
+    Args:
+        request: The FastAPI request object
+        geo_service: GeoService dependency
+        city: City name to search for
+        hx_request: HTMX request header
+        
+    Returns:
+        HTML fragment with location search results
+    """
+    # Default context
+    context = {
+        "request": request,
+        "locations": [],
+        "city": city or "",
+        "error": None
+    }
+    
+    # Validate city input
+    if not city or len(city.strip()) < 3:
+        context["error"] = "Please enter at least 3 characters for city search"
+        return templates.TemplateResponse("fragments/location_fields.html", context)
+    
     try:
-        if not city or len(city.strip()) < 2:
-            return templates.TemplateResponse(
-                "fragments/location_results.html",
-                {
-                    "request": request,
-                    "locations": [],
-                    "error": "Please enter at least 2 characters for city search"
-                }
-            )
-            
-        # Search for locations using GeoService
-        locations = await geo_service.search_cities(city)
+        # Use run_in_threadpool to run potentially blocking I/O operation in a separate thread
+        # since the method is now synchronous but we're in an async route
+        locations = await run_in_threadpool(geo_service.search_cities, city.strip(), 10)
         
-        # For debugging
-        print(f"Search results for '{city}': {len(locations)} locations found")
-        
-        # Return the locations fragment
-        return templates.TemplateResponse(
-            "fragments/location_results.html",
+        # Format results for the template
+        context["locations"] = [
             {
-                "request": request,
-                "locations": locations
+                "name": loc.name,
+                "country_code": loc.country_code,
+                "latitude": loc.latitude,
+                "longitude": loc.longitude,
+                "timezone": loc.timezone,
+                "display": f"{loc.name}, {loc.country_code}"
             }
-        )
+            for loc in locations
+        ]
+        
+        # If HTMX request, return only the results fragment
+        if hx_request:
+            return templates.TemplateResponse("fragments/location_results.html", context)
+        
+        # Otherwise return the full fields
+        return templates.TemplateResponse("fragments/location_fields.html", context)
+        
     except Exception as e:
-        # For debugging
-        print(f"Error in search_location: {str(e)}")
-        
-        return templates.TemplateResponse(
-            "fragments/location_results.html",
-            {
-                "request": request,
-                "locations": [],
-                "error": str(e)
-            }
-        )
+        context["error"] = f"Error searching locations: {str(e)}"
+        if hx_request:
+            return templates.TemplateResponse("fragments/location_results.html", context)
+            
+        return templates.TemplateResponse("fragments/location_fields.html", context)
 
 @router.post("/select-location", response_class=HTMLResponse, name="select_location")
 async def select_location(
