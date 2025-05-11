@@ -91,7 +91,8 @@ def get_interpretation_service(settings: SettingsDep) -> InterpretationService:
     # Get API keys from settings
     llm_api_key = settings.LLM_API_KEY
     model_name = settings.LLM_MODEL_NAME or "gpt-4"
+    llm_provider = settings.LLM_PROVIDER or "openai"
     
-    return InterpretationService(llm_api_key=llm_api_key, model_name=model_name)
+    return InterpretationService(llm_api_key=llm_api_key, model_name=model_name, llm_provider=llm_provider)
 
 InterpretationServiceDep = Annotated[InterpretationService, Depends(get_interpretation_service)] 
