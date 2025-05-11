@@ -38,6 +38,31 @@ chart_cache = {}
 
 logger = logging.getLogger(__name__)
 
+def parse_birth_date_from_cache(birth_date_str: str) -> datetime:
+    """
+    Convert a formatted birth date string from the chart cache to a datetime object.
+    
+    Args:
+        birth_date_str: Formatted date string (e.g., "July 17, 1994 at 10:30 AM")
+        
+    Returns:
+        datetime: Parsed datetime object
+    """
+    try:
+        # Try to directly parse the formatted date string
+        # Example: "July 17, 1994 at 10:30 AM"
+        return datetime.strptime(birth_date_str, "%B %d, %Y at %I:%M %p")
+    except ValueError as e:
+        logger.warning(f"Failed to parse birth_date with standard format: {e}")
+        try:
+            # Fallback for potential ISO format (YYYY-MM-DDTHH:MM:SS)
+            return datetime.fromisoformat(birth_date_str)
+        except ValueError:
+            logger.error(f"Could not parse birth_date string: {birth_date_str}")
+            # Return current time as a last resort to avoid breaking the entire application
+            # This is not ideal, but better than crashing
+            return datetime.now()
+
 @router.get("/", response_class=HTMLResponse, name="home")
 async def home(request: Request):
     """Render the home page."""
@@ -174,10 +199,13 @@ async def chart_report(
         
         chart_data = chart_cache[chart_id]
         
+        # Convert birth_date string to datetime
+        birth_date_dt = parse_birth_date_from_cache(chart_data["birth_date"])
+        
         # Generate report using ReportService
         report_data = report_service.generate_natal_report(
             name=chart_data["name"],
-            birth_date=chart_data["birth_date"],
+            birth_date=birth_date_dt,
             city=chart_data["city"],
             nation=chart_data["nation"],
             lng=chart_data["lng"],
@@ -247,10 +275,13 @@ async def interpret_chart(
         
         chart_data = chart_cache[chart_id]
         
+        # Convert birth_date string to datetime
+        birth_date_dt = parse_birth_date_from_cache(chart_data["birth_date"])
+        
         # First generate report to get structured data for interpretation
         report_data = report_service.generate_natal_report(
             name=chart_data["name"],
-            birth_date=chart_data["birth_date"],
+            birth_date=birth_date_dt,
             city=chart_data["city"],
             nation=chart_data["nation"],
             lng=chart_data["lng"],
@@ -311,10 +342,13 @@ async def download_report(
         
         chart_data = chart_cache[chart_id]
         
+        # Convert birth_date string to datetime
+        birth_date_dt = parse_birth_date_from_cache(chart_data["birth_date"])
+        
         # Generate report using ReportService
         report_data = report_service.generate_natal_report(
             name=chart_data["name"],
-            birth_date=chart_data["birth_date"],
+            birth_date=birth_date_dt,
             city=chart_data["city"],
             nation=chart_data["nation"],
             lng=chart_data["lng"],
