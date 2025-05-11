@@ -28,7 +28,7 @@ class ReportService:
         lng: float,
         house_system: Optional[str] = "Placidus",
         timezone: Optional[str] = None
-    ) -> str:
+    ) -> Dict[str, str]:
         """Generate a report for a natal chart.
         
         Args:
@@ -41,7 +41,7 @@ class ReportService:
             timezone: The timezone of the birth place
             
         Returns:
-            str: The formatted report as a string
+            Dict[str, str]: Dictionary with report components matching NatalReportResponse
         """
         try:
             # Log the inputs
@@ -90,19 +90,43 @@ class ReportService:
             
             # Generate report
             report = Report(subject)
+            full_report = report.get_full_report()
             
             # If using Whole Sign houses, add a note explaining the positions
             if mapped_house_system == "W":
-                report_text = report.get_full_report()
-                # Insert explanation note after the houses table
                 note = "\nNote: For Whole Sign houses, all house positions are 0.0 as each house starts at 0° of its sign.\n"
-                report_text += note
+                full_report += note
                 
-                logger.info("Successfully generated natal report with Whole Sign house note")
-                return report_text
+            # Extract components from report
+            report_parts = full_report.split('\n')
             
+            # Title is the first line
+            title = report_parts[0].strip() if report_parts else f"Kerykeion report for {name}"
+            
+            # Find the table boundaries using the ASCII table markers
+            data_table_start = full_report.find("+-----------+")
+            data_table_end = full_report.find("+-----------------+------+")
+            
+            planets_table_start = data_table_end
+            planets_table_end = full_report.find("+----------------+------+")
+            
+            houses_table_start = planets_table_end
+            houses_table_end = full_report.find("Note: For Whole Sign") if "Note: For Whole Sign" in full_report else len(full_report)
+            
+            # Extract the tables
+            data_table = full_report[data_table_start:data_table_end].strip()
+            planets_table = full_report[planets_table_start:planets_table_end].strip()
+            houses_table = full_report[houses_table_start:houses_table_end].strip()
+            
+            # Return structured data matching NatalReportResponse
             logger.info("Successfully generated natal report")
-            return report.get_full_report()
+            return {
+                "title": title,
+                "data_table": data_table,
+                "planets_table": planets_table,
+                "houses_table": houses_table,
+                "full_report": full_report
+            }
             
         except Exception as e:
             logger.error(f"Error generating natal report: {str(e)}")
@@ -122,8 +146,21 @@ class ReportService:
         person2_lng: float,
         house_system: Optional[str] = "Placidus",
         timezone: Optional[str] = None
-    ) -> str:
-        """Generate a synastry report comparing two natal charts."""
+    ) -> Dict[str, Dict[str, str]]:
+        """Generate a synastry report comparing two natal charts.
+        
+        Args:
+            person1_name, person2_name: Names of the individuals
+            person1_birth_date, person2_birth_date: Birth dates and times
+            person1_birth_place, person2_birth_place: Birth places 
+            person1_lat, person1_lng: Coordinates for person 1
+            person2_lat, person2_lng: Coordinates for person 2
+            house_system: House system to use
+            timezone: Timezone for the charts
+            
+        Returns:
+            Dict[str, Dict[str, str]]: Dictionary with person1 and person2 report data
+        """
         try:
             # Log the inputs
             logger.info(f"Generating synastry report for {person1_name} and {person2_name}")
@@ -172,20 +209,65 @@ class ReportService:
             report1 = Report(person1)
             report2 = Report(person2)
             
-            # Combine reports with a header
-            combined_report = f"\n+- Synastry Report: {person1_name} and {person2_name} -+\n\n"
-            combined_report += f"Chart for {person1_name}:\n"
-            combined_report += report1.get_full_report()
-            combined_report += f"\n\nChart for {person2_name}:\n"
-            combined_report += report2.get_full_report()
+            # Process first person's report
+            report1_text = report1.get_full_report()
+            report1_parts = report1_text.split('\n')
+            title1 = report1_parts[0].strip() if report1_parts else f"Kerykeion report for {person1_name}"
             
-            # If using Whole Sign houses, add a note explaining the positions
+            # Extract table components from first report
+            data_table_start1 = report1_text.find("+-----------+")
+            data_table_end1 = report1_text.find("+-----------------+------+")
+            planets_table_start1 = data_table_end1
+            planets_table_end1 = report1_text.find("+----------------+------+")
+            houses_table_start1 = planets_table_end1
+            houses_table_end1 = len(report1_text)
+            
+            data_table1 = report1_text[data_table_start1:data_table_end1].strip()
+            planets_table1 = report1_text[planets_table_start1:planets_table_end1].strip()
+            houses_table1 = report1_text[houses_table_start1:houses_table_end1].strip()
+            
+            # Process second person's report
+            report2_text = report2.get_full_report()
+            report2_parts = report2_text.split('\n')
+            title2 = report2_parts[0].strip() if report2_parts else f"Kerykeion report for {person2_name}"
+            
+            # Extract table components from second report
+            data_table_start2 = report2_text.find("+-----------+")
+            data_table_end2 = report2_text.find("+-----------------+------+")
+            planets_table_start2 = data_table_end2
+            planets_table_end2 = report2_text.find("+----------------+------+")
+            houses_table_start2 = planets_table_end2
+            houses_table_end2 = len(report2_text)
+            
+            data_table2 = report2_text[data_table_start2:data_table_end2].strip()
+            planets_table2 = report2_text[planets_table_start2:planets_table_end2].strip()
+            houses_table2 = report2_text[houses_table_start2:houses_table_end2].strip()
+            
+            # TODO: Generate aspects table when Kerykeion has direct support for synastry aspects
+            aspects_table = "Synastry aspects analysis is not yet implemented."
+            
+            # Create the structured response
+            result = {
+                "person1": {
+                    "title": title1,
+                    "data_table": data_table1,
+                    "planets_table": planets_table1,
+                    "houses_table": houses_table1
+                },
+                "person2": {
+                    "title": title2,
+                    "data_table": data_table2,
+                    "planets_table": planets_table2,
+                    "houses_table": houses_table2
+                }
+            }
+            
+            # If using Whole Sign houses, add a note in the logs
             if mapped_house_system == "W":
-                note = "\nNote: For Whole Sign houses, all house positions are 0.0 as each house starts at 0° of its sign.\n"
-                combined_report += note
+                logger.info("Using Whole Sign houses system for synastry report")
             
             logger.info("Successfully generated synastry report")
-            return combined_report
+            return result
             
         except Exception as e:
             logger.error(f"Error generating synastry report: {str(e)}")
