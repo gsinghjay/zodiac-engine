@@ -2,6 +2,8 @@
 import logging
 from typing import Dict, Any, List, Optional
 
+from app.schemas.report import NatalReportData, SynastryReportData, InterpretationResponse
+
 logger = logging.getLogger(__name__)
 
 class InterpretationService:
@@ -25,7 +27,7 @@ class InterpretationService:
     
     def interpret_natal_chart(
         self,
-        report_data: Dict[str, Any],
+        report_data: NatalReportData,
         aspects_focus: bool = True,
         houses_focus: bool = True,
         planets_focus: bool = True,
@@ -39,7 +41,7 @@ class InterpretationService:
         Currently returns a mock response.
         
         Args:
-            report_data: Report data from the ReportService
+            report_data: Structured report data from the ReportService
             aspects_focus: Whether to focus on aspect interpretation
             houses_focus: Whether to focus on house placement interpretation
             planets_focus: Whether to focus on planet interpretation
@@ -52,7 +54,20 @@ class InterpretationService:
         logger.info("Generating natal chart interpretation")
         logger.debug(f"Interpretation parameters: aspects_focus={aspects_focus}, houses_focus={houses_focus}, planets_focus={planets_focus}, tone={tone}")
         
+        # Prepare focus areas for prompt
+        focus_areas = []
+        if aspects_focus:
+            focus_areas.append("Planetary aspects")
+        if houses_focus:
+            focus_areas.append("House placements")
+        if planets_focus:
+            focus_areas.append("Individual planet interpretations")
+        
+        # Prepare the max length text for the prompt
+        max_length_text = f"approximately {max_length} words in length" if max_length else "comprehensive but concise"
+        
         # TODO: Implement actual LLM call when ready
+        # When implementing, use report_data.title, report_data.full_report, etc.
         # For now, return a placeholder message
         return {
             "interpretation": (
@@ -74,7 +89,7 @@ class InterpretationService:
     
     def interpret_synastry_chart(
         self,
-        report_data: Dict[str, Any],
+        report_data: SynastryReportData,
         aspects_focus: bool = True,
         compatibility_focus: bool = True,
         tone: str = "neutral",
@@ -87,7 +102,7 @@ class InterpretationService:
         Currently returns a mock response.
         
         Args:
-            report_data: Report data from the ReportService containing both charts
+            report_data: Structured report data containing both charts
             aspects_focus: Whether to focus on synastry aspect interpretation
             compatibility_focus: Whether to focus on overall compatibility
             tone: Tone of the interpretation (neutral, detailed, beginner-friendly)
@@ -98,7 +113,18 @@ class InterpretationService:
         """
         logger.info("Generating synastry chart interpretation")
         
+        # Prepare focus areas for prompt
+        focus_areas = []
+        if aspects_focus:
+            focus_areas.append("Planetary aspects between the charts")
+        if compatibility_focus:
+            focus_areas.append("Overall compatibility and relationship dynamics")
+        
+        # Prepare the max length text for the prompt
+        max_length_text = f"approximately {max_length} words in length" if max_length else "comprehensive but concise"
+        
         # TODO: Implement actual LLM call when ready
+        # When implementing, use report_data.person1, report_data.person2, report_data.aspects_table, etc.
         # For now, return a placeholder message
         return {
             "interpretation": (
@@ -129,7 +155,16 @@ class InterpretationService:
         You are an expert astrologer tasked with interpreting a natal chart.
         Below is the data from the chart:
         
-        {report_text}
+        Report Title: {title}
+        
+        Birth Data:
+        {data_table}
+        
+        Planet Positions:
+        {planets_table}
+        
+        House Positions:
+        {houses_table}
         
         Please provide a {tone} interpretation of this chart, focusing on:
         {focus_areas}
@@ -148,7 +183,34 @@ class InterpretationService:
         You are an expert astrologer tasked with interpreting a synastry chart comparison.
         Below is the data from both natal charts:
         
-        {report_text}
+        Person 1:
+        ----------
+        {person1_title}
+        
+        Birth Data:
+        {person1_data_table}
+        
+        Planet Positions:
+        {person1_planets_table}
+        
+        House Positions:
+        {person1_houses_table}
+        
+        Person 2:
+        ----------
+        {person2_title}
+        
+        Birth Data:
+        {person2_data_table}
+        
+        Planet Positions:
+        {person2_planets_table}
+        
+        House Positions:
+        {person2_houses_table}
+        
+        Synastry Aspects:
+        {aspects_table}
         
         Please provide a {tone} interpretation of the relationship dynamics between these two individuals,
         focusing on:
