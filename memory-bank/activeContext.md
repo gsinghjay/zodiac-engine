@@ -2,6 +2,7 @@
 
 ## Current Focus
 
+- **Markdown Formatting for LLM Output**: Successfully implemented Markdown-to-HTML conversion for better displayed interpretation formatting.
 - **LLM Interpretation API Integration**: Implementing integration with LLM providers (Gemini/Anthropic/OpenAI) for the chart interpretation service.
 - **LLM API Selection**: Configuring environment variables for chosen LLM provider and setting up caching strategy.
 - **UI Implementation Complete**: Successfully implemented the frontend elements for chart interpretation, including options customization and HTMX integration.
@@ -23,6 +24,16 @@
 - **Roadmap Reprioritization**: Updated the project roadmap to prioritize API structure reorganization and SQLite-based data persistence.
 
 ## Recent Changes
+
+- **Implemented Markdown Formatting for LLM Interpretations**:
+  - Added the `markdown` library to requirements.txt for converting Markdown to HTML
+  - Modified the InterpretationService to convert Gemini's Markdown output to proper HTML
+  - Used the `markdown.markdown()` function with 'extra', 'nl2br', and 'sane_lists' extensions for comprehensive formatting
+  - Updated the interpretation.html template to use `interpretation_html` variable instead of `interpretation`
+  - Ensured proper application of Jinja2's `| safe` filter to render HTML correctly
+  - Improved the interpretation prompt to explicitly request structured Markdown with headings and lists
+  - Enhanced parsing of highlights and suggestions sections from the Markdown output
+  - Ensured proper threading with `run_in_threadpool` for the blocking Gemini API calls
 
 - **Fixed House System Mapping Incompatibility**:
   - Identified and fixed mismatched house system mappings between ChartVisualizationService and ReportService
