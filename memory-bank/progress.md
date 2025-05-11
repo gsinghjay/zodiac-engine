@@ -2,6 +2,14 @@
 
 ## 1. What Works
 
+- **LLM Integration with Markdown Formatting**:
+  - Successful Gemini API integration for chart interpretations
+  - Markdown-to-HTML conversion for beautifully formatted interpretations
+  - Proper handling of blocking API calls with run_in_threadpool
+  - Structured prompt templates for detailed astrological analysis
+  - Parsing of key highlights and suggestions from Markdown sections
+  - Error handling for API failures and content policy blocks
+
 - **Chart Interpretation and Report UI**:
   - HTMX-powered interpretation and report generation in the chart details page
   - Customization options for interpretation focus areas, tone, and length
@@ -71,11 +79,10 @@
 
 ## 2. What Needs Improvement / Is Left to Build
 
-- **LLM API Integration** (TOP PRIORITY):
-  - Complete the `InterpretationService` to integrate with a specific LLM provider (Anthropic, OpenAI, or Gemini)
+- **LLM API Enhancements**:
   - Implement caching for interpretations to reduce API costs
-  - Create error handling for API rate limits and failures
-  - Add proper logging of API interactions
+  - Create more detailed error handling for API rate limits and specific error types
+  - Add proper metrics and logging for API usage tracking
   - Create test mocks for LLM responses for unit testing
 
 - **Interpretation Tests**:
@@ -120,9 +127,11 @@
 
 ## 3. Current Status
 
-- **LLM Interpretation Framework Ready**: Created all necessary UI and API components for LLM-based interpretations; only needs actual provider integration.
+- **LLM Integration Complete**: Successfully integrated Google's Gemini API for chart interpretations, with proper error handling, prompt templating, thread management for async routes, and Markdown formatting.
 
-- **Interpretation UI Implemented**: Successfully created the user interface for chart interpretations with customization options, loading indicators, and display templates.
+- **Markdown Formatting Implemented**: Added Markdown-to-HTML conversion for properly formatted interpretation content, with proper headings, lists, and text formatting.
+
+- **Interpretation UI Working**: The interpretation UI successfully displays Gemini-generated interpretations with customizable options for focus areas, tone, and length.
 
 - **Report UI Implemented**: Successfully created the user interface for displaying formatted report data from the Kerykeion Report class.
 
@@ -174,11 +183,9 @@
 
 ## 4. Known Issues
 
-- **LLM Integration**: Currently using placeholder implementation that needs to be connected to actual LLM API.
+- **No Caching for LLM Responses**: Gemini API responses aren't cached, which could lead to unnecessary API costs for repeated interpretations of the same chart.
 
-- **No Error Handling for LLM API Failures**: Need to implement robust error handling for when LLM API calls fail.
-
-- **No Caching for LLM Responses**: LLM API responses aren't cached, which could lead to unnecessary API costs.
+- **Limited Error Handling for Specific API Failures**: While general error handling is in place, more specific handling for rate limits and other API-specific errors could be improved.
 
 - **In-Memory Cache**: The chart data cache is not persistent across server restarts and could cause memory issues with many entries.
 
@@ -195,6 +202,8 @@
 - Previous issues related to dependencies, syntax, test setup, and house system mapping have been resolved. The GeoService async/sync pattern inconsistency and chart report functionality issues are now fixed.
 
 ## 5. Evolution of Project Decisions
+
+- **Markdown Formatting Approach**: Chose to use the Python markdown library to convert LLM-generated Markdown to HTML rather than having the LLM generate HTML directly or displaying raw Markdown. This approach provides better separation of concerns, reliable formatting, and easier styling with CSS while being less taxing for the LLM.
 
 - **Sync Service with Threadpool Pattern**: Chose to make the GeoService methods synchronous and use run_in_threadpool in async routes, since the underlying requests_cache.CachedSession is synchronous. This approach maintains the existing functionality while fixing the misleading API and preventing potential issues.
 
