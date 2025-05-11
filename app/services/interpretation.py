@@ -25,7 +25,7 @@ class InterpretationService:
     
     def interpret_natal_chart(
         self,
-        report_text: str,
+        report_data: Dict[str, Any],
         aspects_focus: bool = True,
         houses_focus: bool = True,
         planets_focus: bool = True,
@@ -39,7 +39,7 @@ class InterpretationService:
         Currently returns a mock response.
         
         Args:
-            report_text: Full report text from the ReportService
+            report_data: Report data from the ReportService
             aspects_focus: Whether to focus on aspect interpretation
             houses_focus: Whether to focus on house placement interpretation
             planets_focus: Whether to focus on planet interpretation
@@ -74,7 +74,7 @@ class InterpretationService:
     
     def interpret_synastry_chart(
         self,
-        report_text: str,
+        report_data: Dict[str, Any],
         aspects_focus: bool = True,
         compatibility_focus: bool = True,
         tone: str = "neutral",
@@ -87,7 +87,7 @@ class InterpretationService:
         Currently returns a mock response.
         
         Args:
-            report_text: Full report text from the ReportService containing both charts
+            report_data: Report data from the ReportService containing both charts
             aspects_focus: Whether to focus on synastry aspect interpretation
             compatibility_focus: Whether to focus on overall compatibility
             tone: Tone of the interpretation (neutral, detailed, beginner-friendly)
