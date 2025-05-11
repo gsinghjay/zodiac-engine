@@ -165,7 +165,7 @@ def generate_synastry_interpretation(
         interpretation_result = interpretation_service.interpret_synastry_chart(
             report_data=request.report_data,
             aspects_focus=request.aspects_focus,
-            compatibility_focus=True,  # Default to true for synastry
+            compatibility_focus=request.compatibility_focus,
             tone=request.tone,
             max_length=request.max_length
         )
