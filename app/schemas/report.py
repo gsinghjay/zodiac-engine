@@ -95,6 +95,7 @@ class InterpretationRequest(BaseModel):
     report_data: Dict[str, Any] = Field(..., description="Report data to be interpreted")
     interpretation_type: str = Field(..., description="Type of interpretation (e.g., 'natal', 'synastry')")
     aspects_focus: bool = Field(True, description="Whether to focus on aspects interpretation")
+    compatibility_focus: bool = Field(True, description="Whether to focus on overall compatibility")
     houses_focus: bool = Field(True, description="Whether to focus on house placements interpretation")
     planets_focus: bool = Field(True, description="Whether to focus on planet interpretations")
     tone: str = Field("neutral", description="Tone of the interpretation (neutral, detailed, beginner-friendly)")
@@ -111,6 +112,7 @@ class InterpretationRequest(BaseModel):
                 },
                 "interpretation_type": "natal",
                 "aspects_focus": True,
+                "compatibility_focus": True,
                 "houses_focus": True,
                 "planets_focus": True,
                 "tone": "beginner-friendly",
