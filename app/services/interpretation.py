@@ -25,7 +25,7 @@ class InterpretationService:
     
     def interpret_natal_chart(
         self,
-        report_data: Dict[str, str],
+        report_text: str,
         aspects_focus: bool = True,
         houses_focus: bool = True,
         planets_focus: bool = True,
@@ -39,7 +39,7 @@ class InterpretationService:
         Currently returns a mock response.
         
         Args:
-            report_data: Dictionary containing report sections
+            report_text: Full report text from the ReportService
             aspects_focus: Whether to focus on aspect interpretation
             houses_focus: Whether to focus on house placement interpretation
             planets_focus: Whether to focus on planet interpretation
@@ -74,7 +74,7 @@ class InterpretationService:
     
     def interpret_synastry_chart(
         self,
-        report_data: Dict[str, Dict[str, str]],
+        report_text: str,
         aspects_focus: bool = True,
         compatibility_focus: bool = True,
         tone: str = "neutral",
@@ -87,7 +87,7 @@ class InterpretationService:
         Currently returns a mock response.
         
         Args:
-            report_data: Dictionary containing report sections for both charts
+            report_text: Full report text from the ReportService containing both charts
             aspects_focus: Whether to focus on synastry aspect interpretation
             compatibility_focus: Whether to focus on overall compatibility
             tone: Tone of the interpretation (neutral, detailed, beginner-friendly)
@@ -127,9 +127,9 @@ class InterpretationService:
         """
         return """
         You are an expert astrologer tasked with interpreting a natal chart.
-        Below is the data from the chart in tabular format:
+        Below is the data from the chart:
         
-        {report_data}
+        {report_text}
         
         Please provide a {tone} interpretation of this chart, focusing on:
         {focus_areas}
@@ -146,13 +146,9 @@ class InterpretationService:
         """
         return """
         You are an expert astrologer tasked with interpreting a synastry chart comparison.
-        Below is the data from both natal charts in tabular format:
+        Below is the data from both natal charts:
         
-        PERSON 1:
-        {person1_report_data}
-        
-        PERSON 2:
-        {person2_report_data}
+        {report_text}
         
         Please provide a {tone} interpretation of the relationship dynamics between these two individuals,
         focusing on:
