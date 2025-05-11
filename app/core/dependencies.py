@@ -46,14 +46,14 @@ def get_chart_visualization_service(settings: SettingsDep) -> ChartVisualization
 
 ChartVisualizationServiceDep = Annotated[ChartVisualizationService, Depends(get_chart_visualization_service)]
 
-def get_geo_service(settings: SettingsDep) -> GeoService:
+@lru_cache(maxsize=32)
+def get_geo_service() -> GeoService:
     """
     Get an instance of the GeoService.
     
-    This dependency requires settings and can be used in route functions
-    to get access to geolocation operations.
+    This dependency can be used in route functions to get access to geolocation operations.
     """
-    return GeoService(settings=settings)
+    return GeoService()
 
 GeoServiceDep = Annotated[GeoService, Depends(get_geo_service)]
 
