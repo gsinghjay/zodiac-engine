@@ -1,0 +1,42 @@
+{% if error %}
+<div class="alert alert-danger" role="alert">
+    <h4 class="alert-heading">Error</h4>
+    <p>{{ error }}</p>
+</div>
+{% else %}
+<div class="interpretation-result">
+    <div class="interpretation-text mb-4">
+        {{ interpretation | safe }}
+    </div>
+    
+    {% if highlights and highlights|length > 0 %}
+    <div class="highlights-section mb-4">
+        <h5 class="mb-3">Key Highlights</h5>
+        <ul class="list-group">
+            {% for highlight in highlights %}
+            <li class="list-group-item">
+                <span class="highlight">{{ highlight }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+    
+    {% if suggestions and suggestions|length > 0 %}
+    <div class="suggestions-section">
+        <h5 class="mb-3">Suggestions</h5>
+        <ul class="list-group">
+            {% for suggestion in suggestions %}
+            <li class="list-group-item">{{ suggestion }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+    
+    <div class="text-center mt-4">
+        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">
+            <i class="bi bi-printer"></i> Print Interpretation
+        </button>
+    </div>
+</div>
+{% endif %} 

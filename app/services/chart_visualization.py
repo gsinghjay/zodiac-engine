@@ -20,6 +20,45 @@ SVG_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 # Ensure the directory exists
 os.makedirs(SVG_DIR, exist_ok=True)
 
+# Map house system names to their corresponding Kerykeion identifiers
+HOUSE_SYSTEM_MAP = {
+    "Placidus": "P",
+    "Koch": "K",
+    "Whole Sign": "W",
+    "Equal House": "A",  # Equal (Ascendant)
+    "Equal (MC)": "E",
+    "Campanus": "C",
+    "Regiomontanus": "R",
+    "Porphyry": "O",  # Porphyrius
+    "Polich-Page Topocentric": "T",
+    "Alcabitius": "B",
+    "Morinus": "M",
+    "Vehlow Equal": "V",
+    "Axial Rotation": "X",
+    "Horizon/Azimuth": "H"
+}
+
+def map_house_system(house_system: str) -> str:
+    """
+    Map a human-readable house system name to its Kerykeion identifier.
+    
+    Args:
+        house_system: Human-readable house system name
+        
+    Returns:
+        The single-letter Kerykeion identifier for the house system
+    """
+    if house_system in HOUSE_SYSTEM_MAP:
+        return HOUSE_SYSTEM_MAP[house_system]
+    
+    # If it's already a valid single-letter identifier, return it
+    if house_system in "ABCDEFGHIKLMNOPQRSTUVWXY":
+        return house_system
+    
+    # Default to Placidus if not found
+    logger.warning(f"Unknown house system '{house_system}', defaulting to Placidus (P)")
+    return "P"
+
 class ChartVisualizationService:
     """Service for generating and saving chart visualizations."""
     
@@ -88,7 +127,14 @@ class ChartVisualizationService:
                 }
                 
             # Extract configuration options
-            houses_system = config.get("houses_system", "P")
+            original_house_system = config.get("houses_system", "P")
+            houses_system = map_house_system(original_house_system)
+            logger.info(f"Mapped house system from '{original_house_system}' to '{houses_system}'")
+            
+            # Convert language to uppercase
+            chart_language = chart_language.upper()
+            logger.info(f"Using chart language: {chart_language}")
+            
             zodiac_type = config.get("zodiac_type", "Tropic")
             sidereal_mode = config.get("sidereal_mode", None)
             perspective_type = config.get("perspective_type", "Apparent Geocentric")
@@ -233,7 +279,14 @@ class ChartVisualizationService:
                 }
                 
             # Extract configuration options
-            houses_system = config.get("houses_system", "P")
+            original_house_system = config.get("houses_system", "P")
+            houses_system = map_house_system(original_house_system)
+            logger.info(f"Mapped house system from '{original_house_system}' to '{houses_system}'")
+            
+            # Convert language to uppercase
+            chart_language = chart_language.upper()
+            logger.info(f"Using chart language: {chart_language}")
+            
             zodiac_type = config.get("zodiac_type", "Tropic")
             sidereal_mode = config.get("sidereal_mode", None)
             perspective_type = config.get("perspective_type", "Apparent Geocentric")

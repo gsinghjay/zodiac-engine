@@ -2,22 +2,42 @@
 import json
 import uuid
 import pytz
+import os
 from datetime import datetime
-from fastapi import APIRouter, Request, Form, Depends, BackgroundTasks, HTTPException
-from fastapi.responses import HTMLResponse, RedirectResponse
-from typing import Optional, Dict, Any, List
+from fastapi import APIRouter, Request, Form, Depends, BackgroundTasks, HTTPException, Header
+from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse, Response
+from typing import Optional, Dict, Any, List, Union, Literal
+from pathlib import Path
+import logging
 
 from app.templates import templates
 from app.core.config import settings
-from app.core.dependencies import ChartVisualizationServiceDep
+from app.core.dependencies import (
+    ChartVisualizationServiceDep, 
+    GeoServiceDep, 
+    FileConversionServiceDep,
+    ReportServiceDep,
+    InterpretationServiceDep
+)
 from app.services.chart_visualization import ChartVisualizationService
+from app.services.geo_service import GeoService
+from app.services.file_conversion import FileConversionService, OutputFormat
+from app.services.report import ReportService
+from app.services.interpretation import InterpretationService
+from app.core.exceptions import FileConversionError
 from app.schemas.chart_visualization import AspectConfiguration, ChartConfiguration
 
 router = APIRouter(
     tags=["web"],
 )
 
-@router.get("/", response_class=HTMLResponse)
+# Create a dictionary to temporarily store chart data
+# In a production app, you would use a database
+chart_cache = {}
+
+logger = logging.getLogger(__name__)
+
+@router.get("/", response_class=HTMLResponse, name="home")
 async def home(request: Request):
     """Render the home page."""
     return templates.TemplateResponse(
@@ -28,7 +48,7 @@ async def home(request: Request):
         }
     )
 
-@router.get("/home", response_class=HTMLResponse)
+@router.get("/home", response_class=HTMLResponse, name="home_page")
 async def home_page(request: Request):
     """Render the home page."""
     return templates.TemplateResponse(
@@ -39,7 +59,417 @@ async def home_page(request: Request):
         }
     )
 
-@router.post("/generate-chart", response_class=HTMLResponse)
+@router.get("/chart/{chart_id}", response_class=HTMLResponse, name="chart_details")
+async def chart_details(request: Request, chart_id: str):
+    """Render the chart details page."""
+    # Get chart data from cache or storage
+    chart_data = chart_cache.get(chart_id)
+    
+    if not chart_data:
+        # If chart data is not found, redirect to home
+        return RedirectResponse(url="/home", status_code=303)
+    
+    # Chart URL
+    chart_url = f"/static/images/svg/{chart_id}.svg"
+    
+    # Return the template with chart details
+    return templates.TemplateResponse(
+        "chart_details.html", 
+        {
+            "request": request,
+            "chart_url": chart_url,
+            "chart_data": chart_data,
+            "chart_id": chart_id,
+            "version": settings.VERSION
+        }
+    )
+
+@router.get("/download-chart/{chart_id}", name="download_chart")
+async def download_chart(
+    chart_id: str, 
+    conversion_service: FileConversionServiceDep,
+    format: Literal["svg", "png", "pdf", "jpg"] = "svg",
+    dpi: int = 96
+):
+    """
+    Download chart in various formats.
+    
+    Args:
+        chart_id: The unique identifier for the chart
+        conversion_service: FileConversionService dependency
+        format: The desired output format (svg, png, pdf, jpg)
+        dpi: The resolution in dots per inch for raster formats (png, jpg)
+        
+    Returns:
+        The chart file in the requested format
+    """
+    # Base file path for the SVG
+    svg_path = Path(f"app/static/images/svg/{chart_id}.svg")
+    
+    # Check if the file exists
+    if not svg_path.exists():
+        raise HTTPException(status_code=404, detail="Chart not found")
+    
+    # Conversion logic based on format
+    try:
+        if format == "svg":
+            # SVG doesn't need conversion, just return the file
+            return FileResponse(
+                svg_path,
+                media_type="image/svg+xml",
+                filename=f"{chart_id}.svg"
+            )
+        
+        # For other formats, use the conversion service
+        output_format = OutputFormat(format.upper())
+        
+        # Convert file
+        result_path, content_type = conversion_service.convert_svg_file(
+            svg_path, 
+            output_format=output_format,
+            dpi=dpi
+        )
+        
+        # Set the proper filename extension
+        extension = format.lower()
+        
+        # Return the converted file
+        return FileResponse(
+            result_path,
+            media_type=content_type,
+            filename=f"{chart_id}.{extension}"
+        )
+        
+    except FileConversionError as e:
+        logger.error(f"File conversion error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error converting chart: {str(e)}")
+    except Exception as e:
+        logger.error(f"Error in download_chart: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error processing chart: {str(e)}")
+
+@router.get("/chart-report/{chart_id}", response_class=HTMLResponse, name="chart_report")
+async def chart_report(
+    request: Request,
+    chart_id: str,
+    report_service: ReportServiceDep,
+    hx_request: Optional[str] = Header(None)
+):
+    """
+    Generate and display a report for a chart.
+    
+    Args:
+        request: The FastAPI request object
+        chart_id: The unique identifier for the chart
+        report_service: ReportService dependency
+        hx_request: HTMX request header
+        
+    Returns:
+        HTML template with the chart report
+    """
+    try:
+        # Get chart data from cache
+        if chart_id not in chart_cache:
+            raise HTTPException(status_code=404, detail="Chart not found")
+        
+        chart_data = chart_cache[chart_id]
+        
+        # Generate report using ReportService
+        report_data = report_service.generate_natal_report(
+            name=chart_data["name"],
+            birth_date=chart_data["birth_date"],
+            city=chart_data["city"],
+            nation=chart_data["nation"],
+            lng=chart_data["lng"],
+            lat=chart_data["lat"],
+            tz_str=chart_data.get("tz_str"),
+            houses_system=chart_data.get("houses_system", "P"),
+        )
+        
+        # Add chart_id to report data for download links
+        report_data["chart_id"] = chart_id
+        
+        # Return the report fragment
+        return templates.TemplateResponse(
+            "fragments/report.html",
+            {
+                "request": request,
+                **report_data
+            }
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error generating report: {str(e)}")
+        return templates.TemplateResponse(
+            "fragments/report.html",
+            {
+                "request": request,
+                "error": f"Error generating report: {str(e)}"
+            }
+        )
+
+@router.get("/interpret-chart/{chart_id}", response_class=HTMLResponse, name="interpret_chart")
+async def interpret_chart(
+    request: Request,
+    chart_id: str,
+    interpretation_service: InterpretationServiceDep,
+    report_service: ReportServiceDep,
+    planets_focus: bool = True,
+    houses_focus: bool = True,
+    aspects_focus: bool = True,
+    tone: Literal["beginner-friendly", "neutral", "detailed"] = "neutral",
+    max_length: int = 1000,
+    hx_request: Optional[str] = Header(None)
+):
+    """
+    Generate and display an interpretation for a chart.
+    
+    Args:
+        request: The FastAPI request object
+        chart_id: The unique identifier for the chart
+        interpretation_service: InterpretationService dependency
+        report_service: ReportService dependency
+        planets_focus: Whether to focus on planet interpretations
+        houses_focus: Whether to focus on house placement interpretations
+        aspects_focus: Whether to focus on aspect interpretations
+        tone: The tone of the interpretation
+        max_length: Maximum length of the interpretation in words
+        hx_request: HTMX request header
+        
+    Returns:
+        HTML template with the chart interpretation
+    """
+    try:
+        # Get chart data from cache
+        if chart_id not in chart_cache:
+            raise HTTPException(status_code=404, detail="Chart not found")
+        
+        chart_data = chart_cache[chart_id]
+        
+        # First generate report to get structured data for interpretation
+        report_data = report_service.generate_natal_report(
+            name=chart_data["name"],
+            birth_date=chart_data["birth_date"],
+            city=chart_data["city"],
+            nation=chart_data["nation"],
+            lng=chart_data["lng"],
+            lat=chart_data["lat"],
+            tz_str=chart_data.get("tz_str"),
+            houses_system=chart_data.get("houses_system", "P"),
+        )
+        
+        # Generate interpretation using InterpretationService
+        interpretation_result = interpretation_service.interpret_natal_chart(
+            report_data=report_data,
+            aspects_focus=aspects_focus,
+            houses_focus=houses_focus,
+            planets_focus=planets_focus,
+            tone=tone,
+            max_length=max_length
+        )
+        
+        # Return the interpretation fragment
+        return templates.TemplateResponse(
+            "fragments/interpretation.html",
+            {
+                "request": request,
+                **interpretation_result
+            }
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error generating interpretation: {str(e)}")
+        return templates.TemplateResponse(
+            "fragments/interpretation.html",
+            {
+                "request": request,
+                "error": f"Error generating interpretation: {str(e)}"
+            }
+        )
+
+@router.get("/download-report/{chart_id}", name="download_report")
+async def download_report(
+    chart_id: str,
+    report_service: ReportServiceDep
+):
+    """
+    Download a text report for a chart.
+    
+    Args:
+        chart_id: The unique identifier for the chart
+        report_service: ReportService dependency
+        
+    Returns:
+        Text file with the chart report
+    """
+    try:
+        # Get chart data from cache
+        if chart_id not in chart_cache:
+            raise HTTPException(status_code=404, detail="Chart not found")
+        
+        chart_data = chart_cache[chart_id]
+        
+        # Generate report using ReportService
+        report_data = report_service.generate_natal_report(
+            name=chart_data["name"],
+            birth_date=chart_data["birth_date"],
+            city=chart_data["city"],
+            nation=chart_data["nation"],
+            lng=chart_data["lng"],
+            lat=chart_data["lat"],
+            tz_str=chart_data.get("tz_str"),
+            houses_system=chart_data.get("houses_system", "P"),
+        )
+        
+        # Create response with the full report as plain text
+        return Response(
+            content=report_data["full_report"],
+            media_type="text/plain",
+            headers={"Content-Disposition": f"attachment; filename={chart_id}_report.txt"}
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error generating report for download: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error generating report: {str(e)}")
+
+@router.post("/search-location", response_class=HTMLResponse, name="search_location")
+async def search_location(
+    request: Request,
+    geo_service: GeoServiceDep,
+    city: Optional[str] = Form(None),
+    hx_request: Optional[str] = Header(None)
+):
+    """Search for locations based on city name."""
+    try:
+        if not city or len(city.strip()) < 2:
+            return templates.TemplateResponse(
+                "fragments/location_results.html",
+                {
+                    "request": request,
+                    "locations": [],
+                    "error": "Please enter at least 2 characters for city search"
+                }
+            )
+            
+        # Search for locations using GeoService
+        locations = await geo_service.search_cities(city)
+        
+        # For debugging
+        print(f"Search results for '{city}': {len(locations)} locations found")
+        
+        # Return the locations fragment
+        return templates.TemplateResponse(
+            "fragments/location_results.html",
+            {
+                "request": request,
+                "locations": locations
+            }
+        )
+    except Exception as e:
+        # For debugging
+        print(f"Error in search_location: {str(e)}")
+        
+        return templates.TemplateResponse(
+            "fragments/location_results.html",
+            {
+                "request": request,
+                "locations": [],
+                "error": str(e)
+            }
+        )
+
+@router.post("/select-location", response_class=HTMLResponse, name="select_location")
+async def select_location(
+    request: Request,
+    city: str = Form(...),
+    nation: str = Form(...),
+    lng: float = Form(...),
+    lat: float = Form(...),
+    tz_str: str = Form(...),
+    hx_request: Optional[str] = Header(None)
+):
+    """Handle location selection and populate form fields."""
+    print(f"Location selected: {city}, {nation}, lng: {lng}, lat: {lat}, tz: {tz_str}")
+    
+    return templates.TemplateResponse(
+        "fragments/location_fields.html",
+        {
+            "request": request,
+            "city": city,
+            "nation": nation,
+            "lng": lng,
+            "lat": lat,
+            "tz_str": tz_str
+        }
+    )
+
+@router.post("/validate-form", response_class=HTMLResponse, name="validate_form")
+async def validate_form(
+    request: Request,
+    name: Optional[str] = Form(None),
+    birth_date: Optional[str] = Form(None),
+    city: Optional[str] = Form(None),
+    nation: Optional[str] = Form(None),
+    lng: Optional[float] = Form(None),
+    lat: Optional[float] = Form(None),
+    tz_str: Optional[str] = Form(None),
+    houses_system: Optional[str] = Form(None),
+    hx_request: Optional[str] = Header(None)
+):
+    """Validate form data without generating a chart."""
+    errors = []
+    
+    # Validate required fields
+    if not name:
+        errors.append("Name is required")
+    
+    # Validate birth date
+    try:
+        if birth_date:
+            datetime.fromisoformat(birth_date)
+        else:
+            errors.append("Birth date is required")
+    except ValueError:
+        errors.append("Invalid birth date format")
+    
+    # Validate city/nation
+    if not city:
+        errors.append("City is required")
+    if not nation:
+        errors.append("Country is required")
+    
+    # Validate coordinates
+    if lng is None:
+        errors.append("Longitude is required")
+    elif lng < -180 or lng > 180:
+        errors.append("Longitude must be between -180 and 180 degrees")
+        
+    if lat is None:
+        errors.append("Latitude is required")
+    elif lat < -90 or lat > 90:
+        errors.append("Latitude must be between -90 and 90 degrees")
+    
+    # Validate timezone
+    if not tz_str:
+        errors.append("Timezone is required")
+    else:
+        try:
+            pytz.timezone(tz_str)
+        except pytz.exceptions.UnknownTimeZoneError:
+            errors.append(f"Invalid timezone: {tz_str}")
+    
+    # Return validation results
+    return templates.TemplateResponse(
+        "fragments/form_validation.html",
+        {
+            "request": request,
+            "errors": errors
+        }
+    )
+
+@router.post("/generate-chart", name="generate_chart")
 async def generate_chart(
     request: Request,
     background_tasks: BackgroundTasks,
@@ -56,8 +486,17 @@ async def generate_chart(
     theme: str = Form(...),
     language: str = Form(...),
     sidereal_mode: Optional[str] = Form(None),
+    hx_request: Optional[str] = Header(None)
 ):
-    """Generate astrological chart based on form submission."""
+    """
+    Generate astrological chart based on form submission and redirect to chart details page.
+    
+    Accepts house system names in human-readable format (e.g., "Whole Sign", "Placidus").
+    These are mapped to the appropriate single-letter codes used by the Kerykeion library.
+    
+    Language codes (e.g., "en", "fr") are automatically converted to uppercase as required
+    by the Kerykeion library.
+    """
     try:
         # Validate required fields
         missing_fields = []
@@ -100,6 +539,7 @@ async def generate_chart(
         # Convert the birth_date from form format to datetime
         try:
             birth_date_dt = datetime.fromisoformat(birth_date)
+            birth_date_formatted = birth_date_dt.strftime("%B %d, %Y at %I:%M %p")
         except ValueError:
             raise HTTPException(
                 status_code=422, 
@@ -152,20 +592,43 @@ async def generate_chart(
             config=config
         )
         
-        # Return the template with the chart URL
-        svg_url = f"/static/images/svg/{chart_id}.svg"
+        # Store chart data in cache
+        chart_cache[chart_id] = {
+            "name": name,
+            "birth_date": birth_date_formatted,
+            "city": city,
+            "nation": nation,
+            "lat": lat,
+            "lng": lng,
+            "houses_system": houses_system,
+            "chart_type": chart_type,
+            "theme": theme,
+            "language": language
+        }
         
-        return templates.TemplateResponse(
-            "home.html", 
-            {
-                "request": request,
-                "chart_url": svg_url,
-                "version": settings.VERSION
-            }
-        )
+        # If HTMX request, return a redirect instruction
+        if hx_request:
+            return HTMLResponse(
+                headers={
+                    "HX-Redirect": f"/chart/{chart_id}"
+                },
+                content=""
+            )
+        
+        # If regular form submission, redirect to chart details page
+        return RedirectResponse(url=f"/chart/{chart_id}", status_code=303)
         
     except HTTPException as e:
         # Return the specific error
+        if hx_request:
+            return templates.TemplateResponse(
+                "fragments/form_validation.html", 
+                {
+                    "request": request,
+                    "errors": [e.detail]
+                }
+            )
+        
         return templates.TemplateResponse(
             "home.html", 
             {
@@ -176,6 +639,15 @@ async def generate_chart(
         )
     except Exception as e:
         # Handle other errors and return to the form with an error message
+        if hx_request:
+            return templates.TemplateResponse(
+                "fragments/form_validation.html", 
+                {
+                    "request": request,
+                    "errors": [str(e)]
+                }
+            )
+        
         return templates.TemplateResponse(
             "home.html", 
             {

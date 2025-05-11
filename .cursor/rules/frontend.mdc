@@ -1,0 +1,191 @@
+---
+description: This document outlines the frontend architecture, patterns and best practices for the Zodiac Engine web interface. The frontend uses a server-rendered approach with progressive enhancement via HTMX, styled with Bootstrap and minimal custom CSS.
+globs: 
+alwaysApply: false
+---
+# Frontend Rules: Zodiac Engine
+
+## Core Technologies
+
+- **Template Engine**: Jinja2 for server-side rendering
+- **CSS Framework**: Bootstrap 5.3+ for responsive layout and components
+- **Progressive Enhancement**: HTMX for dynamic interactions without heavy JavaScript
+- **Custom Styling**: Minimal CSS overrides in styles.css
+- **Icons**: Bootstrap Icons
+- **Chart Rendering**: SVG-based visualizations served from backend
+
+## Architecture Principles
+
+1. **Progressive Enhancement**
+   - All core functionality works without JavaScript
+   - HTMX enhances user experience but isn't required
+   - Fallback to traditional form submissions when needed
+
+2. **Server-Rendered Templates**
+   - Primary rendering happens on the server via Jinja2
+   - FastAPI routes serve both full pages and partial fragments
+   - Templates follow a hierarchical structure with extension
+
+3. **Component Organization**
+   - Base layout template provides page structure
+   - Page templates extend the base layout
+   - Fragment templates for HTMX partial updates
+
+4. **Frontend-Backend Integration**
+   - HTMX requests detected via `hx_request` header
+   - Different response strategies for HTMX vs traditional requests
+   - Fragment templates correspond to specific backend endpoints
+
+## Template Structure
+
+- **Layout Template**: `layout.html` (base template with common structure)
+- **Page Templates**: Full pages that extend layout (e.g., `home.html`, `chart_details.html`)
+- **Fragment Templates**: Partial updates for HTMX (`fragments/location_results.html`, etc.)
+
+## HTMX Patterns
+
+1. **Real-time Search**
+   ```html
+   <input type="text" 
+          hx-post="/search-endpoint" 
+          hx-trigger="keyup changed delay:500ms" 
+          hx-target="#results-container">
+   ```
+
+2. **Form Validation**
+   ```html
+   <input type="text" 
+          hx-post="/validate-endpoint" 
+          hx-trigger="change" 
+          hx-target="#validation-results">
+   ```
+
+3. **Loading Indicators**
+   ```html
+   <div hx-indicator="#loader">
+     <div id="loader" class="htmx-indicator">Loading...</div>
+   </div>
+   ```
+
+4. **Fragment Replacement**
+   ```html
+   <button hx-post="/endpoint" 
+           hx-target="#container" 
+           hx-swap="innerHTML">
+     Click Me
+   </button>
+   ```
+
+5. **HTMX Redirects**
+   - Backend sends `HX-Redirect` header for navigation
+   ```python
+   return HTMLResponse(
+       headers={"HX-Redirect": "/destination"},
+       content=""
+   )
+   ```
+
+## CSS Guidelines
+
+1. **Bootstrap First**
+   - Use Bootstrap classes for layout and components when possible
+   - Customize via CSS variables in `:root` to maintain theme consistency
+   - Override only when necessary
+
+2. **Custom CSS Structure**
+   - Variables: Define in `:root` to establish theme colors and values
+   - Component overrides: Target specific Bootstrap components for customization
+   - Custom components: Create styles for components not provided by Bootstrap
+   - HTMX-specific styles: Handle transitions, loading states
+
+3. **Responsive Design**
+   - Use Bootstrap's grid system and responsive utilities
+   - Test on multiple device sizes
+   - Implement mobile-specific adaptations when needed
+
+## JavaScript Usage
+
+1. **Minimal JavaScript**
+   - Only use custom JS for functionality that HTMX cannot handle
+   - Keep scripts in `{% block scripts %}` section of templates
+   - Avoid jQuery or other large libraries unless absolutely necessary
+
+2. **Event Handling**
+   - Prefer HTMX triggers over JavaScript event listeners when possible
+   - For custom scripts, use modern JavaScript (ES6+)
+   - Handle errors gracefully with fallbacks
+
+## Form Handling
+
+1. **Validation**
+   - Use both client-side validation via HTMX and server-side validation
+   - Provide clear, user-friendly error messages
+   - Use identical validation logic on client and server when possible
+
+2. **Submission**
+   - HTMX for asynchronous submissions with feedback
+   - Fallback to traditional submission
+   - Handle both success and error states gracefully
+
+## Error Handling
+
+1. **Validation Errors**
+   - Display inline errors near relevant form fields
+   - Use consistent styling (Bootstrap alerts)
+   - Provide clear suggestions for correction
+
+2. **Server Errors**
+   - Render appropriate error templates
+   - Log errors on server with sufficient context
+   - Provide user-friendly messages without technical details
+
+## Accessibility Guidelines
+
+1. **Semantic HTML**
+   - Use appropriate heading levels (`h1-h6`)
+   - Employ semantic elements (`nav`, `main`, `section`, etc.)
+   - Ensure forms have proper labels and ARIA attributes
+
+2. **Keyboard Navigation**
+   - All interactive elements must be keyboard accessible
+   - Maintain logical tab order
+   - Provide visible focus indicators
+
+3. **Screen Reader Support**
+   - Add ARIA labels where needed
+   - Ensure dynamic content updates are announced
+   - Test with screen readers
+
+## Future Enhancements
+
+1. **HTMX Extensions**
+   - Websocket support via SSE
+   - More complex interaction patterns
+   - Advanced animation effects
+
+2. **Component Development**
+   - Create reusable component templates
+   - Standardize patterns for common UI elements
+   - Document component usage
+
+3. **User Experience Improvements**
+   - Enhanced form validation with clear guidance
+   - Interactive chart elements
+   - More sophisticated loading states and transitions
+
+## Testing Guidelines
+
+1. **Visual Testing**
+   - Test on multiple browsers and devices
+   - Verify responsive design breakpoints
+   - Ensure visual consistency across themes
+
+2. **Functional Testing**
+   - Test with JavaScript disabled to verify progressive enhancement
+   - Test form submission flows
+   - Verify all HTMX interactions
+
+3. **Accessibility Testing**
+   - Run automated accessibility checks
+   - Perform manual keyboard navigation testing
+   - Test with screen readers

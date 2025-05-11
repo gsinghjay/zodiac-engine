@@ -1,0 +1,290 @@
+{% extends "layout.html" %}
+
+{% block title %}Chart Details - {{ chart_data.name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="h2">Astrological Chart</h1>
+                <a href="/home" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Generator
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Chart Display Column -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="svg-container">
+                        <img src="{{ chart_url }}" alt="Astrological Chart for {{ chart_data.name }}" class="chart-svg img-fluid">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Interpretation Section -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h2 class="h5 mb-0">Chart Interpretation</h2>
+                    <button id="interpret-btn" class="btn btn-sm btn-light" hx-get="/interpret-chart/{{ chart_id }}" hx-target="#interpretation-content" hx-indicator="#interpretation-loading">
+                        <i class="bi bi-magic"></i> Generate Interpretation
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div id="interpretation-loading" class="htmx-indicator text-center py-3">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Generating interpretation... This may take a moment.</p>
+                    </div>
+                    <div id="interpretation-content" class="interpretation-container">
+                        <div class="text-center py-4">
+                            <p class="text-muted mb-0">
+                                <i class="bi bi-info-circle"></i> Click the "Generate Interpretation" button to get an astrological reading of this chart.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">
+                        <i class="bi bi-info-circle"></i> Interpretations are generated using AI and should be considered as a starting point for understanding the chart.
+                    </small>
+                </div>
+            </div>
+            
+            <!-- Report Section -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h2 class="h5 mb-0">Chart Report</h2>
+                    <button id="report-btn" class="btn btn-sm btn-light" hx-get="/chart-report/{{ chart_id }}" hx-target="#report-content" hx-indicator="#report-loading">
+                        <i class="bi bi-table"></i> View Report
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div id="report-loading" class="htmx-indicator text-center py-3">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Generating report...</p>
+                    </div>
+                    <div id="report-content" class="report-container">
+                        <div class="text-center py-4">
+                            <p class="text-muted mb-0">
+                                <i class="bi bi-info-circle"></i> Click the "View Report" button to see a detailed tabular report of this chart.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart Information and Download Options -->
+        <div class="col-lg-4">
+            <!-- Chart Information -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Chart Details</h2>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered table-sm mb-0">
+                        <tbody>
+                            <tr>
+                                <th>Name</th>
+                                <td>{{ chart_data.name }}</td>
+                            </tr>
+                            <tr>
+                                <th>Date & Time</th>
+                                <td>{{ chart_data.birth_date }}</td>
+                            </tr>
+                            <tr>
+                                <th>Location</th>
+                                <td>{{ chart_data.city }}, {{ chart_data.nation }}</td>
+                            </tr>
+                            <tr>
+                                <th>Coordinates</th>
+                                <td>Lat: {{ chart_data.lat }}, Lng: {{ chart_data.lng }}</td>
+                            </tr>
+                            <tr>
+                                <th>House System</th>
+                                <td>{{ chart_data.houses_system }}</td>
+                            </tr>
+                            <tr>
+                                <th>Chart Type</th>
+                                <td>{{ chart_data.chart_type|capitalize }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Interpretation Options -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Interpretation Options</h2>
+                </div>
+                <div class="card-body">
+                    <form id="interpretation-options" hx-get="/interpret-chart/{{ chart_id }}" hx-target="#interpretation-content" hx-indicator="#interpretation-loading">
+                        <div class="mb-3">
+                            <label class="form-label">Focus Areas:</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="planets-focus" name="planets_focus" value="true" checked>
+                                <label class="form-check-label" for="planets-focus">Planets & Signs</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="houses-focus" name="houses_focus" value="true" checked>
+                                <label class="form-check-label" for="houses-focus">Houses & Placements</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="aspects-focus" name="aspects_focus" value="true" checked>
+                                <label class="form-check-label" for="aspects-focus">Aspects & Patterns</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tone" class="form-label">Interpretation Tone:</label>
+                            <select class="form-select form-select-sm" id="tone" name="tone">
+                                <option value="beginner-friendly">Beginner-Friendly</option>
+                                <option value="neutral" selected>Neutral</option>
+                                <option value="detailed">Detailed/Technical</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="max-length" class="form-label">Length:</label>
+                            <select class="form-select form-select-sm" id="max-length" name="max_length">
+                                <option value="500">Brief</option>
+                                <option value="1000" selected>Standard</option>
+                                <option value="2000">Comprehensive</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm w-100">
+                            <i class="bi bi-magic"></i> Generate With Options
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Download Options -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Download Options</h2>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <a href="/download-chart/{{ chart_id }}?format=svg" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            SVG Format
+                            <span class="badge bg-primary rounded-pill">
+                                <i class="bi bi-download"></i>
+                            </span>
+                        </a>
+                        <a href="/download-chart/{{ chart_id }}?format=png" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            PNG Format
+                            <span class="badge bg-primary rounded-pill">
+                                <i class="bi bi-download"></i>
+                            </span>
+                        </a>
+                        <a href="/download-chart/{{ chart_id }}?format=pdf" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            PDF Format
+                            <span class="badge bg-primary rounded-pill">
+                                <i class="bi bi-download"></i>
+                            </span>
+                        </a>
+                        <a href="/download-chart/{{ chart_id }}?format=jpg" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            JPEG Format
+                            <span class="badge bg-primary rounded-pill">
+                                <i class="bi bi-download"></i>
+                            </span>
+                        </a>
+                    </div>
+                    <small class="text-muted mt-2 d-block">
+                        <i class="bi bi-info-circle"></i> For higher resolution PNG or JPEG downloads, add <code>&dpi=300</code> to the URL (default is 96).
+                    </small>
+                </div>
+            </div>
+
+            <!-- Share Options -->
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Share Chart</h2>
+                </div>
+                <div class="card-body">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" value="{{ request.url }}" id="share-url" readonly>
+                        <button class="btn btn-outline-secondary" type="button" onclick="copyShareLink()">
+                            Copy
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block head %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+<style>
+    .chart-svg {
+        max-width: 100%;
+        height: auto;
+    }
+    
+    .interpretation-container {
+        min-height: 200px;
+    }
+    
+    .report-container {
+        min-height: 150px;
+        max-height: 400px;
+        overflow-y: auto;
+        font-family: monospace;
+    }
+    
+    .htmx-indicator {
+        display: none;
+    }
+    
+    .htmx-request .htmx-indicator {
+        display: block;
+    }
+    
+    .htmx-request.htmx-indicator {
+        display: block;
+    }
+    
+    pre {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 0.25rem;
+    }
+    
+    .highlight {
+        background-color: #ffc;
+        padding: 0.25rem;
+        border-radius: 0.25rem;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function copyShareLink() {
+        const shareUrl = document.getElementById('share-url');
+        shareUrl.select();
+        shareUrl.setSelectionRange(0, 99999);
+        navigator.clipboard.writeText(shareUrl.value);
+        
+        // Show feedback
+        const btn = event.currentTarget;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = 'Copied!';
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+        }, 2000);
+    }
+</script>
+{% endblock %} 

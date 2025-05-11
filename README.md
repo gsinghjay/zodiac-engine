@@ -9,10 +9,14 @@ Astrological calculation engine powered by the [Kerykeion](https://github.com/Ke
     *   Customizable chart themes, house systems, and languages.
     *   Responsive design.
     *   Displays generated SVG charts.
+    *   LLM-powered chart interpretations.
+    *   Formatted astrological reports.
 -   **API Endpoints**: Provides RESTful API for:
     *   Natal chart calculations.
     *   Chart visualizations (SVG).
--   **Extensible**: Designed for future expansion (e.g., synastry, composite charts, LLM interpretations).
+    *   Report generation.
+    *   LLM interpretations.
+-   **Extensible**: Designed for future expansion (e.g., synastry, composite charts).
 
 ## Installation
 
@@ -48,6 +52,16 @@ ALLOWED_ORIGINS="http://localhost:8000,http://127.0.0.1:8000"
 # Required for city/timezone lookup via GeoNames
 # Create a free account at https://www.geonames.org/login
 GEONAMES_USERNAME="your_username"
+
+# LLM API settings for chart interpretations
+# Choose your preferred provider (openai, anthropic, or gemini)
+LLM_PROVIDER="openai"  # Options: openai, anthropic, gemini
+LLM_API_KEY="your_api_key"
+LLM_MODEL_NAME="gpt-4"  # For OpenAI: gpt-4, gpt-3.5-turbo; For Anthropic: claude-3-opus, claude-3-sonnet; For Gemini: gemini-pro
+LLM_MAX_TOKENS=2000
+LLM_TEMPERATURE=0.7
+LLM_CACHE_ENABLED=true
+LLM_CACHE_TTL_HOURS=24
 ```
 
 *Note: Ensure the `.env` file is saved with UTF-8 encoding and has correct formatting (no extra spaces around `=`).*

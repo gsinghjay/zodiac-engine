@@ -1,0 +1,34 @@
+{% if error %}
+<div class="alert alert-danger" role="alert">
+    <h4 class="alert-heading">Error</h4>
+    <p>{{ error }}</p>
+</div>
+{% else %}
+<div class="report-result">
+    <h4 class="text-center mb-3">{{ title }}</h4>
+    
+    <div class="mb-4">
+        <h5 class="mb-2">Birth Data</h5>
+        <pre>{{ data_table }}</pre>
+    </div>
+    
+    <div class="mb-4">
+        <h5 class="mb-2">Planets</h5>
+        <pre>{{ planets_table }}</pre>
+    </div>
+    
+    <div class="mb-4">
+        <h5 class="mb-2">Houses</h5>
+        <pre>{{ houses_table }}</pre>
+    </div>
+    
+    <div class="text-center mt-4">
+        <a href="/download-report/{{ chart_id }}" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-download"></i> Download Full Report
+        </a>
+        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">
+            <i class="bi bi-printer"></i> Print Report
+        </button>
+    </div>
+</div>
+{% endif %} 

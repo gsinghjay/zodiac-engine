@@ -35,4 +35,12 @@ class ChartCalculationError(ZodiacEngineException):
         super().__init__(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=detail
+        )
+
+class FileConversionError(ZodiacEngineException):
+    """Exception for errors during file format conversion."""
+    def __init__(self, detail: str = "Error converting file format"):
+        super().__init__(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=detail
         ) 
