@@ -66,14 +66,16 @@ class InterpretationService:
         # Prepare the max length text for the prompt
         max_length_text = f"approximately {max_length} words in length" if max_length else "comprehensive but concise"
         
+        # Log the report data we received
+        logger.debug(f"Received report data with title: {report_data.title}")
+        
         # TODO: Implement actual LLM call when ready
-        # When implementing, use report_data.title, report_data.full_report, etc.
-        # For now, return a placeholder message
+        # Using the structured report_data fields for clearer prompting
         return {
             "interpretation": (
                 "This is a placeholder for the natal chart interpretation. "
                 "When implemented, this will use an LLM to generate a detailed "
-                "interpretation based on the report data."
+                f"interpretation for {report_data.title} based on the structured report data."
             ),
             "highlights": [
                 "Integration with LLM service needs to be implemented",
