@@ -8,186 +8,230 @@ from app.services.chart_visualization import map_house_system
 
 logger = logging.getLogger(__name__)
 
+class ReportGenerationError(Exception):
+    """Exception raised when report generation fails."""
+    pass
+
 class ReportService:
     """Service for generating astrological reports from chart data."""
 
+    def __init__(self):
+        """Initialize the report service."""
+        pass
+
     def generate_natal_report(
-        self,
-        name: str,
+        self, 
+        name: str, 
         birth_date: datetime,
-        city: str | None = None,
-        nation: str | None = None,
-        lng: float | None = None,
-        lat: float | None = None,
-        tz_str: str | None = None,
-        houses_system: str = "P",  # Default to Placidus
-    ) -> Dict[str, str]:
-        """
-        Generate a report for a natal chart using Kerykeion's Report class.
+        birth_place: str,
+        lat: float,
+        lng: float,
+        house_system: Optional[str] = "Placidus",
+        timezone: Optional[str] = None
+    ) -> str:
+        """Generate a report for a natal chart.
         
         Args:
-            name: Name of the person
-            birth_date: Date and time of birth
-            city: Optional city of birth
-            nation: Optional country of birth
-            lng: Optional longitude of birth place
-            lat: Optional latitude of birth place
-            tz_str: Optional timezone string
-            houses_system: House system identifier (can be human-readable name or single-letter code)
+            name: The name of the person
+            birth_date: The birth date and time
+            birth_place: The birth place name
+            lat: The latitude of the birth place
+            lng: The longitude of the birth place
+            house_system: The house system to use (default: Placidus)
+            timezone: The timezone of the birth place
             
         Returns:
-            Dictionary containing various report sections as strings
+            str: The formatted report as a string
         """
         try:
+            # Log the inputs
             logger.info(f"Generating natal report for {name} born on {birth_date}")
             
-            # Map house system to Kerykeion-compatible format
-            mapped_houses_system = map_house_system(houses_system)
-            logger.debug(f"Mapped house system from '{houses_system}' to '{mapped_houses_system}'")
+            # Map the house system if needed
+            mapped_house_system = self._map_house_system(house_system)
+            logger.debug(f"Mapped house system from '{house_system}' to '{mapped_house_system}'")
             
-            # Set default timezone if None
-            if tz_str is None:
+            # Set a default timezone if none provided
+            if not timezone:
                 logger.warning("No timezone provided for natal report, defaulting to UTC")
-                tz_str = "UTC"
+                timezone = "UTC"
+                
+            # Create AstrologicalSubject instance
+            year = birth_date.year
+            month = birth_date.month
+            day = birth_date.day
+            hour = birth_date.hour
+            minute = birth_date.minute
             
-            # Create AstrologicalSubject
+            # Extract country code from birth_place if possible
+            # Format expected: "City, CountryCode"
+            country_code = "US"  # Default
+            if "," in birth_place:
+                country_code = birth_place.split(",")[1].strip()
+                birth_place = birth_place.split(",")[0].strip()
+                
+            logger.debug(f"Creating AstrologicalSubject with: {name}, {year}, {month}, {day}, {hour}, {minute}, {birth_place}, {country_code}, lng={lng}, lat={lat}")
             subject = AstrologicalSubject(
                 name=name,
-                year=birth_date.year,
-                month=birth_date.month,
-                day=birth_date.day,
-                hour=birth_date.hour,
-                minute=birth_date.minute,
-                city=city,
-                nation=nation,
+                year=year,
+                month=month,
+                day=day,
+                hour=hour,
+                minute=minute,
+                city=birth_place,
+                nation=country_code,
                 lng=lng,
                 lat=lat,
-                tz_str=tz_str,
-                houses_system_identifier=mapped_houses_system,
+                houses_system_identifier=mapped_house_system,
+                tz_str=timezone
             )
             
             logger.debug("Created AstrologicalSubject successfully")
             
-            # Generate report using Kerykeion's Report class
+            # Generate report
             report = Report(subject)
             
-            # Extract report components
-            report_data = {
-                "title": report.report_title,
-                "data_table": report.data_table,
-                "planets_table": report.planets_table,
-                "houses_table": report.houses_table,
-                "full_report": report.get_full_report()
-            }
+            # If using Whole Sign houses, add a note explaining the positions
+            if mapped_house_system == "W":
+                report_text = report.get_full_report()
+                # Insert explanation note after the houses table
+                note = "\nNote: For Whole Sign houses, all house positions are 0.0 as each house starts at 0° of its sign.\n"
+                report_text += note
+                
+                logger.info("Successfully generated natal report with Whole Sign house note")
+                return report_text
             
             logger.info("Successfully generated natal report")
-            return report_data
+            return report.get_full_report()
             
         except Exception as e:
-            logger.error(f"Error generating natal report: {str(e)}", exc_info=True)
-            raise
+            logger.error(f"Error generating natal report: {str(e)}")
+            raise ReportGenerationError(f"Failed to generate natal report: {str(e)}")
 
     def generate_synastry_report(
-        self,
-        name1: str,
-        birth_date1: datetime,
-        name2: str,
-        birth_date2: datetime,
-        city1: str | None = None,
-        nation1: str | None = None,
-        lng1: float | None = None,
-        lat1: float | None = None,
-        tz_str1: str | None = None,
-        city2: str | None = None,
-        nation2: str | None = None,
-        lng2: float | None = None,
-        lat2: float | None = None,
-        tz_str2: str | None = None,
-        houses_system: str = "P",  # Default to Placidus
-    ) -> Dict[str, Any]:
-        """
-        Generate reports for two charts in a synastry comparison.
-        
-        Args:
-            Parameters for both individuals' birth details
-            houses_system: House system identifier (can be human-readable name or single-letter code)
-            
-        Returns:
-            Dictionary containing report data for both charts
-        """
+        self, 
+        person1_name: str, 
+        person1_birth_date: datetime,
+        person1_birth_place: str,
+        person1_lat: float,
+        person1_lng: float,
+        person2_name: str, 
+        person2_birth_date: datetime,
+        person2_birth_place: str,
+        person2_lat: float,
+        person2_lng: float,
+        house_system: Optional[str] = "Placidus",
+        timezone: Optional[str] = None
+    ) -> str:
+        """Generate a synastry report comparing two natal charts."""
         try:
-            logger.info(f"Generating synastry report for {name1} and {name2}")
+            # Log the inputs
+            logger.info(f"Generating synastry report for {person1_name} and {person2_name}")
             
-            # Map house system to Kerykeion-compatible format
-            mapped_houses_system = map_house_system(houses_system)
-            logger.debug(f"Mapped house system from '{houses_system}' to '{mapped_houses_system}'")
+            # Map the house system if needed
+            mapped_house_system = self._map_house_system(house_system)
             
-            # Set default timezones if None
-            if tz_str1 is None:
-                logger.warning(f"No timezone provided for {name1}, defaulting to UTC")
-                tz_str1 = "UTC"
+            # Set a default timezone if none provided
+            if not timezone:
+                logger.warning("No timezone provided for synastry report, defaulting to UTC")
+                timezone = "UTC"
                 
-            if tz_str2 is None:
-                logger.warning(f"No timezone provided for {name2}, defaulting to UTC")
-                tz_str2 = "UTC"
-            
-            # Create AstrologicalSubject for first person
-            subject1 = AstrologicalSubject(
-                name=name1,
-                year=birth_date1.year,
-                month=birth_date1.month,
-                day=birth_date1.day,
-                hour=birth_date1.hour,
-                minute=birth_date1.minute,
-                city=city1,
-                nation=nation1,
-                lng=lng1,
-                lat=lat1,
-                tz_str=tz_str1,
-                houses_system_identifier=mapped_houses_system,
+            # Create first AstrologicalSubject
+            person1 = AstrologicalSubject(
+                name=person1_name,
+                year=person1_birth_date.year,
+                month=person1_birth_date.month,
+                day=person1_birth_date.day,
+                hour=person1_birth_date.hour,
+                minute=person1_birth_date.minute,
+                city=person1_birth_place.split(",")[0].strip() if "," in person1_birth_place else person1_birth_place,
+                nation=person1_birth_place.split(",")[1].strip() if "," in person1_birth_place else "US",
+                lng=person1_lng,
+                lat=person1_lat,
+                houses_system_identifier=mapped_house_system,
+                tz_str=timezone
             )
             
-            # Create AstrologicalSubject for second person
-            subject2 = AstrologicalSubject(
-                name=name2,
-                year=birth_date2.year,
-                month=birth_date2.month,
-                day=birth_date2.day,
-                hour=birth_date2.hour,
-                minute=birth_date2.minute,
-                city=city2,
-                nation=nation2,
-                lng=lng2,
-                lat=lat2,
-                tz_str=tz_str2,
-                houses_system_identifier=mapped_houses_system,
+            # Create second AstrologicalSubject
+            person2 = AstrologicalSubject(
+                name=person2_name,
+                year=person2_birth_date.year,
+                month=person2_birth_date.month,
+                day=person2_birth_date.day,
+                hour=person2_birth_date.hour,
+                minute=person2_birth_date.minute,
+                city=person2_birth_place.split(",")[0].strip() if "," in person2_birth_place else person2_birth_place,
+                nation=person2_birth_place.split(",")[1].strip() if "," in person2_birth_place else "US",
+                lng=person2_lng,
+                lat=person2_lat,
+                houses_system_identifier=mapped_house_system,
+                tz_str=timezone
             )
             
-            logger.debug("Created AstrologicalSubject instances successfully")
+            # Generate reports
+            report1 = Report(person1)
+            report2 = Report(person2)
             
-            # Generate reports for both subjects
-            report1 = Report(subject1)
-            report2 = Report(subject2)
+            # Combine reports with a header
+            combined_report = f"\n+- Synastry Report: {person1_name} and {person2_name} -+\n\n"
+            combined_report += f"Chart for {person1_name}:\n"
+            combined_report += report1.get_full_report()
+            combined_report += f"\n\nChart for {person2_name}:\n"
+            combined_report += report2.get_full_report()
             
-            # Combine report data
-            synastry_report = {
-                "person1": {
-                    "title": report1.report_title,
-                    "data_table": report1.data_table,
-                    "planets_table": report1.planets_table,
-                    "houses_table": report1.houses_table,
-                },
-                "person2": {
-                    "title": report2.report_title,
-                    "data_table": report2.data_table,
-                    "planets_table": report2.planets_table,
-                    "houses_table": report2.houses_table,
-                }
-            }
+            # If using Whole Sign houses, add a note explaining the positions
+            if mapped_house_system == "W":
+                note = "\nNote: For Whole Sign houses, all house positions are 0.0 as each house starts at 0° of its sign.\n"
+                combined_report += note
             
             logger.info("Successfully generated synastry report")
-            return synastry_report
+            return combined_report
             
         except Exception as e:
-            logger.error(f"Error generating synastry report: {str(e)}", exc_info=True)
-            raise 
+            logger.error(f"Error generating synastry report: {str(e)}")
+            raise ReportGenerationError(f"Failed to generate synastry report: {str(e)}")
+            
+    def _map_house_system(self, house_system: str) -> str:
+        """Map house system names to their single-letter codes for Kerykeion.
+        
+        Args:
+            house_system: The human-readable house system name
+            
+        Returns:
+            str: The single-letter house system code
+        """
+        # Define mapping consistent with ChartVisualizationService
+        HOUSE_SYSTEM_MAP = {
+            "Placidus": "P",
+            "Koch": "K",
+            "Whole Sign": "W",
+            "Equal House": "A",  # Equal (Ascendant)
+            "Equal": "A",       # Alias for Equal House
+            "Equal (MC)": "E",
+            "Campanus": "C",
+            "Regiomontanus": "R",
+            "Porphyry": "O",    # Porphyrius
+            "Porphyrius": "O",  # Alias for Porphyry
+            "Polich Page": "T", # Polich-Page Topocentric
+            "Polich-Page Topocentric": "T",
+            "Alcabitius": "B",
+            "Alcabitus": "B",   # Alias for Alcabitius
+            "Morinus": "M",
+            "Vehlow Equal": "V",
+            "Axial Rotation": "X",
+            "Horizon/Azimuth": "H",
+            "APC": "Y"
+        }
+        
+        if house_system in HOUSE_SYSTEM_MAP:
+            mapped = HOUSE_SYSTEM_MAP[house_system]
+            logger.debug(f"Mapped house system '{house_system}' to '{mapped}'")
+            return mapped
+        
+        # If it's already a valid single-letter identifier, return it
+        if house_system in "ABCDEFGHIKLMNOPQRSTUVWXY":
+            return house_system
+        
+        # Default to Placidus if not found
+        logger.warning(f"Unknown house system '{house_system}', defaulting to Placidus (P)")
+        return "P" 
