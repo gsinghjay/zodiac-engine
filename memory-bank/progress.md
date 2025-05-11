@@ -128,6 +128,10 @@
 
 - **Report Generation Implementation Complete**: Successfully implemented report generation service using Kerykeion's Report class, with API endpoints for natal and synastry reports.
 
+- **House System Mapping Fixed**: Successfully aligned house system mappings between chart visualization and report generation services, with comprehensive error handling and clear explanations for special systems like Whole Sign.
+
+- **Report Template Enhanced**: Added detailed explanations for house systems, particularly for Whole Sign houses where all positions display as 0.0 degrees.
+
 - **API Endpoints Structure Complete**: Successfully created API endpoints for both reports and interpretations with comprehensive validation and error handling.
 
 - **Configuration Framework Complete**: Successfully set up the environment variables and settings structure for LLM API integration.
@@ -142,11 +146,17 @@
 
 - **Chart Generation Flow Improved**: Modified the chart generation process to redirect to the dedicated chart details page.
 
-- **Bug Fixes Implemented**: Resolved issues with routing and template rendering to ensure a smooth user experience.
+- **Bug Fixes Implemented**: 
+  - Resolved issues with house system mapping and language code handling, ensuring proper chart generation.
+  - Fixed GeoService async/sync pattern by converting methods to synchronous and using run_in_threadpool in routes.
+  - Fixed chart report functionality by adding date string parsing and using the house system mapping from ChartVisualizationService.
+  - Added default timezone handling in ReportService to prevent UnknownTimeZoneError.
+  - Fixed template variable name mismatch for location search results.
+  - Improved error handling throughout the service layer with better logging and graceful fallbacks.
+  - Added ReportGenerationError exception and proper error propagation from services to web routes.
+  - Fixed house system mapping mismatches between different services.
 
 - **UI Refined**: Updated form elements, navigation, and layout using Bootstrap components.
-
-- **Bug Fixes Implemented**: Successfully resolved issues with house system mapping and language code handling, ensuring proper chart generation.
 
 - **UI Simplified**: Removed the preview chart feature to focus on the core functionality and improve user experience.
 
@@ -182,9 +192,11 @@
   - Limited to basic interactions; more complex patterns not yet implemented.
   - No websocket/SSE support for real-time continuous updates.
   
-- None currently identified in the API. Previous issues related to dependencies, syntax, and test setup have been resolved during the refactoring process.
+- Previous issues related to dependencies, syntax, test setup, and house system mapping have been resolved. The GeoService async/sync pattern inconsistency and chart report functionality issues are now fixed.
 
 ## 5. Evolution of Project Decisions
+
+- **Sync Service with Threadpool Pattern**: Chose to make the GeoService methods synchronous and use run_in_threadpool in async routes, since the underlying requests_cache.CachedSession is synchronous. This approach maintains the existing functionality while fixing the misleading API and preventing potential issues.
 
 - **Frontend-First LLM Integration**: Decided to implement all UI components and API structure for LLM integration before connecting to an actual LLM provider, enabling testing and refinement of the user experience without API costs.
 

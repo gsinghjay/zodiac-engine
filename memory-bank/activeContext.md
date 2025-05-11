@@ -24,6 +24,35 @@
 
 ## Recent Changes
 
+- **Fixed House System Mapping Incompatibility**:
+  - Identified and fixed mismatched house system mappings between ChartVisualizationService and ReportService
+  - Aligned both services to use the same mapping for house systems (e.g., "Equal House" → "A")
+  - Added more aliases to handle different naming variations (e.g., "Equal", "Equal House", etc.)
+  - Enhanced error handling for unknown house systems with appropriate logging
+  - Added comprehensive validation and helpful error messages for house system selections
+  - Improved handling of the Whole Sign house system, which uses 0.0 for all house positions
+  
+- **Added ReportGenerationError Exception**:
+  - Created a dedicated exception class for report generation errors
+  - Improved error propagation from report service to web routes
+  - Added more descriptive error messages for better troubleshooting
+  
+- **Enhanced Whole Sign House Explanation**:
+  - Added detailed explanations about the Whole Sign house system in the report template
+  - Included historical context and technical explanation of why positions are 0.0
+  - Improved user understanding of different house systems and their characteristics
+  
+- **Updated Report Service and Web Routes**:
+  - Fixed the timezone parameter in AstrologicalSubject constructor
+  - Updated the report service to handle string-based reports instead of dictionaries
+  - Modified web routes to parse report text and extract relevant sections
+  - Ensured proper handling of birth date strings from various formats
+  
+- **Updated InterpretationService**:
+  - Modified to use string report text instead of dictionary-based report data
+  - Updated prompt templates to work with full report text
+  - Ensured compatibility with the new report generation format
+
 - **Chart Interpretation UI Implementation**:
   - Updated the chart_details.html template to include interpretation and report sections
   - Added HTMX-powered buttons for generating interpretations with customization options
@@ -44,6 +73,7 @@
   - Added monospace formatting for ASCII tables
   - Added download and print options for reports
   - Styled with Bootstrap for consistent appearance
+  - Added explanatory notes for special house systems like Whole Sign
 
 - **Web Routes for Interpretation**:
   - Added /interpret-chart/{chart_id} endpoint for generating interpretations
@@ -51,6 +81,7 @@
   - Added /download-report/{chart_id} endpoint for downloading full reports
   - All endpoints support HTMX for dynamic content loading
   - Implemented proper error handling with user-friendly messages
+  - Updated to work with the modified report and interpretation services
 
 - **API Endpoints Creation**:
   - Created new router at app/api/v1/routers/charts/interpretations.py
@@ -186,6 +217,21 @@
   - Confirmed all tests continue to pass after the changes.
   - This brings the codebase in line with FastAPI best practices by keeping all routes under the `app/api/` directory.
 
+- **Fixed GeoService Async/Sync Pattern**:
+  - Converted the GeoService methods from async to sync to match their use of synchronous requests_cache.CachedSession.
+  - Updated all API routes to use run_in_threadpool when calling the now synchronous GeoService methods.
+  - Corrected dependency injection in app/core/dependencies.py to not pass settings to GeoService.
+  - Added @lru_cache to improve performance through service reuse.
+  - This fixed TypeErrors that were occurring when trying to use the GeoService.
+
+- **Fixed Chart Report Functionality**:
+  - Added birth date string parsing to convert formatted dates from chart_cache back to datetime objects.
+  - Created a helper function parse_birth_date_from_cache with fallback options to handle different date formats.
+  - Updated ReportService to use the same house system mapping as ChartVisualizationService.
+  - Added default timezone handling in the ReportService to prevent UnknownTimeZoneError with null values.
+  - Fixed template variable name mismatch for location search results.
+  - These changes ensure that chart reports and interpretations work correctly.
+
 ## Next Steps
 
 1. **LLM API Integration** (HIGHEST PRIORITY):
@@ -303,11 +349,23 @@
 
 ## Learnings & Insights
 
+- **House System Consistency**: When working with libraries that have specific format requirements like Kerykeion, it's crucial to maintain consistent mappings across all services. Different house systems having different codes (e.g., "Equal House" → "A" vs "E") can cause subtle bugs that are difficult to trace.
+
+- **Helpful Error Messaging**: For astrological concepts like house systems, adding explanatory notes (e.g., explaining why Whole Sign houses show 0.0 degrees) significantly improves user understanding and reduces confusion about chart readings.
+
+- **Proper Exception Handling**: Creating dedicated exception classes (like ReportGenerationError) makes error propagation clearer and allows for more specific error handling at higher levels of the application.
+
+- **Error Logging and Debugging**: Adding detailed logging at important decision points (e.g., mapping house systems) makes troubleshooting much easier, especially when working with external libraries that may not have clear error messages.
+
+- **Async/Sync Consistency**: When using synchronous libraries (like requests_cache), it's better to make the entire service synchronous and use run_in_threadpool in async routes, rather than mixing async and sync patterns which can lead to subtle bugs.
+
+- **Default Values for Critical Parameters**: Always provide default values and validation for critical parameters like timezone strings to prevent cryptic errors from underlying libraries.
+
+- **Data Format Conversion**: When caching data for later use, consider all the places where that data will be consumed and ensure the format remains consistent or is properly converted when needed.
+
+- **Mapping Functions Reuse**: Reuse mapping functions across services to ensure consistent behavior when working with external libraries that have specific format requirements, like Kerykeion's house system codes.
+
 - **Frontend Preparation First**: Implementing the UI components before the actual LLM integration allows for testing with placeholder data and ensures a smooth user experience.
-- **HTMX Advantages for LLM UIs**: HTMX's approach to progressive enhancement is particularly well-suited for LLM applications, as it handles the loading states and asynchronous updates gracefully.
-- **Modular Template Structure**: Using template fragments for interpretation and report display makes the code more maintainable and enables reuse.
-- **Interpretation Options Value**: Giving users control over their interpretation focus (planets, houses, aspects) and tone provides a more personalized experience.
-- **Environment-First Development**: Setting up the configuration infrastructure before implementing the actual API integration makes testing easier and enables quick switching between providers.
 
 - **LLM Integration Considerations**: Implementing the Report service first gives us structured data that can be more easily passed to LLM APIs for interpretation.
 - **Astrological Interpretation Complexity**: The depth of astrological interpretation requires careful prompt engineering to get meaningful results from LLMs.
