@@ -2,6 +2,7 @@
 from typing import List
 
 from fastapi import APIRouter, Query, HTTPException, Depends
+from starlette.concurrency import run_in_threadpool
 
 from app.core.dependencies import GeoServiceDep
 from app.services.geo_service import GeoLocation
@@ -95,5 +96,7 @@ async def search_cities(
             }
         )
     
-    results = geo_service.search_cities(q, max_rows)
+    # Use run_in_threadpool to run potentially blocking I/O operation in a separate thread
+    # since the method is now synchronous but we're in an async route
+    results = await run_in_threadpool(geo_service.search_cities, q, max_rows)
     return results 
