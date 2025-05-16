@@ -296,6 +296,7 @@ Zodiac Engine is designed with a strong focus on mobile usability:
 
 [Screenshot: Home page on mobile]
 [Screenshot: Chart generation form on mobile]
+![image](https://github.com/user-attachments/assets/7ab781f0-fcd7-4163-9bd4-486cafda3cec)
 [Screenshot: Chart details view on mobile]
 [Screenshot: AI interpretation on mobile]
 
