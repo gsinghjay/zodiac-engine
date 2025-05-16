@@ -199,6 +199,7 @@ The project emphasizes a responsive web experience, making it accessible on both
 
 ## Features
 
+*   **Engaging Landing Page:** Cosmic-themed landing page with animated SVG background that effectively communicates the application's value proposition.
 *   **Dual Astrological Systems:** Supports both Western (Tropical) and Vedic (Sidereal) chart calculations.
 *   **Comprehensive Natal Chart Data:** Calculates planetary positions, house cusps, and aspects.
 *   **Highly Customizable SVG Chart Visualization:**
@@ -235,6 +236,7 @@ The project emphasizes a responsive web experience, making it accessible on both
 *   **Frontend Templating:** Jinja2
 *   **Frontend Styling & UI:** HTML5, CSS3, Bootstrap 5
 *   **Frontend Interactivity:** HTMX (for progressive enhancement)
+*   **SVG Animations:** Custom SVG animations for cosmic backgrounds and UI elements
 *   **AI Integration:**
     *   Google Gemini API (via `google-generativeai` SDK)
     *   (Support for OpenAI, Anthropic via their respective Python SDKs can be easily added to `InterpretationService`)
@@ -273,13 +275,20 @@ This AI integration transforms raw astrological data into personalized narrative
 
 The Zodiac Engine features a clean, responsive web interface designed with a mobile-first approach using Bootstrap 5. Key aspects include:
 
-*   **Home Page (`/home`):** A straightforward form allows users to input birth details for either Western (Tropical) or Vedic (Sidereal) charts. It includes a city lookup feature powered by HTMX and the GeoNames API.
+*   **Landing Page (`/`):** An engaging cosmic-themed entry point with animated SVG background, feature cards highlighting key capabilities, and a dedicated section showcasing the AI interpretation feature. Clear call-to-action buttons guide users to the chart generation page.
+
+*   **Chart Generation Page (`/chart-generator` or `/home`):** A straightforward form allows users to input birth details for either Western (Tropical) or Vedic (Sidereal) charts. It includes a city lookup feature powered by HTMX and the GeoNames API.
+
 *   **Chart Details Page (`/chart/{chart_id}`):**
     *   Displays the generated SVG astrological chart.
     *   Provides options to download the chart in SVG, PNG, PDF, or JPG formats.
     *   Allows users to view a detailed tabular report of the chart.
     *   Features a section for AI-powered chart interpretation, with customizable options for focus, tone, and length.
+
 *   **Progressive Enhancement with HTMX:** HTMX is used to load reports and AI interpretations dynamically without full page reloads, creating a smoother and faster user experience.
+
+*   **Consistent Visual Theme:** A purple-to-blue gradient theme is applied throughout the application, creating a cohesive cosmic visual identity.
+
 *   **Session Data:** Generated chart metadata (name, birth details, chart ID) is temporarily stored in an in-memory cache (`chart_cache`) for the current user session, allowing them to navigate to the chart details page and interact with it.
 
 ## Mobile-First Design
@@ -295,8 +304,7 @@ Zodiac Engine is designed with a strong focus on mobile usability:
 **Mobile UI Screenshots:**
 
 [Screenshot: Home page on mobile]
-[Screenshot: Chart generation form on mobile]
-![image](https://github.com/user-attachments/assets/7ab781f0-fcd7-4163-9bd4-486cafda3cec)
+![Chart generation form on mobile](https://github.com/user-attachments/assets/7ab781f0-fcd7-4163-9bd4-486cafda3cec)
 [Screenshot: Chart details view on mobile]
 [Screenshot: AI interpretation on mobile]
 
