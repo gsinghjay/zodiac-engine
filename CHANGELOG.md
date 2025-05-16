@@ -1,6 +1,41 @@
 # CHANGELOG
 
 
+## v0.7.0 (2025-05-16)
+
+### Chores
+
+- Update README.md with chart generation form on mobile
+  ([`680f50b`](https://github.com/gsinghjay/zodiac-engine/commit/680f50ba072cf061cb3fe592b7ece7ab33aff848))
+
+### Code Style
+
+- Update styles with cosmic gradient theme
+  ([`3d76d39`](https://github.com/gsinghjay/zodiac-engine/commit/3d76d396d8d7bdac6eddf1a157073539e0de8ec3))
+
+### Documentation
+
+- Update memory bank with landing page implementation details
+  ([`21f4fbe`](https://github.com/gsinghjay/zodiac-engine/commit/21f4fbe3dc55e0e150f1225b9e49a8a064810a72))
+
+### Features
+
+- Add AI interpretation illustration for landing page
+  ([`5895046`](https://github.com/gsinghjay/zodiac-engine/commit/58950466de1c44813ed27f795bed392f77f1ba9d))
+
+- Add animated cosmic background SVG for hero section
+  ([`5c6f3fd`](https://github.com/gsinghjay/zodiac-engine/commit/5c6f3fd69de08ca972662040705c21eebdd041a2))
+
+- Add landing page with cosmic-themed hero section
+  ([`5e0c6db`](https://github.com/gsinghjay/zodiac-engine/commit/5e0c6dbb55215bd4dddee3d08570b6d48024d29e))
+
+- Add navigation and gradient header to layout template
+  ([`3e0701a`](https://github.com/gsinghjay/zodiac-engine/commit/3e0701ac04170a317c7387ad75df8e814f0124fa))
+
+- Update routes to make landing page the root URL
+  ([`5b4bb53`](https://github.com/gsinghjay/zodiac-engine/commit/5b4bb53ae094702b8cb0108222f7ed87130f2195))
+
+
 ## v0.6.1 (2025-05-16)
 
 ### Bug Fixes
