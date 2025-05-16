@@ -1,0 +1,194 @@
+{% extends "layout.html" %}
+
+{% block title %}Zodiac Engine - Astrological Charts & AI Interpretations{% endblock %}
+
+{% block head %}
+<style>
+    .hero {
+        position: relative;
+        color: white;
+        border-radius: 1rem;
+        padding: 5rem 2rem;
+        margin-bottom: 2rem;
+        text-align: center;
+        overflow: hidden;
+    }
+    
+    .hero-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+    }
+    
+    .hero-background img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        border-radius: 1rem;
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .hero h1 {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .hero p {
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+    
+    .feature-card {
+        height: 100%;
+        transition: transform 0.3s ease;
+        border: none;
+        border-radius: 0.75rem;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .feature-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        color: #6a11cb;
+    }
+    
+    .cta-section {
+        background-color: #f8f9fa;
+        border-radius: 1rem;
+        padding: 2rem;
+        margin-top: 2rem;
+        text-align: center;
+    }
+    
+    .btn-lg {
+        padding: 0.75rem 1.5rem;
+        font-size: 1.1rem;
+    }
+    
+    .ai-highlight {
+        background-color: rgba(106, 17, 203, 0.1);
+        border-left: 4px solid #6a11cb;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        margin-top: 2rem;
+    }
+    
+    .btn-hero {
+        background-color: white;
+        color: #6a11cb;
+        border: none;
+        font-weight: 600;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .btn-hero:hover {
+        background-color: #f8f9fa;
+        color: #2575fc;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+    }
+    
+    @media (max-width: 768px) {
+        .hero {
+            padding: 3rem 1rem;
+        }
+        
+        .hero h1 {
+            font-size: 2.25rem;
+        }
+        
+        .hero p {
+            font-size: 1.25rem;
+        }
+        
+        .feature-card {
+            margin-bottom: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="hero shadow">
+    <div class="hero-background">
+        <img src="{{ url_for('static', path='/images/hero-background.svg') }}" alt="Cosmic Background">
+    </div>
+    <div class="hero-content">
+        <h1>Explore Your Cosmic Blueprint</h1>
+        <p class="lead">Generate detailed astrological charts with AI-powered interpretations</p>
+        <a href="{{ url_for('home_page') }}" class="btn btn-hero btn-lg">Create Your Chart</a>
+    </div>
+</section>
+
+<section class="features mb-5">
+    <h2 class="text-center mb-4">Discover What Zodiac Engine Offers</h2>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card shadow feature-card">
+                <div class="card-body text-center">
+                    <div class="feature-icon">⭐</div>
+                    <h3>Accurate Charts</h3>
+                    <p>Generate precise Western (Tropical) and Vedic (Sidereal) astrological charts with customizable options.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow feature-card">
+                <div class="card-body text-center">
+                    <div class="feature-icon">🤖</div>
+                    <h3>AI Interpretations</h3>
+                    <p>Receive personalized chart readings powered by advanced AI that explains your unique astrological patterns.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow feature-card">
+                <div class="card-body text-center">
+                    <div class="feature-icon">📊</div>
+                    <h3>Detailed Reports</h3>
+                    <p>Access comprehensive reports with planetary positions, house placements, and aspect analyses.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="ai-highlight shadow-sm">
+    <div class="row align-items-center">
+        <div class="col-md-7">
+            <h2>AI-Powered Astrological Insights</h2>
+            <p class="lead">Our advanced AI technology transforms complex astrological data into clear, personalized interpretations.</p>
+            <p>The Zodiac Engine uses state-of-the-art language models to analyze your chart and provide insights about:</p>
+            <ul>
+                <li>Planetary influences and their meaning in your life</li>
+                <li>House placements and how they shape different areas of your experience</li>
+                <li>Significant aspects that reveal your strengths and challenges</li>
+            </ul>
+            <p>Customize your interpretation focus, tone, and length to get exactly the insights you're looking for.</p>
+        </div>
+        <div class="col-md-5 text-center">
+            <img src="{{ url_for('static', path='/images/ai-illustration.svg') }}" alt="AI Interpretation Illustration" class="img-fluid" style="max-height: 250px;">
+        </div>
+    </div>
+</section>
+
+<section class="cta-section mt-5 shadow-sm">
+    <h2>Ready to Explore Your Cosmic Blueprint?</h2>
+    <p class="lead mb-4">Generate your personalized astrological chart in just a few steps</p>
+    <a href="{{ url_for('home_page') }}" class="btn btn-primary btn-lg">Create Your Chart Now</a>
+</section>
+{% endblock %}
