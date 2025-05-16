@@ -64,11 +64,11 @@ def parse_birth_date_from_cache(birth_date_str: str) -> datetime:
             # This is not ideal, but better than crashing
             return datetime.now()
 
-@router.get("/", response_class=HTMLResponse, name="home")
-async def home(request: Request):
-    """Render the home page."""
+@router.get("/", response_class=HTMLResponse, name="landing")
+async def landing(request: Request):
+    """Render the landing page."""
     return templates.TemplateResponse(
-        "home.html", 
+        "landing.html", 
         {
             "request": request,
             "version": settings.VERSION
@@ -76,8 +76,9 @@ async def home(request: Request):
     )
 
 @router.get("/home", response_class=HTMLResponse, name="home_page")
-async def home_page(request: Request):
-    """Render the home page."""
+@router.get("/chart-generator", response_class=HTMLResponse, name="chart_generator")
+async def chart_generator(request: Request):
+    """Render the chart generation page."""
     return templates.TemplateResponse(
         "home.html", 
         {
