@@ -114,7 +114,7 @@ def substitute_css_variables(svg_content: str, variables: Dict[str, str]) -> str
     """
     if not variables:
         logger.warning("No variables provided for substitution")
-        return svg_content
+        # Continue processing to handle defaults in var() calls
     
     # Resolve nested variable references in the variable definitions
     resolved_variables = {}
