@@ -1,6 +1,29 @@
 # CHANGELOG
 
 
+## v0.6.1 (2025-05-16)
+
+### Bug Fixes
+
+- Process CSS variable defaults in SVG files when no variables provided
+  ([`2aa644a`](https://github.com/gsinghjay/zodiac-engine/commit/2aa644a55ae7da213851738f0595a7962eae141b))
+
+### Chores
+
+- Remove unused processed SVG file
+  ([`90a2ecb`](https://github.com/gsinghjay/zodiac-engine/commit/90a2ecb2a4a80b993e2797c17c36bc26d0a86c52))
+
+### Documentation
+
+- Enhance README with architecture diagrams and explanations
+  ([`71c4935`](https://github.com/gsinghjay/zodiac-engine/commit/71c493555ec6b1de4940eb5a9cfb963934d3823b))
+
+### Refactoring
+
+- Rename test script to avoid pytest collection conflicts
+  ([`189d507`](https://github.com/gsinghjay/zodiac-engine/commit/189d5078905bd1d0762183cd89bb8c5a01874579))
+
+
 ## v0.6.0 (2025-05-11)
 
 ### Chores
