@@ -7,7 +7,6 @@ __pycache__/
 *.pyz
 
 libraries/
-docs/
 .env
 cache/
 app/static/images/svg/natal_*.svg
